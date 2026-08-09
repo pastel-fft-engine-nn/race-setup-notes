@@ -1,0 +1,334 @@
+/* ===== ミニ四駆セッティング帳 - iOS風パステル ===== */
+
+:root {
+  --pink: #F9A8D4;
+  --pink-soft: #FCE7F3;
+  --pink-deep: #EC4899;
+  --sky: #E0F2FE;
+  --sky-soft: #F0F9FF;
+  --white: #FFFFFF;
+  --text: #1F2937;
+  --text-sub: #6B7280;
+  --border: #FBCFE8;
+  --field-h: 44px;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: "Meiryo", "メイリオ", "Hiragino Sans", "Hiragino Kaku Gothic ProN", -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 0; height: 0; }
+
+.filter-select {
+  width: 100%;
+  height: 44px;
+  padding: 0 8px;
+  font-size: 13px;
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #374151;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.record-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #FCE7F3;
+  box-shadow: 0 1px 3px rgba(249, 168, 212, 0.15);
+  transition: transform 0.12s ease;
+}
+.record-card:active {
+  transform: scale(0.985);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.badge-open     { background: #DBEAFE; color: #1D4ED8; }
+.badge-stock    { background: #D1FAE5; color: #047857; }
+.badge-finish   { background: #D1FAE5; color: #065F46; }
+.badge-out      { background: #FEE2E2; color: #B91C1C; }
+.badge-practice { background: #FEF3C7; color: #B45309; }
+.badge-race     { background: #F3E8FF; color: #7E22CE; }
+
+/* ===== フォーム共通（枠サイズ統一） ===== */
+.form-group {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #FCE7F3;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  min-height: var(--field-h);
+  padding: 0 16px;
+  border-bottom: 1px solid #FDF2F8;
+}
+.form-row:last-child {
+  border-bottom: none;
+}
+
+.form-label {
+  flex: 0 0 110px;
+  font-size: 15px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.form-control {
+  flex: 1;
+  height: var(--field-h);
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text);
+  text-align: right;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.form-control::placeholder {
+  color: #D1D5DB;
+}
+select.form-control {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23F9A8D4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0 center;
+  padding-right: 16px;
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 88px;
+  text-align: left;
+  padding: 12px 0;
+  resize: none;
+  line-height: 1.5;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #9CA3AF;
+  padding: 16px 16px 6px;
+  letter-spacing: 0.02em;
+}
+
+.media-preview {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #FCE7F3;
+  flex-shrink: 0;
+}
+.media-preview img,
+.media-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-preview .remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  border: none;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-primary {
+  display: block;
+  width: 100%;
+  height: 50px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #F9A8D4, #F472B6);
+  color: white;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  box-shadow: 0 4px 12px rgba(244, 114, 182, 0.35);
+}
+.btn-primary:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+.btn-danger {
+  display: block;
+  width: 100%;
+  height: 50px;
+  border-radius: 14px;
+  background: white;
+  color: #EF4444;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid #FECACA;
+}
+
+.btn-media {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: #FCE7F3;
+  color: #EC4899;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+}
+.btn-media:active {
+  background: #FBCFE8;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #FDF2F8;
+  font-size: 15px;
+}
+.detail-row:last-child {
+  border-bottom: none;
+}
+.detail-label {
+  color: #9CA3AF;
+  flex-shrink: 0;
+}
+.detail-value {
+  text-align: right;
+  font-weight: 500;
+  color: var(--text);
+  word-break: break-all;
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  main {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* ===== スライダー ===== */
+.form-row-slider {
+  min-height: 52px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.slider-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-slider {
+  flex: 1;
+  height: 28px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  outline: none;
+  margin: 0;
+}
+
+.form-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: #FCE7F3;
+}
+
+.form-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #F9A8D4, #F472B6);
+  box-shadow: 0 2px 6px rgba(244, 114, 182, 0.4);
+  margin-top: -8px;
+  cursor: pointer;
+  border: 2px solid white;
+}
+
+.form-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: #FCE7F3;
+}
+
+.form-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #F9A8D4, #F472B6);
+  box-shadow: 0 2px 6px rgba(244, 114, 182, 0.4);
+  border: 2px solid white;
+  cursor: pointer;
+}
+
+.slider-val {
+  flex: 0 0 42px;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 600;
+  color: #EC4899;
+  font-variant-numeric: tabular-nums;
+}
+
+.badge-class {
+  background: #FCE7F3;
+  color: #BE185D;
+}
+
+.rpm-check-link {
+  flex: 1;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 600;
+  color: #EC4899;
+  text-decoration: none;
+  font-family: inherit;
+}
+.rpm-check-link:active {
+  opacity: 0.6;
+}
