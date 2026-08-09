@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>スケジュール & ミニ四駆セッティング</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f2f2f7; color: #000; min-height: 100vh; overflow-x: hidden;
+    }
+    .app-header {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.12);
+      position: sticky; top: 0; z-index: 100; padding: 6px 12px 0;
+    }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .header-title { font-size: 16px; font-weight: 600; }
+    .header-actions { display: flex; align-items: center; gap: 4px; }
+    .today-btn, .media-header-btn {
+      background: none; border: none; color: #007aff; font-size: 15px; cursor: pointer; padding: 2px 6px;
+    }
+    .media-header-btn { font-size: 15px; }
+    .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .month-label { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
+    .nav-arrows { display: flex; gap: 12px; }
+    .nav-btn { background: none; border: none; color: #007aff; font-size: 22px; cursor: pointer; padding: 2px 6px; line-height: 1; }
+    .view-tabs { display: flex; background: #e5e5ea; border-radius: 8px; padding: 2px; margin-bottom: 6px; }
+    .view-tab {
+      flex: 1; text-align: center; padding: 5px 0; font-size: 13px; font-weight: 500;
+      color: #3a3a3c; border: none; background: transparent; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+    }
+    .view-tab.active { background: #fff; color: #000; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-weight: 600; }
+    .weekday-header { display: grid; grid-template-columns: repeat(7, 1fr); padding: 2px 2px 0; background: #fff; }
+    .weekday { text-align: center; font-size: 10px; font-weight: 500; color: #8e8e93; padding: 2px 0; }
+    .weekday.sun { color: #ff3b30; }
+    .weekday.sat { color: #007aff; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); background: #fff; padding: 0 1px 4px; gap: 0; }
+    .day-cell {
+      min-height: 48px; max-height: 56px; display: flex; flex-direction: column; align-items: center;
+      padding: 2px 1px 3px; cursor: pointer; border-radius: 6px; margin: 0; transition: background 0.12s; overflow: hidden;
+    }
+    .day-cell:active { background: rgba(0, 0, 0, 0.05); }
+    .day-number {
+      font-size: 13px; font-weight: 400; width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center; border-radius: 50%; line-height: 1; flex-shrink: 0;
+    }
+    .day-cell.other-month .day-number { color: #c7c7cc; }
+    .day-cell.sunday .day-number { color: #ff3b30; }
+    .day-cell.saturday .day-number { color: #007aff; }
+    .day-cell.other-month.sunday .day-number,
+    .day-cell.other-month.saturday .day-number { color: #c7c7cc; }
+    .day-cell.today .day-number { background: #007aff; color: #fff !important; font-weight: 600; }
+    .day-cell.holiday .day-number { color: #ff3b30; }
+    .day-cell.other-month.holiday .day-number { color: #ffb3ad; }
+    .day-cell.today.holiday .day-number { background: #ff3b30; color: #fff !important; }
+    .day-events { width: 100%; margin-top: 1px; display: flex; flex-direction: column; gap: 0; overflow: hidden; max-height: 28px; }
+    .day-event-name {
+      font-size: 8px; line-height: 1.2; color: #007aff; background: rgba(0, 122, 255, 0.1);
+      border-radius: 2px; padding: 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; max-width: 100%;
+    }
+    .day-event-name.holiday-name { color: #ff3b30; background: rgba(255, 59, 48, 0.12); }
+    .day-event-name.more { color: #8e8e93; background: transparent; font-size: 7px; text-align: center; }
+    .day-event-dots {
+      display: flex; justify-content: center; gap: 3px; margin-top: 2px; min-height: 5px;
+    }
+    .day-event-dot {
+      width: 5px; height: 5px; border-radius: 50%; background: #007aff;
+    }
+    .day-event-dot.holiday { background: #ff3b30; }
+    .today-section {
+      background: #fff; margin-top: 6px; border-radius: 12px 12px 0 0;
+      padding: 10px 14px 16px; min-height: 0; max-height: 28vh; overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .today-section-title {
+      font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #3a3a3c;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .today-section-title span { color: #007aff; font-weight: 500; font-size: 12px; }
+    /* 月ビュー：画面内にカレンダー＋今日の予定を収める */
+    .month-view.active {
+      display: flex; flex-direction: column; min-height: calc(100vh - 0px);
+    }
+    .month-view .calendar-grid { flex: 0 0 auto; }
+    .month-view .today-section { flex: 1 1 auto; }
+    .week-view { display: none; background: #fff; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .week-view.active { display: block; }
+    .week-header {
+      display: grid; grid-template-columns: 48px repeat(7, 1fr); border-bottom: 0.5px solid #e5e5ea;
+      position: sticky; top: 0; background: #fff; z-index: 10;
+    }
+    .week-day-header { text-align: center; padding: 6px 2px 8px; border-left: 0.5px solid #e5e5ea; min-height: 58px; }
+    .week-day-name { font-size: 11px; color: #8e8e93; }
+    .week-day-num { font-size: 18px; font-weight: 500; margin-top: 2px; }
+    .week-day-holiday {
+      font-size: 9px; color: #ff3b30; line-height: 1.2; margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 1px;
+    }
+    .week-day-header.today .week-day-num {
+      background: #007aff; color: #fff; width: 30px; height: 30px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center; margin: 2px auto 0;
+    }
+    .week-day-header.holiday .week-day-num { color: #ff3b30; }
+    .week-day-header.today.holiday .week-day-num { background: #ff3b30; color: #fff; }
+    .week-day-header.sunday .week-day-name, .week-day-header.sunday .week-day-num { color: #ff3b30; }
+    .week-day-header.saturday .week-day-name, .week-day-header.saturday .week-day-num { color: #007aff; }
+    .week-day-header.today.sunday .week-day-num, .week-day-header.today.saturday .week-day-num { color: #fff; }
+    .week-body { display: grid; grid-template-columns: 48px repeat(7, 1fr); position: relative; }
+    .time-labels { border-right: 0.5px solid #e5e5ea; }
+    .time-label {
+      height: 48px; font-size: 11px; color: #8e8e93; text-align: right;
+      padding-right: 6px; line-height: 1; position: relative; top: -6px;
+    }
+    .week-col { border-left: 0.5px solid #e5e5ea; position: relative; height: calc(48px * 15); }
+    .week-col.holiday-col { background: rgba(255, 59, 48, 0.04); }
+    .hour-line { position: absolute; left: 0; right: 0; height: 0.5px; background: #e5e5ea; }
+    .week-event {
+      position: absolute; left: 2px; right: 2px; background: rgba(0, 122, 255, 0.85); color: #fff;
+      border-radius: 4px; padding: 2px 4px; font-size: 10px; overflow: hidden; cursor: pointer; z-index: 2; line-height: 1.2;
+    }
+    .week-event-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .day-view { display: none; background: #f2f2f7; min-height: calc(100vh - 140px); padding-bottom: 80px; }
+    .day-view.active { display: block; }
+    .day-view-date {
+      background: #fff; padding: 12px 16px; font-size: 16px; font-weight: 600;
+      border-bottom: 0.5px solid rgba(0,0,0,0.08);
+    }
+    .events-list { padding: 12px 16px; }
+    .swipe-wrap {
+      position: relative; margin-bottom: 10px; border-radius: 12px; overflow: hidden;
+    }
+    .swipe-delete-bg {
+      position: absolute; top: 0; right: 0; bottom: 0; width: 88px;
+      background: #ff3b30; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 14px; font-weight: 600;
+    }
+    .event-card {
+      background: #fff; border-radius: 12px; padding: 14px 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); cursor: pointer; position: relative;
+      transition: transform 0.2s ease; touch-action: pan-y;
+    }
+    .event-card.swiping { transition: none; }
+    .event-card:active { /* scale handled carefully with swipe */ }
+    .event-time { font-size: 13px; color: #8e8e93; margin-bottom: 4px; }
+    .event-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; padding-right: 60px; }
+    .event-address {
+      font-size: 14px; color: #007aff; margin-bottom: 2px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .event-address .addr-text { flex: 1; min-width: 0; word-break: break-all; }
+    .addr-copy-btn {
+      flex-shrink: 0; border: none; background: #f2f2f7; color: #007aff;
+      font-size: 11px; font-weight: 500; padding: 4px 8px; border-radius: 6px; cursor: pointer;
+    }
+    .addr-copy-btn:active { background: #e5e5ea; }
+    .addr-copy-btn.copied { background: #e8f5e9; color: #34c759; }
+    .event-content { font-size: 14px; color: #3a3a3c; margin-top: 6px; line-height: 1.4; }
+    .event-media { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; }
+    .event-media img, .event-media video {
+      width: 72px; height: 72px; object-fit: cover; border-radius: 8px; flex-shrink: 0;
+    }
+    .copy-btn {
+      position: absolute; top: 12px; right: 12px;
+      background: #f2f2f7; border: none; color: #007aff;
+      font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 8px; cursor: pointer; z-index: 2;
+    }
+    .copy-btn:active { background: #e5e5ea; }
+    .empty-state { text-align: center; padding: 48px 20px; color: #8e8e93; }
+    .empty-state p { font-size: 15px; margin-bottom: 6px; }
+    .fab {
+      position: fixed; bottom: 24px; right: 18px; width: 54px; height: 54px; border-radius: 50%;
+      background: #007aff; color: #fff; border: none; font-size: 28px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(0, 122, 255, 0.4); cursor: pointer; z-index: 50; line-height: 1;
+    }
+    .fab:active { transform: scale(0.92); }
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: 200;
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #f2f2f7; width: 100%; max-width: 500px; border-radius: 14px 14px 0 0;
+      max-height: 92vh; overflow-y: auto; animation: slideUp 0.28s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 16px; background: #fff; border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+      position: sticky; top: 0; z-index: 5;
+    }
+    .modal-title { font-size: 17px; font-weight: 600; }
+    .modal-close, .modal-save {
+      background: none; border: none; color: #007aff; font-size: 16px; cursor: pointer; padding: 4px 6px;
+    }
+    .modal-save { font-weight: 600; }
+    .form-group { background: #fff; margin: 12px 16px; border-radius: 12px; overflow: hidden; }
+    .form-row {
+      display: flex; align-items: center; padding: 12px 16px;
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.07);
+    }
+    .form-row:last-child { border-bottom: none; }
+    .form-label { width: 64px; font-size: 15px; color: #3a3a3c; flex-shrink: 0; }
+    .form-input {
+      flex: 1; border: none; font-size: 16px; background: transparent; outline: none; color: #000;
+    }
+    .form-input::placeholder { color: #c7c7cc; }
+    textarea.form-input { min-height: 72px; resize: none; padding: 2px 0; }
+    .media-section { padding: 8px 16px 16px; }
+    .media-buttons { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .media-btn-row { display: flex; gap: 8px; }
+    .media-btn {
+      flex: 1; padding: 12px 8px; border: none; border-radius: 11px; background: #fff;
+      font-size: 13px; color: #007aff; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 5px; font-weight: 500; line-height: 1.25; text-align: center;
+    }
+    .media-btn:active { background: #e8e8ed; }
+    .media-btn.primary-hq {
+      background: #007aff; color: #fff; font-weight: 600; padding: 14px 8px; font-size: 14px;
+    }
+    .media-btn.primary-hq:active { opacity: 0.85; background: #007aff; }
+    .media-hint {
+      font-size: 11px; color: #8e8e93; margin: 0 0 4px; line-height: 1.4;
+    }
+    .camera-overlay {
+      position: fixed; inset: 0; background: #000; z-index: 400;
+      display: none; flex-direction: column; align-items: stretch;
+    }
+    .camera-overlay.active { display: flex; }
+    .camera-video-wrap {
+      flex: 1; position: relative; overflow: hidden; background: #000;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .camera-video-wrap video {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .camera-toolbar {
+      display: flex; align-items: center; justify-content: space-around;
+      padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
+      background: rgba(0,0,0,0.9);
+    }
+    .camera-tool-btn {
+      border: none; background: transparent; color: #fff; font-size: 16px;
+      padding: 10px 14px; cursor: pointer;
+    }
+    .camera-shutter {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: 4px solid #fff; background: #fff; cursor: pointer;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+    }
+    .camera-shutter:active { transform: scale(0.94); }
+    .media-preview { display: flex; gap: 8px; flex-wrap: wrap; }
+    .media-item { position: relative; width: 76px; height: 76px; }
+    .media-item img, .media-item video { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+    .media-remove {
+      position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; border-radius: 50%;
+      background: #ff3b30; color: #fff; border: none; font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-save-bottom {
+      width: calc(100% - 32px); margin: 8px 16px 8px; padding: 14px; border: none;
+      border-radius: 12px; background: #007aff; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+    }
+    .modal-save-bottom:active { opacity: 0.85; }
+    .delete-btn {
+      width: calc(100% - 32px); margin: 0 16px 24px; padding: 14px; border: none;
+      border-radius: 12px; background: #fff; color: #ff3b30; font-size: 16px; font-weight: 500; cursor: pointer;
+    }
+    .month-view { display: none; }
+    .month-view.active { display: block; }
+    .gallery-modal .modal { max-height: 88vh; }
+    .gallery-tabs {
+      display: flex; background: #e5e5ea; border-radius: 9px; padding: 2px; margin: 12px 16px;
+    }
+    .gallery-tab {
+      flex: 1; text-align: center; padding: 8px 0; font-size: 14px; font-weight: 500;
+      color: #3a3a3c; border: none; background: transparent; border-radius: 7px; cursor: pointer;
+    }
+    .gallery-tab.active { background: #fff; color: #000; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-weight: 600; }
+    .gallery-body { padding: 0 16px 24px; }
+    .gallery-group { margin-bottom: 18px; }
+    .gallery-group-title {
+      font-size: 14px; font-weight: 600; color: #3a3a3c; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .gallery-group-title .count { color: #8e8e93; font-weight: 400; font-size: 12px; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .gallery-item {
+      border-radius: 8px; overflow: hidden; background: #e5e5ea; cursor: pointer; position: relative;
+    }
+    .gallery-item img, .gallery-item video {
+      width: 100%; aspect-ratio: 1; object-fit: cover; display: block;
+    }
+    .gallery-item .vid-badge {
+      position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.55);
+      color: #fff; font-size: 10px; padding: 2px 5px; border-radius: 4px;
+    }
+    .gallery-caption {
+      font-size: 10px; color: #3a3a3c; padding: 4px 4px 6px; line-height: 1.3;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: #fff;
+    }
+    .gallery-empty { text-align: center; padding: 40px 20px; color: #8e8e93; font-size: 15px; }
+    .lightbox {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 300;
+      display: none; align-items: center; justify-content: center; flex-direction: column;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img, .lightbox video {
+      max-width: 96%; max-height: 80vh; object-fit: contain; border-radius: 8px;
+    }
+    .lightbox-close {
+      position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2);
+      border: none; color: #fff; font-size: 28px; width: 40px; height: 40px;
+      border-radius: 50%; cursor: pointer; line-height: 1;
+    }
+    .lightbox-info { color: #fff; margin-top: 12px; font-size: 14px; text-align: center; padding: 0 16px; }
+    .lightbox-save {
+      margin-top: 14px; background: rgba(255,255,255,0.18); border: none; color: #fff;
+      font-size: 14px; padding: 10px 18px; border-radius: 10px; cursor: pointer;
+    }
+    @media (min-width: 600px) {
+      body { max-width: 430px; margin: 0 auto; border-left: 1px solid #e5e5ea; border-right: 1px solid #e5e5ea; }
+    }
+
+    /* マップアプリ選択 */
+    .map-picker-list { padding: 8px 16px 28px; }
+    .map-picker-addr {
+      font-size: 13px; color: #8e8e93; padding: 4px 16px 12px; word-break: break-all;
+    }
+    .map-picker-item {
+      display: flex; align-items: center; gap: 14px;
+      width: 100%; padding: 16px 14px; margin-bottom: 8px;
+      border: none; border-radius: 12px; background: #fff;
+      font-size: 16px; font-weight: 500; color: #000; cursor: pointer; text-align: left;
+    }
+    .map-picker-item:active { background: #e8e8ed; }
+    .map-picker-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .map-picker-item .sub { font-size: 12px; color: #8e8e93; font-weight: 400; margin-top: 2px; }
+
+    /* ミニ四駆セッティング */
+    .section-label {
+      font-size: 13px; font-weight: 600; color: #8e8e93;
+      padding: 14px 20px 4px; letter-spacing: 0.02em;
+    }
+    .form-row-slider { align-items: center; }
+    .slider-wrap { flex: 1; display: flex; align-items: center; gap: 8px; }
+    .slider-wrap input[type=range] { flex: 1; height: 28px; }
+    .slider-val {
+      flex: 0 0 40px; text-align: right; font-size: 14px; font-weight: 600;
+      color: #007aff; font-variant-numeric: tabular-nums;
+    }
+    .rpm-link {
+      flex: 1; text-align: right; font-size: 14px; font-weight: 600;
+      color: #007aff; text-decoration: none;
+    }
+    .m4-badge {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 999px; margin-right: 4px; margin-bottom: 4px;
+      background: rgba(0,122,255,0.12); color: #007aff;
+    }
+    .m4-badge.race { background: rgba(175,82,222,0.12); color: #af52de; }
+    .m4-badge.finish { background: rgba(52,199,89,0.15); color: #34c759; }
+    .m4-badge.out { background: rgba(255,59,48,0.12); color: #ff3b30; }
+    .m4-summary {
+      font-size: 13px; color: #3a3a3c; margin-top: 6px; line-height: 1.45;
+    }
+    .event-media img, .event-media video { cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="app-header">
+    <div class="header-row">
+      <div class="header-title">スケジュール / ミニ四駆</div>
+      <div class="header-actions">
+        <button class="today-btn" onclick="goToToday()">今日</button>
+        <button class="media-header-btn" onclick="openGallery()" title="すべての写真・動画">📷</button>
+      </div>
+    </div>
+    <div class="month-nav">
+      <div class="month-label" id="periodLabel">2026年8月</div>
+      <div class="nav-arrows">
+        <button class="nav-btn" onclick="navigate(-1)">‹</button>
+        <button class="nav-btn" onclick="navigate(1)">›</button>
+      </div>
+    </div>
+    <div class="view-tabs">
+      <button class="view-tab active" data-view="month" onclick="switchView('month')">月</button>
+      <button class="view-tab" data-view="week" onclick="switchView('week')">週</button>
+      <button class="view-tab" data-view="day" onclick="switchView('day')">日</button>
+    </div>
+  </div>
+
+  <div class="month-view active" id="monthView">
+    <div class="weekday-header">
+      <div class="weekday sun">日</div>
+      <div class="weekday">月</div>
+      <div class="weekday">火</div>
+      <div class="weekday">水</div>
+      <div class="weekday">木</div>
+      <div class="weekday">金</div>
+      <div class="weekday sat">土</div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+    <div class="today-section">
+      <div class="today-section-title">
+        今日の予定
+        <span id="todayDateLabel"></span>
+      </div>
+      <div id="todayEventsList"></div>
+    </div>
+  </div>
+
+  <div class="week-view" id="weekView">
+    <div class="week-header" id="weekHeader"></div>
+    <div class="week-body" id="weekBody"></div>
+  </div>
+
+  <div class="day-view" id="dayView">
+    <div class="day-view-date" id="dayViewDate"></div>
+    <div class="events-list" id="dayEventsList"></div>
+  </div>
+
+  <button class="fab" onclick="openAddModal()">＋</button>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeModal()">キャンセル</button>
+        <div class="modal-title" id="modalTitle">新規セッティング</div>
+        <button class="modal-save" onclick="saveEvent()">保存</button>
+      </div>
+      <!-- 日付はカレンダー選択日から自動（非表示） -->
+      <input type="hidden" id="eventDate" value="">
+      <input type="hidden" id="eventStart" value="">
+      <input type="hidden" id="eventEnd" value="">
+
+      <div class="section-label">場所</div>
+      <div class="form-group">
+        <div class="form-row">
+          <div class="form-label">場所</div>
+          <input type="text" class="form-input" id="eventAddress" placeholder="コース名・会場など">
+        </div>
+      </div>
+
+      <!-- ミニ四駆セッティング -->
+      <div class="section-label">マシン・走行</div>
+      <div class="form-group">
+        <div class="form-row">
+          <div class="form-label">種別</div>
+          <select class="form-input" id="m4EventType">
+            <option value="">-</option>
+            <option value="練習">練習</option>
+            <option value="大会">大会</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-label">レーン</div>
+          <select class="form-input" id="m4Lanes">
+            <option value="">-</option>
+            <option value="3">3レーン</option>
+            <option value="5">5レーン</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-label">クラス</div>
+          <select class="form-input" id="m4Class">
+            <option value="">-</option>
+            <option value="オープン">オープン</option>
+            <option value="ストック">ストック</option>
+            <option value="BMAX">BMAX</option>
+            <option value="トライアル">トライアル</option>
+            <option value="GT">GT</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-label">室内外</div>
+          <select class="form-input" id="m4Indoor">
+            <option value="">-</option>
+            <option value="室内">室内</option>
+            <option value="室外">室外</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-label">天気</div>
+          <select class="form-input" id="m4Weather">
+            <option value="">-</option>
+            <option value="快晴">快晴</option>
+            <option value="晴れ">晴れ</option>
+            <option value="曇">曇</option>
+            <option value="雨">雨</option>
+          </select>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">気温℃</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Temp" min="0" max="50" step="0.1" value="25" oninput="updateSliderLabel('m4Temp','m4TempVal',1)">
+            <span class="slider-val" id="m4TempVal">25.0</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-row">
+          <div class="form-label">モーター</div>
+          <select class="form-input" id="m4Motor">
+            <option value="">選択</option>
+            <option value="ノーマルPRO">ノーマルPRO</option>
+            <option value="レブチューンPRO">レブチューンPRO</option>
+            <option value="トルクチューンPRO">トルクチューンPRO</option>
+            <option value="アトミックチューンPRO">アトミックチューンPRO</option>
+            <option value="ライトダッシュPRO">ライトダッシュPRO</option>
+            <option value="ハイパーダッシュPRO">ハイパーダッシュPRO</option>
+            <option value="マッハダッシュPRO">マッハダッシュPRO</option>
+            <option value="ノーマル">ノーマル</option>
+            <option value="レブチューン">レブチューン</option>
+            <option value="トルクチューン">トルクチューン</option>
+            <option value="アトミックチューン">アトミックチューン</option>
+            <option value="ライトダッシュ">ライトダッシュ</option>
+            <option value="ハイパーダッシュ">ハイパーダッシュ</option>
+            <option value="パワーダッシュ">パワーダッシュ</option>
+            <option value="スプリントダッシュ">スプリントダッシュ</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-label">M.No.</div>
+          <input type="text" class="form-input" id="m4MotorNo" placeholder="モーター番号">
+        </div>
+        <div class="form-row">
+          <div class="form-label">ギヤ比</div>
+          <select class="form-input" id="m4Gear">
+            <option value="">-</option>
+            <option value="3.5:1">3.5:1</option>
+            <option value="3.7:1">3.7:1</option>
+            <option value="4.0:1">4.0:1</option>
+            <option value="4.2:1">4.2:1</option>
+            <option value="5:1">5:1</option>
+            <option value="6.4:1">6.4:1</option>
+            <option value="8.75:1">8.75:1</option>
+            <option value="11.2:1">11.2:1</option>
+          </select>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">タイヤmm</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Tire" min="22" max="40" step="0.1" value="26" oninput="updateSliderLabel('m4Tire','m4TireVal',1)">
+            <span class="slider-val" id="m4TireVal">26.0</span>
+          </div>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">車重g</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Weight" min="70" max="400" step="0.1" value="150" oninput="updateSliderLabel('m4Weight','m4WeightVal',1)">
+            <span class="slider-val" id="m4WeightVal">150.0</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-row">
+          <div class="form-label">電池</div>
+          <select class="form-input" id="m4Battery">
+            <option value="">-</option>
+            <option value="ニッケル水素">ニッケル水素</option>
+            <option value="リチウムイオン">リチウムイオン</option>
+            <option value="アルカリ">アルカリ</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">電圧V</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Voltage" min="2.0" max="4.0" step="0.1" value="2.8" oninput="updateSliderLabel('m4Voltage','m4VoltageVal',1)">
+            <span class="slider-val" id="m4VoltageVal">2.8</span>
+          </div>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">時速</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Speed" min="10" max="70" step="0.1" value="30" oninput="updateSliderLabel('m4Speed','m4SpeedVal',1)">
+            <span class="slider-val" id="m4SpeedVal">30.0</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">回転数</div>
+          <input type="number" class="form-input" id="m4Rpm" placeholder="rpm" step="1">
+        </div>
+        <div class="form-row">
+          <div class="form-label"></div>
+          <a href="https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/" target="_blank" rel="noopener noreferrer" class="rpm-link">回転数を確認する →</a>
+        </div>
+        <div class="form-row">
+          <div class="form-label">結果</div>
+          <select class="form-input" id="m4Result">
+            <option value="">-</option>
+            <option value="完走">完走</option>
+            <option value="コースアウト">コースアウト</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-label">GPS</div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+            <span id="m4GpsStatus" style="font-size:12px;color:#8e8e93;">未取得</span>
+            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="getM4GPS()">取得</button>
+          </div>
+          <input type="hidden" id="m4Lat" value="">
+          <input type="hidden" id="m4Lng" value="">
+        </div>
+      </div>
+
+      <div class="section-label">セッティングメモ</div>
+      <div class="form-group">
+        <div class="form-row" style="align-items: flex-start;">
+          <textarea class="form-input" id="eventContent" placeholder="セッティングメモを入力" style="min-height:88px;"></textarea>
+        </div>
+      </div>
+
+      <div class="media-section">
+        <p class="media-hint">★ 高画質おすすめ：端末のカメラ／写真アプリで撮ってから追加</p>
+        <div class="media-buttons">
+          <button type="button" class="media-btn primary-hq" onclick="selectHighQuality()">📷 高画質で追加（ライブラリ）</button>
+          <div class="media-btn-row">
+            <button type="button" class="media-btn" onclick="capturePhotoHiRes()">📷 かんたん撮影（高解像度）</button>
+            <button type="button" class="media-btn" onclick="capturePhotoEasy()">📷 かんたん撮影</button>
+          </div>
+          <div class="media-btn-row">
+            <button type="button" class="media-btn" onclick="captureVideoEasy()">🎥 かんたん動画</button>
+            <button type="button" class="media-btn" onclick="selectFile()">📁 ファイル選択</button>
+          </div>
+        </div>
+        <div class="media-preview" id="mediaPreview"></div>
+        <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none" onchange="handleFiles(event)">
+        <input type="file" id="fileInputImage" accept="image/*" multiple style="display:none" onchange="handleFiles(event)">
+        <input type="file" id="fileInputVideo" accept="video/*" multiple style="display:none" onchange="handleFiles(event)">
+        <p style="font-size:11px;color:#8e8e93;margin-top:8px;">写真・動画は IndexedDB に保存され、保存後もプレビュー・拡大できます。動画の最高画質はライブラリ追加が確実です。</p>
+      </div>
+      <button class="modal-save-bottom" id="saveBtnBottom" onclick="saveEvent()">保存</button>
+      <button class="delete-btn" id="deleteBtn" style="display:none" onclick="deleteEvent()">内容を削除</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay gallery-modal" id="galleryOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeGallery()">閉じる</button>
+        <div class="modal-title">写真・動画</div>
+        <div style="width:48px"></div>
+      </div>
+      <div class="gallery-tabs">
+        <button class="gallery-tab active" data-mode="all" onclick="switchGalleryMode('all')">すべて</button>
+        <button class="gallery-tab" data-mode="image" onclick="switchGalleryMode('image')">写真</button>
+        <button class="gallery-tab" data-mode="video" onclick="switchGalleryMode('video')">動画</button>
+      </div>
+      <div class="gallery-body" id="galleryBody"></div>
+    </div>
+  </div>
+
+
+  <!-- マップアプリ選択 -->
+  <div class="modal-overlay" id="mapPickerOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeMapPicker()">キャンセル</button>
+        <div class="modal-title">地図アプリで開く</div>
+        <div style="width:72px"></div>
+      </div>
+      <div class="map-picker-addr" id="mapPickerAddress"></div>
+      <div class="map-picker-list" id="mapPickerList"></div>
+    </div>
+  </div>
+
+  <!-- getUserMedia 高解像度撮影 -->
+  <div class="camera-overlay" id="cameraOverlay">
+    <div class="camera-video-wrap">
+      <video id="cameraPreviewVideo" autoplay playsinline muted></video>
+    </div>
+    <div class="camera-toolbar">
+      <button type="button" class="camera-tool-btn" onclick="closeHiResCamera()">キャンセル</button>
+      <button type="button" class="camera-shutter" onclick="takeHiResPhoto()" aria-label="撮影"></button>
+      <button type="button" class="camera-tool-btn" onclick="switchCameraFacing()">切替</button>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox" onclick="if(event.target===this)closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">×</button>
+    <div id="lightboxContent"></div>
+    <div class="lightbox-info" id="lightboxInfo"></div>
+    <button type="button" class="lightbox-save" id="lightboxSaveBtn" onclick="event.stopPropagation();saveCurrentLightboxToDevice()">端末に保存</button>
+  </div>
+
+  <script>
+    var currentDate = new Date();
+    var selectedDate = new Date();
+    var currentView = 'month';
+    var editingEventId = null;
+    var tempMedia = [];
+    var galleryMode = 'date';
+    var isCopying = false;
+    var currentLightboxItem = null;
+    var swipeState = { startX: 0, startY: 0, currentX: 0, activeCard: null, moved: false };
+
+    // ===== IndexedDB 保存（写真・動画を含む大容量データ向け） =====
+    var IDB_NAME = 'Mini4WDSchedule';
+    var IDB_VER = 1;
+    var IDB_STORE = 'events';
+    var eventsCache = [];
+    var idbReady = null;
+
+    function openScheduleDB() {
+      return new Promise(function(resolve, reject) {
+        var req = indexedDB.open(IDB_NAME, IDB_VER);
+        req.onerror = function() { reject(req.error); };
+        req.onsuccess = function() { resolve(req.result); };
+        req.onupgradeneeded = function(e) {
+          var db = e.target.result;
+          if (!db.objectStoreNames.contains(IDB_STORE)) {
+            db.createObjectStore(IDB_STORE, { keyPath: 'id' });
+          }
+        };
+      });
+    }
+
+    function idbGetAllEvents() {
+      return openScheduleDB().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          var tx = db.transaction(IDB_STORE, 'readonly');
+          var req = tx.objectStore(IDB_STORE).getAll();
+          req.onsuccess = function() { resolve(req.result || []); };
+          req.onerror = function() { reject(req.error); };
+        });
+      });
+    }
+
+    function idbClearAndPutAll(events) {
+      return openScheduleDB().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          var tx = db.transaction(IDB_STORE, 'readwrite');
+          var store = tx.objectStore(IDB_STORE);
+          store.clear();
+          (events || []).forEach(function(ev) { store.put(ev); });
+          tx.oncomplete = function() { resolve(true); };
+          tx.onerror = function() { reject(tx.error); };
+        });
+      });
+    }
+
+    /** 同期用キャッシュ（画面描画はこれを参照） */
+    function getEvents() {
+      return eventsCache || [];
+    }
+
+    function saveEvents(events) {
+      eventsCache = events || [];
+      idbClearAndPutAll(eventsCache).catch(function() {});
+      return true;
+    }
+
+    function saveEventsAsync(events) {
+      eventsCache = events || [];
+      return idbClearAndPutAll(eventsCache).then(function() {
+        return true;
+      }).catch(function() {
+        return false;
+      });
+    }
+
+    /** localStorage からの移行（初回のみ） */
+    function migrateFromLocalStorage() {
+      try {
+        var raw = localStorage.getItem('schedule_events');
+        if (!raw) return Promise.resolve([]);
+        var list = JSON.parse(raw);
+        if (!list || !list.length) return Promise.resolve([]);
+        return idbClearAndPutAll(list).then(function() {
+          try { localStorage.removeItem('schedule_events'); } catch (e) {}
+          return list;
+        }).catch(function() { return list; });
+      } catch (e) {
+        return Promise.resolve([]);
+      }
+    }
+
+    function initEventsStorage() {
+      if (idbReady) return idbReady;
+      idbReady = idbGetAllEvents().then(function(list) {
+        if (list && list.length) {
+          eventsCache = list;
+          return eventsCache;
+        }
+        return migrateFromLocalStorage().then(function(migrated) {
+          eventsCache = migrated || [];
+          return eventsCache;
+        });
+      }).catch(function() {
+        try {
+          eventsCache = JSON.parse(localStorage.getItem('schedule_events') || '[]');
+        } catch (e) {
+          eventsCache = [];
+        }
+        return eventsCache;
+      });
+      return idbReady;
+    }
+
+    function getEventsForDate(dateStr) {
+      return getEvents()
+        .filter(function(e) { return e.date === dateStr; })
+        .sort(function(a, b) { return (a.start || '').localeCompare(b.start || ''); });
+    }
+
+    function formatDateKey(date) {
+      var y = date.getFullYear();
+      var m = String(date.getMonth() + 1).padStart(2, '0');
+      var d = String(date.getDate()).padStart(2, '0');
+      return y + '-' + m + '-' + d;
+    }
+    function formatDisplayDate(date) {
+      var weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+      return (date.getMonth() + 1) + '月' + date.getDate() + '日（' + weekdays[date.getDay()] + '）';
+    }
+    function formatMonthLabel(date) {
+      return date.getFullYear() + '年' + (date.getMonth() + 1) + '月';
+    }
+    function getWeekStart(date) {
+      var d = new Date(date);
+      d.setDate(d.getDate() - d.getDay());
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function getNthMonday(year, month, n) {
+      var first = new Date(year, month, 1);
+      var day = 1 + ((1 - first.getDay() + 7) % 7);
+      day += (n - 1) * 7;
+      return day;
+    }
+    function getVernalEquinox(year) {
+      var y = year - 1980;
+      return Math.floor(20.8431 + 0.242194 * y - Math.floor(y / 4));
+    }
+    function getAutumnalEquinox(year) {
+      var y = year - 1980;
+      return Math.floor(23.2488 + 0.242194 * y - Math.floor(y / 4));
+    }
+    function getJapaneseHolidays(year) {
+      var holidays = {};
+      function add(m, d, name) {
+        holidays[year + '-' + String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0')] = name;
+      }
+      add(1, 1, '元日');
+      add(2, 11, '建国記念の日');
+      add(2, 23, '天皇誕生日');
+      add(4, 29, '昭和の日');
+      add(5, 3, '憲法記念日');
+      add(5, 4, 'みどりの日');
+      add(5, 5, 'こどもの日');
+      add(8, 11, '山の日');
+      add(11, 3, '文化の日');
+      add(11, 23, '勤労感謝の日');
+      add(1, getNthMonday(year, 0, 2), '成人の日');
+      add(7, getNthMonday(year, 6, 3), '海の日');
+      add(9, getNthMonday(year, 8, 3), '敬老の日');
+      add(10, getNthMonday(year, 9, 2), 'スポーツの日');
+      add(3, getVernalEquinox(year), '春分の日');
+      add(9, getAutumnalEquinox(year), '秋分の日');
+
+      Object.keys(holidays).sort().forEach(function(key) {
+        var parts = key.split('-').map(Number);
+        var dt = new Date(parts[0], parts[1] - 1, parts[2]);
+        if (dt.getDay() === 0) {
+          var next = new Date(dt);
+          next.setDate(next.getDate() + 1);
+          while (true) {
+            var nk = formatDateKey(next);
+            if (!holidays[nk]) { holidays[nk] = '振替休日'; break; }
+            next.setDate(next.getDate() + 1);
+          }
+        }
+      });
+
+      var allKeys = Object.keys(holidays).sort();
+      for (var i = 0; i < allKeys.length - 1; i++) {
+        var p1 = allKeys[i].split('-').map(Number);
+        var p2 = allKeys[i + 1].split('-').map(Number);
+        var dA = new Date(p1[0], p1[1] - 1, p1[2]);
+        var dB = new Date(p2[0], p2[1] - 1, p2[2]);
+        if ((dB - dA) / 86400000 === 2) {
+          var mid = new Date(dA);
+          mid.setDate(mid.getDate() + 1);
+          if (mid.getDay() !== 0 && mid.getDay() !== 6) {
+            var mk = formatDateKey(mid);
+            if (!holidays[mk]) holidays[mk] = '国民の休日';
+          }
+        }
+      }
+      return holidays;
+    }
+
+    function switchView(view) {
+      currentView = view;
+      document.querySelectorAll('.view-tab').forEach(function(t) {
+        t.classList.toggle('active', t.dataset.view === view);
+      });
+      document.getElementById('monthView').classList.toggle('active', view === 'month');
+      document.getElementById('weekView').classList.toggle('active', view === 'week');
+      document.getElementById('dayView').classList.toggle('active', view === 'day');
+      if (view === 'month') renderMonth();
+      else if (view === 'week') renderWeek();
+      else renderDay();
+      updatePeriodLabel();
+    }
+    function navigate(delta) {
+      if (currentView === 'month') {
+        currentDate.setMonth(currentDate.getMonth() + delta);
+        renderMonth();
+      } else if (currentView === 'week') {
+        currentDate.setDate(currentDate.getDate() + delta * 7);
+        renderWeek();
+      } else {
+        selectedDate.setDate(selectedDate.getDate() + delta);
+        currentDate = new Date(selectedDate);
+        renderDay();
+      }
+      updatePeriodLabel();
+    }
+    function goToToday() {
+      currentDate = new Date();
+      selectedDate = new Date();
+      if (currentView === 'month') renderMonth();
+      else if (currentView === 'week') renderWeek();
+      else renderDay();
+      updatePeriodLabel();
+    }
+    function updatePeriodLabel() {
+      var label = document.getElementById('periodLabel');
+      if (currentView === 'month') label.textContent = formatMonthLabel(currentDate);
+      else if (currentView === 'week') {
+        var start = getWeekStart(currentDate);
+        var end = new Date(start);
+        end.setDate(end.getDate() + 6);
+        label.textContent = (start.getMonth() + 1) + '/' + start.getDate() + ' – ' + (end.getMonth() + 1) + '/' + end.getDate();
+      } else label.textContent = formatDisplayDate(selectedDate);
+    }
+
+    function renderMonth() {
+      var year = currentDate.getFullYear();
+      var month = currentDate.getMonth();
+      var firstDay = new Date(year, month, 1);
+      var lastDay = new Date(year, month + 1, 0);
+      var startDayOfWeek = firstDay.getDay();
+      var daysInMonth = lastDay.getDate();
+      var prevMonthLast = new Date(year, month, 0).getDate();
+      var grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+      var todayKey = formatDateKey(new Date());
+      var events = getEvents();
+      var holidays = getJapaneseHolidays(year);
+      var hp = getJapaneseHolidays(year - 1), hn = getJapaneseHolidays(year + 1);
+      Object.keys(hp).forEach(function(k) { holidays[k] = hp[k]; });
+      Object.keys(hn).forEach(function(k) { holidays[k] = hn[k]; });
+
+      for (var i = startDayOfWeek - 1; i >= 0; i--) {
+        grid.appendChild(createDayCell(new Date(year, month - 1, prevMonthLast - i), true, todayKey, events, holidays));
+      }
+      for (var day = 1; day <= daysInMonth; day++) {
+        grid.appendChild(createDayCell(new Date(year, month, day), false, todayKey, events, holidays));
+      }
+      var totalCells = startDayOfWeek + daysInMonth;
+      var remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+      for (var day = 1; day <= remaining; day++) {
+        grid.appendChild(createDayCell(new Date(year, month + 1, day), true, todayKey, events, holidays));
+      }
+      renderTodaySection();
+    }
+
+    function createDayCell(date, isOther, todayKey, events, holidays) {
+      var cell = document.createElement('div');
+      cell.className = 'day-cell';
+      if (isOther) cell.classList.add('other-month');
+      if (date.getDay() === 0) cell.classList.add('sunday');
+      if (date.getDay() === 6) cell.classList.add('saturday');
+      var key = formatDateKey(date);
+      if (key === todayKey) cell.classList.add('today');
+      var holidayName = holidays[key];
+      if (holidayName) cell.classList.add('holiday');
+      var num = document.createElement('div');
+      num.className = 'day-number';
+      num.textContent = date.getDate();
+      cell.appendChild(num);
+
+      var dayEvents = events.filter(function(e) { return e.date === key; });
+      // コンパクト表示：ドット＋最大1件の名前
+      if (holidayName || dayEvents.length > 0) {
+        var dots = document.createElement('div');
+        dots.className = 'day-event-dots';
+        if (holidayName) {
+          var hd = document.createElement('span');
+          hd.className = 'day-event-dot holiday';
+          dots.appendChild(hd);
+        }
+        var dotCount = Math.min(dayEvents.length, 3);
+        for (var di = 0; di < dotCount; di++) {
+          var d = document.createElement('span');
+          d.className = 'day-event-dot';
+          dots.appendChild(d);
+        }
+        cell.appendChild(dots);
+        if (dayEvents.length > 0) {
+          var wrap = document.createElement('div');
+          wrap.className = 'day-events';
+          var el = document.createElement('div');
+          el.className = 'day-event-name';
+          el.textContent = dayEvents[0].title || 'セッティング';
+          wrap.appendChild(el);
+          if (dayEvents.length > 1) {
+            var more = document.createElement('div');
+            more.className = 'day-event-name more';
+            more.textContent = '+' + (dayEvents.length - 1);
+            wrap.appendChild(more);
+          }
+          cell.appendChild(wrap);
+        } else if (holidayName) {
+          var wrapH = document.createElement('div');
+          wrapH.className = 'day-events';
+          var elH = document.createElement('div');
+          elH.className = 'day-event-name holiday-name';
+          elH.textContent = holidayName;
+          wrapH.appendChild(elH);
+          cell.appendChild(wrapH);
+        }
+      }
+      cell.onclick = function() {
+        selectedDate = new Date(date);
+        currentDate = new Date(date);
+        switchView('day');
+      };
+      return cell;
+    }
+
+    function renderTodaySection() {
+      document.getElementById('todayDateLabel').textContent = formatDisplayDate(new Date());
+      var list = document.getElementById('todayEventsList');
+      var events = getEventsForDate(formatDateKey(new Date()));
+      if (events.length === 0) {
+        list.innerHTML = '<div class="empty-state" style="padding:24px 0"><p>今日の予定はありません</p></div>';
+        return;
+      }
+      list.innerHTML = events.map(function(ev) { return eventCardHtml(ev, false); }).join('');
+    }
+
+    function renderWeek() {
+      var start = getWeekStart(currentDate);
+      var todayKey = formatDateKey(new Date());
+      var events = getEvents();
+      var year = start.getFullYear();
+      var holidays = getJapaneseHolidays(year);
+      var hn = getJapaneseHolidays(year + 1), hp = getJapaneseHolidays(year - 1);
+      Object.keys(hp).forEach(function(k) { holidays[k] = hp[k]; });
+      Object.keys(hn).forEach(function(k) { holidays[k] = hn[k]; });
+      var weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+      var dayColors = [
+        'rgba(255, 59, 48, 0.90)', 'rgba(255, 149, 0, 0.90)', 'rgba(255, 179, 0, 0.92)',
+        'rgba(52, 199, 89, 0.90)', 'rgba(50, 173, 230, 0.90)', 'rgba(0, 122, 255, 0.90)', 'rgba(175, 82, 222, 0.90)'
+      ];
+      var HOUR_START = 7, HOUR_END = 21, HOUR_COUNT = HOUR_END - HOUR_START, ROW_H = 48;
+
+      var headerHtml = '<div style="width:48px"></div>';
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(start);
+        d.setDate(d.getDate() + i);
+        var key = formatDateKey(d);
+        var hName = holidays[key];
+        var cls = 'week-day-header';
+        if (key === todayKey) cls += ' today';
+        if (d.getDay() === 0) cls += ' sunday';
+        if (d.getDay() === 6) cls += ' saturday';
+        if (hName) cls += ' holiday';
+        headerHtml += '<div class="' + cls + '" data-date="' + key + '">' +
+          '<div class="week-day-name">' + weekdays[d.getDay()] + '</div>' +
+          '<div class="week-day-num">' + d.getDate() + '</div>' +
+          (hName ? '<div class="week-day-holiday">' + escapeHtml(hName) + '</div>' : '') +
+          '</div>';
+      }
+      document.getElementById('weekHeader').innerHTML = headerHtml;
+      document.querySelectorAll('#weekHeader .week-day-header').forEach(function(el) {
+        el.onclick = function() {
+          selectedDate = new Date(el.getAttribute('data-date') + 'T12:00:00');
+          switchView('day');
+        };
+      });
+
+      var bodyHtml = '<div class="time-labels">';
+      for (var h = HOUR_START; h <= HOUR_END; h++) {
+        bodyHtml += '<div class="time-label">' + h + ':00</div>';
+      }
+      bodyHtml += '</div>';
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(start);
+        d.setDate(d.getDate() + i);
+        var key = formatDateKey(d);
+        var dayEvents = events.filter(function(e) { return e.date === key; });
+        var color = dayColors[d.getDay()];
+        var colCls = holidays[key] ? ' week-col holiday-col' : ' week-col';
+        bodyHtml += '<div class="' + colCls.trim() + '" data-date="' + key + '">';
+        for (var h = 0; h <= HOUR_COUNT; h++) {
+          bodyHtml += '<div class="hour-line" style="top:' + (h * ROW_H) + 'px"></div>';
+        }
+        dayEvents.forEach(function(ev) {
+          var startParts = (ev.start || '09:00').split(':').map(Number);
+          var endParts = (ev.end || '10:00').split(':').map(Number);
+          var sh = startParts[0], sm = startParts[1];
+          var eh = endParts[0], em = endParts[1];
+          if (eh < HOUR_START || sh > HOUR_END) return;
+          if (sh < HOUR_START) { sh = HOUR_START; sm = 0; }
+          if (eh > HOUR_END) { eh = HOUR_END; em = 0; }
+          var top = ((sh - HOUR_START) + sm / 60) * ROW_H;
+          var height = ((eh + em / 60) - (sh + sm / 60)) * ROW_H;
+          if (height < 18) height = 18;
+          bodyHtml += '<div class="week-event" style="top:' + top + 'px;height:' + height + 'px;background:' + color + '" data-id="' + ev.id + '">' +
+            '<div class="week-event-title">' + escapeHtml(ev.title || '無題') + '</div></div>';
+        });
+        bodyHtml += '</div>';
+      }
+      document.getElementById('weekBody').innerHTML = bodyHtml;
+      document.querySelectorAll('#weekBody .week-event').forEach(function(el) {
+        el.onclick = function(e) {
+          e.stopPropagation();
+          openEditModal(el.getAttribute('data-id'));
+        };
+      });
+    }
+
+    function renderDay() {
+      document.getElementById('dayViewDate').textContent = formatDisplayDate(selectedDate);
+      var events = getEventsForDate(formatDateKey(selectedDate));
+      var list = document.getElementById('dayEventsList');
+      if (events.length === 0) {
+        list.innerHTML = '<div class="empty-state"><p>予定はありません</p><p style="font-size:13px">右下の＋で追加できます</p></div>';
+        return;
+      }
+      list.innerHTML = events.map(function(ev) {
+        return '<div class="swipe-wrap" data-id="' + ev.id + '">' +
+          '<div class="swipe-delete-bg">削除</div>' +
+          eventCardHtml(ev, true) +
+          '</div>';
+      }).join('');
+      setupSwipeHandlers();
+    }
+
+    function eventCardHtml(ev, showCopy) {
+      var mediaList = (ev.media || []).filter(function(m) { return m && m.dataUrl; });
+      var mediaHtml = mediaList.map(function(m, mi) {
+        var attrs = ' data-event-id="' + escapeAttr(ev.id) + '" data-media-idx="' + mi + '" class="event-media-thumb"';
+        if (m.type === 'image') return '<img src="' + m.dataUrl + '" alt=""' + attrs + '>';
+        return '<video src="' + m.dataUrl + '" muted playsinline' + attrs + '></video>';
+      }).join('');
+      var mediaCount = (ev.media || []).length;
+      var mediaNote = '';
+      var addressHtml = ev.address
+        ? '<div class="event-address" data-address="' + escapeAttr(ev.address) + '">' +
+          '<span class="addr-text">📍 ' + escapeHtml(ev.address) + '</span>' +
+          '<button type="button" class="addr-copy-btn" data-address="' + escapeAttr(ev.address) + '">コピー</button>' +
+          '</div>'
+        : '';
+      var copyHtml = showCopy
+        ? '<button type="button" class="copy-btn" data-id="' + ev.id + '">コピー</button>'
+        : '';
+      var m4 = ev.m4 || {};
+      var badges = '';
+      if (m4.eventType) badges += '<span class="m4-badge' + (m4.eventType === '大会' ? ' race' : '') + '">' + escapeHtml(m4.eventType) + '</span>';
+      if (m4.classType) badges += '<span class="m4-badge">' + escapeHtml(m4.classType) + '</span>';
+      if (m4.result === '完走') badges += '<span class="m4-badge finish">完走</span>';
+      if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">コースアウト</span>';
+      var summaryParts = [];
+      if (m4.motorType) summaryParts.push('モーター ' + m4.motorType);
+      if (m4.gearRatio) summaryParts.push('ギヤ ' + m4.gearRatio);
+      if (m4.speed != null && m4.speed !== '') summaryParts.push(m4.speed + ' km/h');
+      if (m4.rpm != null && m4.rpm !== '') summaryParts.push(m4.rpm + ' rpm');
+      if (m4.tireDiameter != null && m4.tireDiameter !== '') summaryParts.push('タイヤ ' + m4.tireDiameter + 'mm');
+      if (m4.weight != null && m4.weight !== '') summaryParts.push(m4.weight + 'g');
+      var summaryHtml = summaryParts.length
+        ? '<div class="m4-summary">' + escapeHtml(summaryParts.join(' · ')) + '</div>'
+        : '';
+      return '<div class="event-card" data-id="' + ev.id + '">' +
+        copyHtml +
+        '<div class="event-time">' + (ev.start || '') + ' – ' + (ev.end || '') + '</div>' +
+        '<div class="event-title">' + escapeHtml(ev.title || '無題') + '</div>' +
+        (badges ? '<div style="margin:4px 0 2px;">' + badges + '</div>' : '') +
+        addressHtml +
+        summaryHtml +
+        (ev.content ? '<div class="event-content">' + escapeHtml(ev.content) + '</div>' : '') +
+        mediaNote +
+        (mediaHtml ? '<div class="event-media">' + mediaHtml + '</div>' : '') +
+        '</div>';
+    }
+
+    function updateSliderLabel(inputId, labelId, digits) {
+      var el = document.getElementById(inputId);
+      var lab = document.getElementById(labelId);
+      if (el && lab) lab.textContent = Number(el.value).toFixed(digits == null ? 1 : digits);
+    }
+    function getM4GPS() {
+      var status = document.getElementById('m4GpsStatus');
+      if (!navigator.geolocation) {
+        status.textContent = '非対応';
+        return;
+      }
+      status.textContent = '取得中...';
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        document.getElementById('m4Lat').value = pos.coords.latitude;
+        document.getElementById('m4Lng').value = pos.coords.longitude;
+        status.textContent = pos.coords.latitude.toFixed(4) + ', ' + pos.coords.longitude.toFixed(4);
+      }, function() {
+        status.textContent = '取得失敗';
+      }, { enableHighAccuracy: true, timeout: 10000 });
+    }
+    function readM4FromForm() {
+      function val(id) {
+        var el = document.getElementById(id);
+        return el ? el.value : '';
+      }
+      function num(id) {
+        var v = val(id);
+        if (v === '' || v == null) return null;
+        var n = Number(v);
+        return isNaN(n) ? null : n;
+      }
+      return {
+        eventType: val('m4EventType'),
+        lanes: val('m4Lanes'),
+        classType: val('m4Class'),
+        indoorOutdoor: val('m4Indoor'),
+        weather: val('m4Weather'),
+        temperature: num('m4Temp'),
+        motorType: val('m4Motor'),
+        motorNumber: val('m4MotorNo'),
+        gearRatio: val('m4Gear'),
+        tireDiameter: num('m4Tire'),
+        weight: num('m4Weight'),
+        batteryType: val('m4Battery'),
+        voltage: num('m4Voltage'),
+        speed: num('m4Speed'),
+        rpm: num('m4Rpm'),
+        result: val('m4Result'),
+        lat: num('m4Lat'),
+        lng: num('m4Lng')
+      };
+    }
+    function fillM4Form(m4) {
+      m4 = m4 || {};
+      function set(id, v) {
+        var el = document.getElementById(id);
+        if (el) el.value = (v != null && v !== '') ? v : (el.tagName === 'SELECT' || el.type === 'text' || el.type === 'number' || el.type === 'hidden' ? (v || '') : el.value);
+      }
+      set('m4EventType', m4.eventType || '');
+      set('m4Lanes', m4.lanes || '');
+      set('m4Class', m4.classType || '');
+      set('m4Indoor', m4.indoorOutdoor || '');
+      set('m4Weather', m4.weather || '');
+      document.getElementById('m4Temp').value = m4.temperature != null ? m4.temperature : 25;
+      updateSliderLabel('m4Temp', 'm4TempVal', 1);
+      set('m4Motor', m4.motorType || '');
+      set('m4MotorNo', m4.motorNumber || '');
+      set('m4Gear', m4.gearRatio || '');
+      document.getElementById('m4Tire').value = m4.tireDiameter != null ? m4.tireDiameter : 26;
+      updateSliderLabel('m4Tire', 'm4TireVal', 1);
+      document.getElementById('m4Weight').value = m4.weight != null ? m4.weight : 150;
+      updateSliderLabel('m4Weight', 'm4WeightVal', 1);
+      set('m4Battery', m4.batteryType || '');
+      document.getElementById('m4Voltage').value = m4.voltage != null ? m4.voltage : 2.8;
+      updateSliderLabel('m4Voltage', 'm4VoltageVal', 1);
+      document.getElementById('m4Speed').value = m4.speed != null ? m4.speed : 30;
+      updateSliderLabel('m4Speed', 'm4SpeedVal', 1);
+      set('m4Rpm', m4.rpm != null ? m4.rpm : '');
+      set('m4Result', m4.result || '');
+      set('m4Lat', m4.lat != null ? m4.lat : '');
+      set('m4Lng', m4.lng != null ? m4.lng : '');
+      var st = document.getElementById('m4GpsStatus');
+      if (m4.lat != null && m4.lng != null) {
+        st.textContent = Number(m4.lat).toFixed(4) + ', ' + Number(m4.lng).toFixed(4);
+      } else {
+        st.textContent = '未取得';
+      }
+    }
+    function clearM4Form() {
+      fillM4Form({});
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+    function escapeAttr(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;');
+    }
+    var pendingMapAddress = '';
+
+    function copyAddressToClipboard(text, btn) {
+      if (!text) return;
+      function ok() {
+        if (btn) {
+          var prev = btn.textContent;
+          btn.textContent = 'コピー済み';
+          btn.classList.add('copied');
+          setTimeout(function() {
+            btn.textContent = prev || 'コピー';
+            btn.classList.remove('copied');
+          }, 1500);
+        }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(ok).catch(function() {
+          fallbackCopy(text); ok();
+        });
+      } else {
+        fallbackCopy(text); ok();
+      }
+    }
+    function fallbackCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    function openMaps(address) {
+      if (!address) return;
+      pendingMapAddress = address;
+      document.getElementById('mapPickerAddress').textContent = '📍 ' + address;
+      var q = encodeURIComponent(address);
+      // アプリ優先のURL。未インストール時はフォールバックへ
+      var apps = [
+        {
+          name: 'Google マップ',
+          sub: 'アプリ優先（未導入時はブラウザ）',
+          icon: '🗺️',
+          bg: '#e8f0fe',
+          appUrls: [
+            'comgooglemaps://?q=' + q,
+            'https://www.google.com/maps/search/?api=1&query=' + q
+          ]
+        },
+        {
+          name: 'Apple マップ',
+          sub: 'iPhone / iPad',
+          icon: '🍎',
+          bg: '#f2f2f7',
+          appUrls: [
+            'maps://?q=' + q,
+            'https://maps.apple.com/?q=' + q
+          ]
+        },
+        {
+          name: 'Yahoo!カーナビ',
+          sub: 'アプリでルート設定',
+          icon: '🚗',
+          bg: '#fff3e0',
+          appUrls: [
+            // 公式URLスキーム（緯度経度が無い場合は名称検索相当のウェブへフォールバック）
+            'yjcarnavi://navi/select?name=' + q,
+            'https://map.yahoo.co.jp/maps?q=' + q
+          ]
+        },
+        {
+          name: 'Yahoo!地図',
+          sub: 'ブラウザ / アプリ連携',
+          icon: '🟡',
+          bg: '#fff8e1',
+          appUrls: [
+            'https://map.yahoo.co.jp/maps?q=' + q
+          ]
+        },
+        {
+          name: 'カーナビタイム',
+          sub: 'インストール済みならアプリを起動',
+          icon: '🟢',
+          bg: '#e8f5e9',
+          appUrls: [
+            // 複数の候補スキームを順に試す（端末に入っていればいずれかで起動）
+            'carnavitime://',
+            'carnavitime://search?keyword=' + q,
+            'navitime-drive://',
+            'navitime-drive://search?keyword=' + q,
+            'navitime://',
+            'navitime://search?keyword=' + q,
+            // Android（正式パッケージ com.navitime.local.carnavitime）
+            'intent://#Intent;package=com.navitime.local.carnavitime;scheme=carnavitime;S.browser_fallback_url=' + encodeURIComponent('https://play.google.com/store/apps/details?id=com.navitime.local.carnavitime') + ';end',
+            'intent://#Intent;package=com.navitime.local.carnavitime;scheme=navitime;end',
+            // iOS: App Store（インストール済みなら「開く」が表示される）
+            'itms-apps://apps.apple.com/app/id555847992',
+            'https://apps.apple.com/jp/app/id555847992'
+          ]
+        },
+        {
+          name: 'NAVITIME（乗換）',
+          sub: '公共交通・乗換案内アプリ',
+          icon: '🚃',
+          bg: '#e3f2fd',
+          appUrls: [
+            'navitime://search?keyword=' + q,
+            'https://www.navitime.co.jp/maps/search?keyword=' + q
+          ]
+        },
+        {
+          name: '地理院地図',
+          sub: '国土地理院（ブラウザ）',
+          icon: '🗾',
+          bg: '#f3e5f5',
+          appUrls: [
+            'https://maps.gsi.go.jp/#15/0/0/&q=' + q
+          ]
+        }
+      ];
+      var list = document.getElementById('mapPickerList');
+      list.innerHTML = apps.map(function(app, i) {
+        return '<button type="button" class="map-picker-item" data-idx="' + i + '">' +
+          '<div class="map-picker-icon" style="background:' + app.bg + '">' + app.icon + '</div>' +
+          '<div><div>' + app.name + '</div><div class="sub">' + app.sub + '</div></div></button>';
+      }).join('');
+      list.querySelectorAll('.map-picker-item').forEach(function(btn) {
+        btn.onclick = function() {
+          var app = apps[parseInt(btn.getAttribute('data-idx'), 10)];
+          closeMapPicker();
+          openAppOrFallback(app.appUrls);
+        };
+      });
+      document.getElementById('mapPickerOverlay').classList.add('active');
+    }
+    function openAppOrFallback(urls) {
+      if (!urls || !urls.length) return;
+      var idx = 0;
+      var done = false;
+      function isCustomScheme(url) {
+        return /^(comgooglemaps|maps|yjcarnavi|navitime|carnavitime|navitime-drive|intent|itms-apps):/i.test(url);
+      }
+      function tryNext() {
+        if (done || idx >= urls.length) return;
+        var url = urls[idx++];
+        if (isCustomScheme(url)) {
+          var hidden = false;
+          var onHide = function() {
+            if (document.hidden) { hidden = true; done = true; }
+          };
+          document.addEventListener('visibilitychange', onHide);
+          // 同一タブでスキームを試す（アプリ起動）
+          try { window.location.href = url; } catch (e) {}
+          setTimeout(function() {
+            document.removeEventListener('visibilitychange', onHide);
+            if (done || hidden || document.hidden) return;
+            tryNext();
+          }, 800);
+        } else if (/^https?:/i.test(url)) {
+          window.open(url, '_blank');
+          done = true;
+        } else {
+          try { window.location.href = url; } catch (e) {}
+          setTimeout(tryNext, 800);
+        }
+      }
+      tryNext();
+    }
+    function closeMapPicker() {
+
+      document.getElementById('mapPickerOverlay').classList.remove('active');
+      pendingMapAddress = '';
+    }
+
+    // ===== スワイプ削除 =====
+    function setupSwipeHandlers() {
+      document.querySelectorAll('#dayEventsList .swipe-wrap').forEach(function(wrap) {
+        var card = wrap.querySelector('.event-card');
+        if (!card) return;
+        card.style.transform = 'translateX(0)';
+
+        card.addEventListener('touchstart', function(e) {
+          if (e.touches.length !== 1) return;
+          // 他のカードを閉じる
+          document.querySelectorAll('#dayEventsList .event-card').forEach(function(c) {
+            if (c !== card) c.style.transform = 'translateX(0)';
+          });
+          swipeState.startX = e.touches[0].clientX;
+          swipeState.startY = e.touches[0].clientY;
+          swipeState.currentX = 0;
+          swipeState.activeCard = card;
+          swipeState.moved = false;
+          card.classList.add('swiping');
+        }, { passive: true });
+
+        card.addEventListener('touchmove', function(e) {
+          if (swipeState.activeCard !== card || e.touches.length !== 1) return;
+          var dx = e.touches[0].clientX - swipeState.startX;
+          var dy = e.touches[0].clientY - swipeState.startY;
+          if (!swipeState.moved && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) {
+            swipeState.activeCard = null;
+            card.classList.remove('swiping');
+            return;
+          }
+          if (dx > 0) dx = 0;
+          if (dx < -100) dx = -100;
+          swipeState.currentX = dx;
+          if (Math.abs(dx) > 6) swipeState.moved = true;
+          card.style.transform = 'translateX(' + dx + 'px)';
+        }, { passive: true });
+
+        card.addEventListener('touchend', function() {
+          if (swipeState.activeCard !== card) return;
+          card.classList.remove('swiping');
+          if (swipeState.currentX < -50) {
+            card.style.transform = 'translateX(-88px)';
+          } else {
+            card.style.transform = 'translateX(0)';
+          }
+          swipeState.activeCard = null;
+        });
+
+        // 削除背景タップ
+        var bg = wrap.querySelector('.swipe-delete-bg');
+        bg.onclick = function(e) {
+          e.stopPropagation();
+          var id = wrap.getAttribute('data-id');
+          if (confirm('この内容を削除しますか？')) {
+            var events = getEvents().filter(function(ev) { return ev.id !== id; });
+            saveEvents(events);
+            renderDay();
+            if (currentView === 'month') renderMonth();
+          } else {
+            card.style.transform = 'translateX(0)';
+          }
+        };
+      });
+    }
+
+    function openAddModal() {
+      editingEventId = null;
+      isCopying = false;
+      tempMedia = [];
+      document.getElementById('modalTitle').textContent = '新規セッティング';
+      document.querySelector('.modal-save').textContent = '保存';
+      document.getElementById('deleteBtn').style.display = 'none';
+      var baseDate = currentView === 'day' ? selectedDate : (currentView === 'week' ? currentDate : new Date());
+      document.getElementById('eventDate').value = formatDateKey(baseDate);
+      var now = new Date();
+      var hh = String(now.getHours()).padStart(2, '0');
+      var mm = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('eventStart').value = hh + ':' + mm;
+      document.getElementById('eventEnd').value = hh + ':' + mm;
+      document.getElementById('eventAddress').value = '';
+      document.getElementById('eventContent').value = '';
+      clearM4Form();
+      renderMediaPreview();
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+    function openEditModal(id) {
+      var ev = getEvents().find(function(e) { return e.id === id; });
+      if (!ev) return;
+      editingEventId = id;
+      isCopying = false;
+      tempMedia = (ev.media || []).slice();
+      document.getElementById('modalTitle').textContent = 'セッティング編集';
+      document.querySelector('.modal-save').textContent = '保存';
+      document.getElementById('deleteBtn').style.display = 'block';
+      document.getElementById('eventDate').value = ev.date || formatDateKey(new Date());
+      document.getElementById('eventStart').value = ev.start || '';
+      document.getElementById('eventEnd').value = ev.end || '';
+      document.getElementById('eventAddress').value = ev.address || '';
+      document.getElementById('eventContent').value = ev.content || '';
+      fillM4Form(ev.m4);
+      renderMediaPreview();
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+    function openCopyModal(id) {
+      var ev = getEvents().find(function(e) { return e.id === id; });
+      if (!ev) return;
+      editingEventId = null;
+      isCopying = true;
+      tempMedia = (ev.media || []).map(function(m) { return { type: m.type, dataUrl: m.dataUrl }; });
+      document.getElementById('modalTitle').textContent = 'セッティングをコピー';
+      document.querySelector('.modal-save').textContent = '保存';
+      document.getElementById('deleteBtn').style.display = 'none';
+      var baseDate = currentView === 'day' ? selectedDate : (currentView === 'week' ? currentDate : new Date());
+      document.getElementById('eventDate').value = formatDateKey(baseDate);
+      var now = new Date();
+      var hh = String(now.getHours()).padStart(2, '0');
+      var mm = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('eventStart').value = hh + ':' + mm;
+      document.getElementById('eventEnd').value = hh + ':' + mm;
+      document.getElementById('eventAddress').value = ev.address || '';
+      document.getElementById('eventContent').value = ev.content || '';
+      fillM4Form(ev.m4);
+      renderMediaPreview();
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      tempMedia = [];
+      isCopying = false;
+    }
+    function buildAutoTitle(m4, content) {
+      var parts = [];
+      if (m4 && m4.eventType) parts.push(m4.eventType);
+      if (m4 && m4.classType) parts.push(m4.classType);
+      if (m4 && m4.motorType) parts.push(m4.motorType);
+      if (parts.length) return parts.join(' / ');
+      if (content) return content.slice(0, 20) + (content.length > 20 ? '…' : '');
+      return 'セッティング';
+    }
+    function saveEvent() {
+      var date = document.getElementById('eventDate').value;
+      var start = document.getElementById('eventStart').value;
+      var end = document.getElementById('eventEnd').value;
+      var address = document.getElementById('eventAddress').value.trim();
+      var content = document.getElementById('eventContent').value.trim();
+      var m4 = readM4FromForm();
+      if (!date) {
+        date = formatDateKey(new Date());
+        document.getElementById('eventDate').value = date;
+      }
+      var hasM4 = m4.motorType || m4.classType || m4.eventType || m4.gearRatio || m4.result ||
+        m4.speed != null || m4.rpm != null;
+      if (!content && !address && !hasM4 && tempMedia.length === 0) {
+        alert('セッティングメモか項目を入力してください');
+        return;
+      }
+      var title = buildAutoTitle(m4, content);
+      // IndexedDB に写真・動画本体も含めて保存（保存後もプレビュー・拡大可能）
+      var mediaFull = (tempMedia || []).map(function(m) {
+        return {
+          type: m.type || 'image',
+          dataUrl: m.dataUrl,
+          name: m.name || ''
+        };
+      });
+      var events = getEvents().slice();
+      if (editingEventId) {
+        var idx = events.findIndex(function(e) { return e.id === editingEventId; });
+        if (idx !== -1) {
+          events[idx] = {
+            id: events[idx].id, date: date, title: title, start: start, end: end,
+            address: address, content: content, media: mediaFull, m4: m4,
+            updatedAt: Date.now(),
+            createdAt: events[idx].createdAt || Date.now()
+          };
+        }
+      } else {
+        events.push({
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+          date: date, title: title, start: start, end: end,
+          address: address, content: content, media: mediaFull, m4: m4,
+          createdAt: Date.now(), updatedAt: Date.now()
+        });
+      }
+      saveEventsAsync(events).then(function() {
+        closeModal();
+        if (currentView === 'month') renderMonth();
+        else if (currentView === 'week') renderWeek();
+        else {
+          selectedDate = new Date(date + 'T12:00:00');
+          renderDay();
+        }
+      });
+    }
+    function deleteEvent() {
+      if (!confirm('この内容を削除しますか？')) return;
+      var events = getEvents().filter(function(e) { return e.id !== editingEventId; });
+      saveEvents(events);
+      closeModal();
+      if (currentView === 'month') renderMonth();
+      else if (currentView === 'week') renderWeek();
+      else renderDay();
+    }
+
+    // ===== 端末保存 =====
+    function dataUrlToBlob(dataUrl) {
+      var parts = dataUrl.split(',');
+      var mimeMatch = parts[0].match(/:(.*?);/);
+      var mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+      var binary = atob(parts[1] || '');
+      var len = binary.length;
+      var bytes = new Uint8Array(len);
+      for (var i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+      return new Blob([bytes], { type: mime });
+    }
+    function saveDataUrlToDevice(dataUrl, filename, mediaType) {
+      return new Promise(function(resolve) {
+        if (!dataUrl) { resolve(false); return; }
+        var isVideo = mediaType === 'video' || (dataUrl.indexOf('video') >= 0) || /\.mp4$/i.test(filename || '');
+        var name = filename || ('schedule_' + Date.now() + (isVideo ? '.mp4' : '.jpg'));
+        var mime = isVideo ? 'video/mp4' : 'image/jpeg';
+        try {
+          var blob = dataUrlToBlob(dataUrl);
+          if (blob.type) mime = blob.type;
+          var file = new File([blob], name, { type: mime });
+
+          // 1) Web Share API（iOS/Androidで「写真に追加」「ファイルに保存」を選べる）
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({
+              files: [file],
+              title: name
+            }).then(function() {
+              resolve(true);
+            }).catch(function(err) {
+              // ユーザーキャンセルは失敗扱いにしない
+              if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) {
+                resolve(false);
+                return;
+              }
+              // 共有失敗時はダウンロードへ
+              downloadBlob(blob, name);
+              resolve(true);
+            });
+            return;
+          }
+
+          // 2) ダウンロード（PC・一部ブラウザ）
+          downloadBlob(blob, name);
+          resolve(true);
+        } catch (e) {
+          try {
+            // 3) dataURL 直接ダウンロードの最終手段
+            var a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = name;
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() { document.body.removeChild(a); }, 300);
+            resolve(true);
+          } catch (e2) {
+            resolve(false);
+          }
+        }
+      });
+    }
+    function downloadBlob(blob, filename) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.rel = 'noopener';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 1500);
+    }
+    function saveCurrentLightboxToDevice() {
+      if (!currentLightboxItem || !currentLightboxItem.dataUrl) {
+        alert('保存できるデータがありません');
+        return;
+      }
+      var btn = document.getElementById('lightboxSaveBtn');
+      var ext = currentLightboxItem.type === 'video' ? '.mp4' : '.jpg';
+      var name = 'schedule_' + (currentLightboxItem.date || formatDateKey(new Date())) + '_' + Date.now() + ext;
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '保存中…';
+      }
+      saveDataUrlToDevice(currentLightboxItem.dataUrl, name, currentLightboxItem.type).then(function(ok) {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = ok ? '保存しました' : '端末に保存';
+          if (ok) {
+            setTimeout(function() {
+              if (btn) btn.textContent = '端末に保存';
+            }, 1800);
+          }
+        }
+        if (!ok) {
+          // 共有シートをキャンセルした場合など
+        }
+      });
+    }
+
+    /** 写真・動画をそのまま読み込み（アプリ側の枚数・容量制限なし） */
+    function readMediaFile(file) {
+      return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+          var type = file.type.startsWith('video/') ? 'video' : 'image';
+          resolve({ type: type, dataUrl: ev.target.result, originalFile: file });
+        };
+        reader.onerror = function() {
+          reject(new Error('ファイルの読み込みに失敗しました'));
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    function compressImage(file, maxSize, quality) {
+      return readMediaFile(file);
+    }
+
+    function capturePhotoEasy() {
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'environment';
+      input.onchange = handleFiles;
+      input.click();
+    }
+    function captureVideoEasy() {
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+      input.capture = 'environment';
+      input.onchange = handleFiles;
+      input.click();
+    }
+    function selectFile() {
+      document.getElementById('fileInput').click();
+    }
+    /** 高画質：端末ライブラリから追加（再圧縮なし） */
+    function selectHighQuality() {
+      var input = document.getElementById('fileInput');
+      if (input) {
+        input.accept = 'image/*,video/*';
+        input.click();
+      }
+    }
+
+    // ===== getUserMedia 高解像度静止画 =====
+    var hiResStream = null;
+    var cameraFacing = 'environment';
+
+    function capturePhotoHiRes() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        // 非対応時はかんたん撮影へフォールバック
+        capturePhotoEasy();
+        return;
+      }
+      openHiResCamera();
+    }
+
+    function openHiResCamera() {
+      closeHiResCamera(true);
+      var constraints = {
+        audio: false,
+        video: {
+          facingMode: { ideal: cameraFacing },
+          width: { ideal: 4032 },
+          height: { ideal: 3024 },
+          // 一部ブラウザ向け
+          advanced: [{ width: 4032, height: 3024 }]
+        }
+      };
+      navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+        hiResStream = stream;
+        var video = document.getElementById('cameraPreviewVideo');
+        video.srcObject = stream;
+        video.play().catch(function() {});
+        document.getElementById('cameraOverlay').classList.add('active');
+        // 実際に得られた解像度をログ代わりにタイトル付近へは出さない（静かに）
+      }).catch(function() {
+        // ideal が高すぎると失敗することがあるので段階的に再試行
+        navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            facingMode: { ideal: cameraFacing },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          }
+        }).then(function(stream) {
+          hiResStream = stream;
+          var video = document.getElementById('cameraPreviewVideo');
+          video.srcObject = stream;
+          video.play().catch(function() {});
+          document.getElementById('cameraOverlay').classList.add('active');
+        }).catch(function() {
+          capturePhotoEasy();
+        });
+      });
+    }
+
+    function closeHiResCamera(silent) {
+      var overlay = document.getElementById('cameraOverlay');
+      if (overlay) overlay.classList.remove('active');
+      var video = document.getElementById('cameraPreviewVideo');
+      if (video) {
+        try { video.pause(); } catch (e) {}
+        video.srcObject = null;
+      }
+      if (hiResStream) {
+        hiResStream.getTracks().forEach(function(t) { try { t.stop(); } catch (e) {} });
+        hiResStream = null;
+      }
+    }
+
+    function switchCameraFacing() {
+      cameraFacing = cameraFacing === 'environment' ? 'user' : 'environment';
+      openHiResCamera();
+    }
+
+    function takeHiResPhoto() {
+      var video = document.getElementById('cameraPreviewVideo');
+      if (!video || !video.videoWidth) return;
+      var w = video.videoWidth;
+      var h = video.videoHeight;
+      var canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, w, h);
+      // 高品質 JPEG
+      var dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      tempMedia.push({
+        type: 'image',
+        dataUrl: dataUrl,
+        name: 'hires_' + Date.now() + '.jpg'
+      });
+      renderMediaPreview();
+      closeHiResCamera();
+    }
+    function saveFileToDevicePhotos(file) {
+      return new Promise(function(resolve) {
+        if (!file) { resolve(false); return; }
+        try {
+          // iOS/Android: 共有シートから「写真に追加」「画像を保存」など
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({ files: [file], title: file.name || 'mini4wd' })
+              .then(function() { resolve(true); })
+              .catch(function() {
+                // キャンセル時もエラー表示しない（カメラ撮影時は既に写真アプリへ入っていることが多い）
+                resolve(false);
+              });
+            return;
+          }
+          // PC等: ダウンロード
+          downloadBlob(file, file.name || ('mini4wd_' + Date.now() + (file.type.indexOf('video') >= 0 ? '.mp4' : '.jpg')));
+          resolve(true);
+        } catch (e) {
+          resolve(false);
+        }
+      });
+    }
+    function handleFiles(e) {
+      var files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      // ライブラリ／撮影データをそのまま IndexedDB 用に取り込む（再圧縮なし）
+      files.forEach(function(file) {
+        if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) return;
+        readMediaFile(file).then(function(item) {
+          tempMedia.push({
+            type: item.type,
+            dataUrl: item.dataUrl,
+            name: file.name || ''
+          });
+          renderMediaPreview();
+        }).catch(function() {});
+      });
+      e.target.value = '';
+    }
+    function renderMediaPreview() {
+      var preview = document.getElementById('mediaPreview');
+      preview.innerHTML = tempMedia.map(function(m, i) {
+        return '<div class="media-item">' +
+          (m.type === 'image'
+            ? '<img src="' + m.dataUrl + '" alt="">'
+            : '<video src="' + m.dataUrl + '" muted></video>') +
+          '<button type="button" class="media-remove" data-index="' + i + '">×</button></div>';
+      }).join('');
+      preview.querySelectorAll('.media-remove').forEach(function(btn) {
+        btn.onclick = function() {
+          tempMedia.splice(parseInt(btn.getAttribute('data-index'), 10), 1);
+          renderMediaPreview();
+        };
+      });
+    }
+
+    function openGallery() {
+      galleryMode = 'all';
+      document.querySelectorAll('.gallery-tab').forEach(function(t) {
+        t.classList.toggle('active', t.dataset.mode === 'all');
+      });
+      renderGallery();
+      document.getElementById('galleryOverlay').classList.add('active');
+    }
+    function closeGallery() {
+      document.getElementById('galleryOverlay').classList.remove('active');
+    }
+    function switchGalleryMode(mode) {
+      galleryMode = mode;
+      document.querySelectorAll('.gallery-tab').forEach(function(t) {
+        t.classList.toggle('active', t.dataset.mode === mode);
+      });
+      renderGallery();
+    }
+    function collectAllMedia() {
+      var items = [];
+      getEvents().forEach(function(ev) {
+        (ev.media || []).forEach(function(m) {
+          if (!m || !m.dataUrl) return;
+          items.push({
+            type: m.type,
+            dataUrl: m.dataUrl,
+            date: ev.date,
+            title: ev.title || 'セッティング',
+            place: ev.address || '',
+            eventId: ev.id,
+            sortKey: ev.createdAt || 0
+          });
+        });
+      });
+      items.sort(function(a, b) {
+        if (a.date !== b.date) return (b.date || '').localeCompare(a.date || '');
+        return (b.sortKey || 0) - (a.sortKey || 0);
+      });
+      return items;
+    }
+    function formatGalleryDate(dateStr) {
+      if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr || '';
+      var p = dateStr.split('-');
+      return p[0] + '年' + parseInt(p[1], 10) + '月' + parseInt(p[2], 10) + '日';
+    }
+    function renderGallery() {
+      var body = document.getElementById('galleryBody');
+      var allItems = collectAllMedia();
+      var items = allItems.filter(function(it) {
+        if (galleryMode === 'image') return it.type === 'image';
+        if (galleryMode === 'video') return it.type === 'video';
+        return true;
+      });
+      if (items.length === 0) {
+        body.innerHTML = '<div class="gallery-empty">写真・動画はまだありません</div>';
+        return;
+      }
+      var html = '<div class="gallery-grid" style="margin-top:4px;">';
+      items.forEach(function(it) {
+        var gidx = allItems.indexOf(it);
+        var caption = formatGalleryDate(it.date);
+        if (it.place) caption += (caption ? ' · ' : '') + it.place;
+        html += '<div class="gallery-item" data-gidx="' + gidx + '">' +
+          (it.type === 'image'
+            ? '<img src="' + it.dataUrl + '" alt="" loading="lazy">'
+            : '<video src="' + it.dataUrl + '" muted playsinline></video><span class="vid-badge">動画</span>') +
+          (caption ? '<div class="gallery-caption">' + escapeHtml(caption) + '</div>' : '') +
+          '</div>';
+      });
+      html += '</div>';
+      body.innerHTML = html;
+      body.querySelectorAll('.gallery-item').forEach(function(el) {
+        el.onclick = function() {
+          var it = allItems[parseInt(el.getAttribute('data-gidx'), 10)];
+          if (it) openLightbox(it);
+        };
+      });
+    }
+    function openLightbox(item) {
+      currentLightboxItem = item;
+      var content = document.getElementById('lightboxContent');
+      if (item.type === 'image') content.innerHTML = '<img src="' + item.dataUrl + '" alt="">';
+      else content.innerHTML = '<video src="' + item.dataUrl + '" controls autoplay></video>';
+      var dateLabel = item.date || '';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateLabel)) {
+        var p = dateLabel.split('-');
+        dateLabel = p[0] + '年' + parseInt(p[1], 10) + '月' + parseInt(p[2], 10) + '日';
+      }
+      var infoParts = [];
+      if (dateLabel) infoParts.push(dateLabel);
+      if (item.place) infoParts.push(item.place);
+      if (item.title) infoParts.push(item.title);
+      document.getElementById('lightboxInfo').textContent = infoParts.join('  ·  ');
+      document.getElementById('lightbox').classList.add('active');
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+      document.getElementById('lightboxContent').innerHTML = '';
+      currentLightboxItem = null;
+    }
+
+    document.addEventListener('click', function(e) {
+      var mediaThumb = e.target.closest('.event-media-thumb');
+      if (mediaThumb) {
+        e.stopPropagation();
+        e.preventDefault();
+        var eid = mediaThumb.getAttribute('data-event-id');
+        var midx = parseInt(mediaThumb.getAttribute('data-media-idx'), 10);
+        var ev = getEvents().find(function(x) { return x.id === eid; });
+        if (ev && ev.media && ev.media[midx]) {
+          openLightbox({
+            type: ev.media[midx].type,
+            dataUrl: ev.media[midx].dataUrl,
+            date: ev.date,
+            title: ev.title || '無題'
+          });
+        }
+        return;
+      }
+      var copyBtn = e.target.closest('.copy-btn');
+      if (copyBtn) {
+        e.stopPropagation();
+        openCopyModal(copyBtn.getAttribute('data-id'));
+        return;
+      }
+      // スワイプ中のカードクリックは無視（削除ボタン優先）
+      var card = e.target.closest('.event-card');
+      if (card && !e.target.closest('.event-address') && !e.target.closest('.copy-btn') && !e.target.closest('.addr-copy-btn') && !e.target.closest('.event-media-thumb')) {
+        var tx = card.style.transform || '';
+        if (tx.indexOf('-88') >= 0 || tx.indexOf('-8') >= 0) {
+          // 開いている場合は閉じるだけ
+          card.style.transform = 'translateX(0)';
+          return;
+        }
+        openEditModal(card.getAttribute('data-id'));
+        return;
+      }
+      var addrCopy = e.target.closest('.addr-copy-btn');
+      if (addrCopy) {
+        e.stopPropagation();
+        var text = addrCopy.getAttribute('data-address') || '';
+        copyAddressToClipboard(text, addrCopy);
+        return;
+      }
+      var addr = e.target.closest('.event-address');
+      if (addr && !e.target.closest('.addr-copy-btn')) {
+        e.stopPropagation();
+        openMaps(addr.getAttribute('data-address'));
+      }
+    });
+
+    // IndexedDB から読み込んでから表示
+    initEventsStorage().then(function() {
+      switchView('month');
+    });
+  </script>
+</body>
+</html>
