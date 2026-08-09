@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#F9A8D4" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="description" content="ミニ四駆 セッティング記録アプリ" />
+  <title>ミニ四駆セッティング帳</title>
+  <link rel="manifest" href="manifest.json" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pink: {
+              50:  '#FDF2F8',
+              100: '#FCE7F3',
+              200: '#FBCFE8',
+              300: '#F9A8D4',
+              400: '#F472B6',
+              500: '#EC4899',
+            },
+            sky: {
+              50:  '#F0F9FF',
+              100: '#E0F2FE',
+              200: '#BAE6FD',
+              300: '#7DD3FC',
+            }
+          },
+          fontFamily: {
+            meiryo: ['"Meiryo"', '"メイリオ"', '"Hiragino Sans"', '"Hiragino Kaku Gothic ProN"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-sky-50 text-gray-800 min-h-screen font-meiryo antialiased">
+  <!-- ステータスバー風スペーサー（iOS） -->
+  <div class="h-[env(safe-area-inset-top)] bg-pink-100"></div>
+
+  <!-- ヘッダー（iOS風） -->
+  <header class="bg-white/80 backdrop-blur-xl border-b border-pink-100 sticky top-0 z-50">
+    <div class="max-w-lg mx-auto px-4 h-12 flex items-center justify-between">
+      <h1 class="text-[17px] font-semibold text-gray-900 tracking-tight">ミニ四駆セッティング帳</h1>
+      <div class="flex items-center gap-3">
+        <button id="btn-all-media" class="text-[17px] font-medium text-pink-500 active:opacity-60 transition" title="すべての写真・動画">📷</button>
+        <button id="btn-new" class="text-[17px] font-medium text-pink-500 active:opacity-60 transition">新規</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- メイン -->
+  <main class="max-w-lg mx-auto px-4 pb-28 pt-3">
+    <!-- フィルター（iOSグループ風） -->
+    <section id="filter-section" class="bg-white rounded-2xl shadow-sm border border-pink-50 overflow-hidden mb-4">
+      <div class="grid grid-cols-3 divide-x divide-pink-50">
+        <select id="filter-class" class="filter-select">
+          <option value="">クラス</option>
+          <option value="オープン">オープン</option>
+          <option value="ストック">ストック</option>
+          <option value="BMAX">BMAX</option>
+          <option value="トライアル">トライアル</option>
+          <option value="GT">GT</option>
+          <option value="その他">その他</option>
+        </select>
+        <select id="filter-location" class="filter-select">
+          <option value="">場所</option>
+        </select>
+        <select id="filter-motor" class="filter-select">
+          <option value="">モーター</option>
+        </select>
+      </div>
+      <div class="border-t border-pink-50 px-3 py-2 flex items-center gap-2">
+        <input type="search" id="filter-search" placeholder="検索..." class="flex-1 text-[15px] bg-transparent outline-none placeholder:text-gray-300" />
+        <button id="btn-clear-filter" class="text-[13px] text-pink-400 font-medium">クリア</button>
+      </div>
+    </section>
+
+    <!-- 一覧 -->
+    <section id="list-section">
+      <div id="record-list" class="space-y-3">
+        <!-- JSで描画 -->
+      </div>
+      <div id="empty-msg" class="hidden text-center py-16">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-pink-100 flex items-center justify-center text-2xl">🏁</div>
+        <p class="text-gray-400 text-[15px]">記録がありません</p>
+        <p class="text-gray-300 text-[13px] mt-1">右上の「新規」から追加してください</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- 詳細 / 編集シート（iOSボトムシート風） -->
+  <div id="modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" id="modal-backdrop"></div>
+    <div class="absolute inset-x-0 bottom-0 top-10 bg-sky-50 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col max-w-lg mx-auto">
+      <!-- ハンドル -->
+      <div class="flex justify-center pt-2 pb-1">
+        <div class="w-9 h-1 rounded-full bg-gray-300"></div>
+      </div>
+      <div class="flex items-center justify-between px-4 py-2 border-b border-pink-100 bg-white/60">
+        <button id="modal-close" class="text-[17px] text-pink-500 font-medium min-w-[60px] text-left">閉じる</button>
+        <h2 id="modal-title" class="text-[17px] font-semibold text-gray-900">新規記録</h2>
+        <div class="min-w-[60px]"></div>
+      </div>
+      <div id="modal-body" class="flex-1 overflow-y-auto overscroll-contain">
+        <!-- フォーム or 詳細 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- トースト -->
+  <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-900/90 text-white text-[14px] px-5 py-2.5 rounded-full shadow-lg opacity-0 transition-all duration-300 pointer-events-none z-[60] backdrop-blur-md"></div>
+
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
