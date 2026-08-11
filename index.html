@@ -397,10 +397,6 @@
     .month-view.active { display: block; }
     .search-view { display: none; background: #f2f2f7; min-height: calc(100vh - 120px); padding-bottom: 80px; }
     .search-view.active { display: block; }
-    .search-freeword-wrap {
-      margin: 10px 12px 0; background: #fff; border-radius: 12px; padding: 10px 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
     .search-freeword-label {
       font-size: 11px; color: #8e8e93; font-weight: 600; margin-bottom: 6px; display: block;
     }
@@ -420,6 +416,12 @@
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
       background: #fff; margin: 10px 12px; padding: 12px; border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .search-freeword-item {
+      grid-column: span 2;
+      margin-bottom: 4px;
+      padding-bottom: 10px;
+      border-bottom: 0.5px solid #e5e5ea;
     }
     .search-filter-item { display: flex; flex-direction: column; gap: 4px; }
     .search-filter-item label {
@@ -611,16 +613,16 @@
 
   <!-- セッティング検索ビュー -->
   <div class="search-view" id="searchView">
-    <div class="search-freeword-wrap">
-      <label class="search-freeword-label" for="sfFreeword">フリーワード検索</label>
-      <div class="search-freeword-row">
-        <input type="search" class="search-freeword-input" id="sfFreeword"
-          placeholder="タイトル・メモ・場所・モーターなど" enterkeyhint="search"
-          autocomplete="off" />
-        <button type="button" class="search-freeword-clear" onclick="clearFreeword()">クリア</button>
-      </div>
-    </div>
     <div class="search-filter-grid">
+      <div class="search-freeword-item">
+        <label class="search-freeword-label" for="sfFreeword">フリーワード検索</label>
+        <div class="search-freeword-row">
+          <input type="search" class="search-freeword-input" id="sfFreeword"
+            placeholder="タイトル・メモ・場所・モーターなど" enterkeyhint="search"
+            autocomplete="off" />
+          <button type="button" class="search-freeword-clear" onclick="clearFreeword()">クリア</button>
+        </div>
+      </div>
       <div class="search-filter-item">
         <label>日付</label>
         <select id="sfDate"><option value="">すべて</option></select>
@@ -907,7 +909,9 @@
         <div class="modal-title">セッティング詳細</div>
         <button class="modal-save" id="detailEditBtn" onclick="editFromDetail()">編集</button>
       </div>
-      <div id="detailBody" style="padding:0 0 24px;"></div>
+      <div id="detailBody" style="padding:0 0 8px;"></div>
+      <button class="modal-save-bottom" onclick="editFromDetail()">編集</button>
+      <button class="delete-btn" onclick="closeDetailModal()" style="color:#3a3a3c;">キャンセル</button>
     </div>
   </div>
 
@@ -1411,8 +1415,15 @@
           var height = ((eh + em / 60) - (sh + sm / 60)) * ROW_H;
           if (height < 14) height = 14;
           var timeLabel = (ev.start || '') + (ev.end ? '–' + ev.end : '');
+          var wm4 = ev.m4 || {};
+          var wTitleParts = [];
+          if (wm4.motorType) wTitleParts.push(wm4.motorType);
+          if (wm4.voltage != null && wm4.voltage !== '') wTitleParts.push(wm4.voltage + 'V');
+          if (wm4.rpm != null && wm4.rpm !== '') wTitleParts.push(String(wm4.rpm));
+          if (wm4.gearRatio) wTitleParts.push(wm4.gearRatio);
+          var wTitle = wTitleParts.length ? wTitleParts.join(' ') : (ev.title || '無題');
           bodyHtml += '<div class="week-event" style="top:' + top + 'px;height:' + height + 'px;background:' + color + '" data-id="' + ev.id + '">' +
-            '<div class="week-event-title">' + escapeHtml(ev.title || '無題') + '</div>' +
+            '<div class="week-event-title">' + escapeHtml(wTitle) + '</div>' +
             (timeLabel ? '<div style="font-size:9px;opacity:0.9;">' + escapeHtml(timeLabel) + '</div>' : '') +
             '</div>';
         });
@@ -1468,12 +1479,16 @@
       if (m4.classType) badges += '<span class="m4-badge">' + escapeHtml(m4.classType) + '</span>';
       if (m4.result === '完走') badges += '<span class="m4-badge finish">完走</span>';
       if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">コースアウト</span>';
+      // 太字タイトル：モーター・電圧・RPM・ギヤ
+      var titleParts = [];
+      if (m4.motorType) titleParts.push(m4.motorType);
+      if (m4.voltage != null && m4.voltage !== '') titleParts.push(m4.voltage + 'V');
+      if (m4.rpm != null && m4.rpm !== '') titleParts.push(m4.rpm + ' rpm');
+      if (m4.gearRatio) titleParts.push(m4.gearRatio);
+      var displayTitle = titleParts.length ? titleParts.join(' · ') : (ev.title || ev.machineName || 'セッティング');
       var summaryParts = [];
       if (ev.machineName) summaryParts.push(ev.machineName);
-      if (m4.motorType) summaryParts.push('モーター ' + m4.motorType);
-      if (m4.gearRatio) summaryParts.push('ギヤ ' + m4.gearRatio);
       if (m4.speed != null && m4.speed !== '') summaryParts.push(m4.speed + ' km/h');
-      if (m4.rpm != null && m4.rpm !== '') summaryParts.push(m4.rpm + ' rpm');
       if (m4.tireDiameter != null && m4.tireDiameter !== '') summaryParts.push('タイヤ ' + m4.tireDiameter + 'mm');
       if (m4.weight != null && m4.weight !== '') summaryParts.push(m4.weight + 'g');
       var summaryHtml = summaryParts.length
@@ -1482,7 +1497,7 @@
       return '<div class="event-card" data-id="' + ev.id + '">' +
         dupHtml +
         '<div class="event-time">' + (ev.start || '') + ' – ' + (ev.end || '') + '</div>' +
-        '<div class="event-title">' + escapeHtml(ev.title || '無題') + '</div>' +
+        '<div class="event-title">' + escapeHtml(displayTitle) + '</div>' +
         (badges ? '<div style="margin:4px 0 2px;">' + badges + '</div>' : '') +
         addressHtml +
         summaryHtml +
@@ -2616,13 +2631,15 @@
         if (m4.classType) badges += '<span class="m4-badge">' + escapeHtml(m4.classType) + '</span>';
         if (m4.result === '完走') badges += '<span class="m4-badge finish">完走</span>';
         if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">コースアウト</span>';
+        var titleParts = [];
+        if (m4.motorType) titleParts.push(m4.motorType);
+        if (m4.voltage != null && m4.voltage !== '') titleParts.push(m4.voltage + 'V');
+        if (m4.rpm != null && m4.rpm !== '') titleParts.push(m4.rpm + ' rpm');
+        if (m4.gearRatio) titleParts.push(m4.gearRatio);
+        var displayTitle = titleParts.length ? titleParts.join(' · ') : (ev.title || ev.machineName || 'セッティング');
         var parts = [];
         if (ev.machineName) parts.push(ev.machineName);
-        if (m4.motorType) parts.push(m4.motorType);
-        if (m4.gearRatio) parts.push('ギヤ ' + m4.gearRatio);
-        if (m4.voltage != null && m4.voltage !== '') parts.push(m4.voltage + 'V');
         if (m4.speed != null && m4.speed !== '') parts.push(m4.speed + ' km/h');
-        if (m4.rpm != null && m4.rpm !== '') parts.push(m4.rpm + ' rpm');
         if (m4.tireDiameter != null && m4.tireDiameter !== '') parts.push('タイヤ ' + m4.tireDiameter + 'mm');
         var dateLabel = ev.date || '';
         if (/^\d{4}-\d{2}-\d{2}$/.test(dateLabel)) {
@@ -2631,7 +2648,7 @@
         }
         return '<div class="search-result-card" data-id="' + escapeAttr(ev.id) + '" onclick="openDetailModal(\'' + escapeAttr(ev.id) + '\')">' +
           '<div class="search-result-date">' + escapeHtml(dateLabel) + (ev.address ? ' · ' + escapeHtml(ev.address) : '') + '</div>' +
-          '<div class="search-result-title">' + escapeHtml(ev.title || 'セッティング') + '</div>' +
+          '<div class="search-result-title">' + escapeHtml(displayTitle) + '</div>' +
           (badges ? '<div style="margin:2px 0 4px;">' + badges + '</div>' : '') +
           (parts.length ? '<div class="search-result-meta">' + escapeHtml(parts.join(' · ')) + '</div>' : '') +
           '</div>';
