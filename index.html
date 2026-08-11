@@ -117,7 +117,7 @@
     .media-header-btn, .search-header-btn { font-size: 20px; }
     .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .month-label { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
-    .nav-arrows { display: flex; gap: 12px; }
+    .nav-arrows { display: flex; gap: 12px; margin-right: 14px; }
     .nav-btn { background: none; border: none; color: #007aff; font-size: 33px; cursor: pointer; padding: 4px 10px; line-height: 1; font-weight: 500; }
     .view-tabs { display: flex; background: #e5e5ea; border-radius: 8px; padding: 2px; margin-bottom: 6px; }
     .view-tab {
@@ -259,12 +259,36 @@
     .event-media img, .event-media video {
       width: 72px; height: 72px; object-fit: cover; border-radius: 8px; flex-shrink: 0;
     }
-    .copy-btn {
+    .copy-btn, .dup-btn {
       position: absolute; top: 12px; right: 12px;
       background: #f2f2f7; border: none; color: #007aff;
       font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 8px; cursor: pointer; z-index: 2;
     }
-    .copy-btn:active { background: #e5e5ea; }
+    .copy-btn:active, .dup-btn:active { background: #e5e5ea; }
+    .detail-section-label {
+      font-size: 13px; font-weight: 600; color: #8e8e93;
+      padding: 14px 20px 4px; letter-spacing: 0.02em;
+    }
+    .detail-group {
+      background: #fff; margin: 8px 16px; border-radius: 12px; overflow: hidden;
+    }
+    .detail-row {
+      display: flex; padding: 12px 16px;
+      border-bottom: 0.5px solid rgba(0,0,0,0.07); font-size: 15px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { width: 88px; color: #8e8e93; flex-shrink: 0; }
+    .detail-value { flex: 1; color: #000; word-break: break-all; }
+    .detail-value.link { color: #007aff; }
+    .detail-media {
+      display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px;
+    }
+    .detail-media img, .detail-media video {
+      width: 96px; height: 96px; object-fit: cover; border-radius: 10px; cursor: pointer;
+    }
+    .detail-memo {
+      padding: 12px 16px; font-size: 15px; line-height: 1.5; white-space: pre-wrap;
+    }
     .empty-state { text-align: center; padding: 48px 20px; color: #8e8e93; }
     .empty-state p { font-size: 15px; margin-bottom: 6px; }
     .fab {
@@ -662,11 +686,12 @@
         <div class="modal-title" id="modalTitle">新規セッティング</div>
         <button class="modal-save" onclick="saveEvent()">保存</button>
       </div>
-      <!-- 日付はカレンダー選択日から自動（非表示） -->
-      <input type="hidden" id="eventDate" value="">
-
       <div class="section-label">日時・場所</div>
       <div class="form-group">
+        <div class="form-row">
+          <div class="form-label">日付</div>
+          <input type="date" class="form-input" id="eventDate" value="">
+        </div>
         <div class="form-row">
           <div class="form-label">開始</div>
           <input type="time" class="form-input" id="eventStart" value="09:00" step="300">
@@ -790,8 +815,8 @@
         <div class="form-row form-row-slider">
           <div class="form-label">タイヤmm</div>
           <div class="slider-wrap">
-            <input type="range" id="m4Tire" min="22" max="40" step="0.1" value="26" oninput="updateSliderLabel('m4Tire','m4TireVal',1)">
-            <span class="slider-val" id="m4TireVal">26.0</span>
+            <input type="range" id="m4Tire" min="22" max="40" step="0.1" value="23" oninput="updateSliderLabel('m4Tire','m4TireVal',1)">
+            <span class="slider-val" id="m4TireVal">23.0</span>
           </div>
         </div>
         <div class="form-row form-row-slider">
@@ -871,6 +896,18 @@
       <button class="modal-save-bottom" id="saveBtnBottom" onclick="saveEvent()">保存</button>
       <button class="delete-btn" id="cancelBtnBottom" onclick="closeModal()" style="color:#3a3a3c;">キャンセル</button>
       <button class="delete-btn" id="deleteBtn" style="display:none" onclick="deleteEvent()">内容を削除</button>
+    </div>
+  </div>
+
+  <!-- 詳細表示（閲覧）モーダル -->
+  <div class="modal-overlay" id="detailOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeDetailModal()">閉じる</button>
+        <div class="modal-title">セッティング詳細</div>
+        <button class="modal-save" id="detailEditBtn" onclick="editFromDetail()">編集</button>
+      </div>
+      <div id="detailBody" style="padding:0 0 24px;"></div>
     </div>
   </div>
 
@@ -1296,7 +1333,7 @@
         list.innerHTML = '<div class="empty-state" style="padding:24px 0"><p>今日の予定はありません</p></div>';
         return;
       }
-      list.innerHTML = events.map(function(ev) { return eventCardHtml(ev, false); }).join('');
+      list.innerHTML = events.map(function(ev) { return eventCardHtml(ev, { showDup: true }); }).join('');
     }
 
     function renderWeek() {
@@ -1385,7 +1422,7 @@
       document.querySelectorAll('#weekBody .week-event').forEach(function(el) {
         el.onclick = function(e) {
           e.stopPropagation();
-          openEditModal(el.getAttribute('data-id'));
+          openDetailModal(el.getAttribute('data-id'));
         };
       });
     }
@@ -1401,29 +1438,29 @@
       list.innerHTML = events.map(function(ev) {
         return '<div class="swipe-wrap" data-id="' + ev.id + '">' +
           '<div class="swipe-delete-bg">削除</div>' +
-          eventCardHtml(ev, true) +
+          eventCardHtml(ev, { showDup: true }) +
           '</div>';
       }).join('');
       setupSwipeHandlers();
     }
 
-    function eventCardHtml(ev, showCopy) {
+    function eventCardHtml(ev, options) {
+      options = options || {};
+      var showDup = !!options.showDup;
       var mediaList = (ev.media || []).filter(function(m) { return m && m.dataUrl; });
       var mediaHtml = mediaList.map(function(m, mi) {
         var attrs = ' data-event-id="' + escapeAttr(ev.id) + '" data-media-idx="' + mi + '" class="event-media-thumb"';
         if (m.type === 'image') return '<img src="' + m.dataUrl + '" alt=""' + attrs + '>';
         return '<video src="' + m.dataUrl + '" muted playsinline' + attrs + '></video>';
       }).join('');
-      var mediaCount = (ev.media || []).length;
-      var mediaNote = '';
       var addressHtml = ev.address
         ? '<div class="event-address" data-address="' + escapeAttr(ev.address) + '">' +
           '<span class="addr-text">📍 ' + escapeHtml(ev.address) + '</span>' +
-          '<button type="button" class="addr-copy-btn" data-address="' + escapeAttr(ev.address) + '">コピー</button>' +
           '</div>'
         : '';
-      var copyHtml = showCopy
-        ? '<button type="button" class="copy-btn" data-id="' + ev.id + '">コピー</button>'
+      // 複製ボタン（写真は引き継がない）
+      var dupHtml = showDup
+        ? '<button type="button" class="dup-btn" data-id="' + escapeAttr(ev.id) + '">コピー</button>'
         : '';
       var m4 = ev.m4 || {};
       var badges = '';
@@ -1443,14 +1480,13 @@
         ? '<div class="m4-summary">' + escapeHtml(summaryParts.join(' · ')) + '</div>'
         : '';
       return '<div class="event-card" data-id="' + ev.id + '">' +
-        copyHtml +
+        dupHtml +
         '<div class="event-time">' + (ev.start || '') + ' – ' + (ev.end || '') + '</div>' +
         '<div class="event-title">' + escapeHtml(ev.title || '無題') + '</div>' +
         (badges ? '<div style="margin:4px 0 2px;">' + badges + '</div>' : '') +
         addressHtml +
         summaryHtml +
         (ev.content ? '<div class="event-content">' + escapeHtml(ev.content) + '</div>' : '') +
-        mediaNote +
         (mediaHtml ? '<div class="event-media">' + mediaHtml + '</div>' : '') +
         '</div>';
     }
@@ -1523,7 +1559,7 @@
       set('m4Motor', m4.motorType || '');
       set('m4MotorNo', m4.motorNumber || '');
       set('m4Gear', m4.gearRatio || '');
-      document.getElementById('m4Tire').value = m4.tireDiameter != null ? m4.tireDiameter : 26;
+      document.getElementById('m4Tire').value = m4.tireDiameter != null ? m4.tireDiameter : 23;
       updateSliderLabel('m4Tire', 'm4TireVal', 1);
       document.getElementById('m4Weight').value = m4.weight != null ? m4.weight : 150;
       updateSliderLabel('m4Weight', 'm4WeightVal', 1);
@@ -1590,143 +1626,26 @@
     }
     function openMaps(address) {
       if (!address) return;
-      pendingMapAddress = address;
-      document.getElementById('mapPickerAddress').textContent = '📍 ' + address;
       var q = encodeURIComponent(address);
-      // アプリ優先のURL。未インストール時はフォールバックへ
-      var apps = [
-        {
-          name: 'Google マップ',
-          sub: 'アプリ優先（未導入時はブラウザ）',
-          icon: '🗺️',
-          bg: '#e8f0fe',
-          appUrls: [
-            'comgooglemaps://?q=' + q,
-            'https://www.google.com/maps/search/?api=1&query=' + q
-          ]
-        },
-        {
-          name: 'Apple マップ',
-          sub: 'iPhone / iPad',
-          icon: '🍎',
-          bg: '#f2f2f7',
-          appUrls: [
-            'maps://?q=' + q,
-            'https://maps.apple.com/?q=' + q
-          ]
-        },
-        {
-          name: 'Yahoo!カーナビ',
-          sub: 'アプリでルート設定',
-          icon: '🚗',
-          bg: '#fff3e0',
-          appUrls: [
-            // 公式URLスキーム（緯度経度が無い場合は名称検索相当のウェブへフォールバック）
-            'yjcarnavi://navi/select?name=' + q,
-            'https://map.yahoo.co.jp/maps?q=' + q
-          ]
-        },
-        {
-          name: 'Yahoo!地図',
-          sub: 'ブラウザ / アプリ連携',
-          icon: '🟡',
-          bg: '#fff8e1',
-          appUrls: [
-            'https://map.yahoo.co.jp/maps?q=' + q
-          ]
-        },
-        {
-          name: 'カーナビタイム',
-          sub: 'インストール済みならアプリを起動',
-          icon: '🟢',
-          bg: '#e8f5e9',
-          appUrls: [
-            // 複数の候補スキームを順に試す（端末に入っていればいずれかで起動）
-            'carnavitime://',
-            'carnavitime://search?keyword=' + q,
-            'navitime-drive://',
-            'navitime-drive://search?keyword=' + q,
-            'navitime://',
-            'navitime://search?keyword=' + q,
-            // Android（正式パッケージ com.navitime.local.carnavitime）
-            'intent://#Intent;package=com.navitime.local.carnavitime;scheme=carnavitime;S.browser_fallback_url=' + encodeURIComponent('https://play.google.com/store/apps/details?id=com.navitime.local.carnavitime') + ';end',
-            'intent://#Intent;package=com.navitime.local.carnavitime;scheme=navitime;end',
-            // iOS: App Store（インストール済みなら「開く」が表示される）
-            'itms-apps://apps.apple.com/app/id555847992',
-            'https://apps.apple.com/jp/app/id555847992'
-          ]
-        },
-        {
-          name: 'NAVITIME（乗換）',
-          sub: '公共交通・乗換案内アプリ',
-          icon: '🚃',
-          bg: '#e3f2fd',
-          appUrls: [
-            'navitime://search?keyword=' + q,
-            'https://www.navitime.co.jp/maps/search?keyword=' + q
-          ]
-        },
-        {
-          name: '地理院地図',
-          sub: '国土地理院（ブラウザ）',
-          icon: '🗾',
-          bg: '#f3e5f5',
-          appUrls: [
-            'https://maps.gsi.go.jp/#15/0/0/&q=' + q
-          ]
+      // Google マップのみ：アプリ優先 → ブラウザ
+      var appUrl = 'comgooglemaps://?q=' + q;
+      var webUrl = 'https://www.google.com/maps/search/?api=1&query=' + q;
+      var opened = false;
+      var onHide = function() {
+        if (document.hidden) opened = true;
+      };
+      document.addEventListener('visibilitychange', onHide);
+      try { window.location.href = appUrl; } catch (e) {}
+      setTimeout(function() {
+        document.removeEventListener('visibilitychange', onHide);
+        if (!opened && !document.hidden) {
+          window.open(webUrl, '_blank');
         }
-      ];
-      var list = document.getElementById('mapPickerList');
-      list.innerHTML = apps.map(function(app, i) {
-        return '<button type="button" class="map-picker-item" data-idx="' + i + '">' +
-          '<div class="map-picker-icon" style="background:' + app.bg + '">' + app.icon + '</div>' +
-          '<div><div>' + app.name + '</div><div class="sub">' + app.sub + '</div></div></button>';
-      }).join('');
-      list.querySelectorAll('.map-picker-item').forEach(function(btn) {
-        btn.onclick = function() {
-          var app = apps[parseInt(btn.getAttribute('data-idx'), 10)];
-          closeMapPicker();
-          openAppOrFallback(app.appUrls);
-        };
-      });
-      document.getElementById('mapPickerOverlay').classList.add('active');
-    }
-    function openAppOrFallback(urls) {
-      if (!urls || !urls.length) return;
-      var idx = 0;
-      var done = false;
-      function isCustomScheme(url) {
-        return /^(comgooglemaps|maps|yjcarnavi|navitime|carnavitime|navitime-drive|intent|itms-apps):/i.test(url);
-      }
-      function tryNext() {
-        if (done || idx >= urls.length) return;
-        var url = urls[idx++];
-        if (isCustomScheme(url)) {
-          var hidden = false;
-          var onHide = function() {
-            if (document.hidden) { hidden = true; done = true; }
-          };
-          document.addEventListener('visibilitychange', onHide);
-          // 同一タブでスキームを試す（アプリ起動）
-          try { window.location.href = url; } catch (e) {}
-          setTimeout(function() {
-            document.removeEventListener('visibilitychange', onHide);
-            if (done || hidden || document.hidden) return;
-            tryNext();
-          }, 800);
-        } else if (/^https?:/i.test(url)) {
-          window.open(url, '_blank');
-          done = true;
-        } else {
-          try { window.location.href = url; } catch (e) {}
-          setTimeout(tryNext, 800);
-        }
-      }
-      tryNext();
+      }, 700);
     }
     function closeMapPicker() {
-
-      document.getElementById('mapPickerOverlay').classList.remove('active');
+      var el = document.getElementById('mapPickerOverlay');
+      if (el) el.classList.remove('active');
       pendingMapAddress = '';
     }
 
@@ -1847,13 +1766,14 @@
       if (!ev) return;
       editingEventId = null;
       isCopying = true;
-      tempMedia = (ev.media || []).map(function(m) { return { type: m.type, dataUrl: m.dataUrl }; });
+      // 写真・動画はコピーしない
+      tempMedia = [];
       document.getElementById('modalTitle').textContent = 'セッティングをコピー';
       document.querySelector('.modal-save').textContent = '保存';
       document.getElementById('deleteBtn').style.display = 'none';
-      var baseDate = currentView === 'day' ? selectedDate : (currentView === 'week' ? currentDate : new Date());
-      document.getElementById('eventDate').value = formatDateKey(baseDate);
-      // コピー時は元の時間帯を維持（無ければ現在〜+1h）
+      // コピー時も日付を変更可能（初期は元の日付）
+      document.getElementById('eventDate').value = ev.date || formatDateKey(new Date());
+      // 時間帯は元を維持（無ければ現在〜+1h）
       if (ev.start && ev.end) {
         document.getElementById('eventStart').value = ev.start;
         document.getElementById('eventEnd').value = ev.end;
@@ -1880,6 +1800,96 @@
       tempMedia = [];
       isCopying = false;
     }
+
+    var viewingEventId = null;
+
+    function openDetailModal(id) {
+      var ev = getEvents().find(function(e) { return e.id === id; });
+      if (!ev) return;
+      viewingEventId = id;
+      var m4 = ev.m4 || {};
+      var body = document.getElementById('detailBody');
+      function row(label, val, isLink) {
+        if (val == null || val === '') return '';
+        return '<div class="detail-row"><div class="detail-label">' + escapeHtml(label) + '</div>' +
+          '<div class="detail-value' + (isLink ? ' link' : '') + '">' + escapeHtml(String(val)) + '</div></div>';
+      }
+      var dateLabel = ev.date || '';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateLabel)) {
+        var p = dateLabel.split('-');
+        dateLabel = p[0] + '年' + parseInt(p[1], 10) + '月' + parseInt(p[2], 10) + '日';
+      }
+      var timeStr = (ev.start || '') + (ev.end ? ' – ' + ev.end : '');
+      var html = '';
+      html += '<div class="detail-section-label">日時・場所</div><div class="detail-group">';
+      html += row('日付', dateLabel);
+      html += row('時間', timeStr);
+      if (ev.address) {
+        html += '<div class="detail-row"><div class="detail-label">場所</div>' +
+          '<div class="detail-value link event-address" data-address="' + escapeAttr(ev.address) + '">📍 ' + escapeHtml(ev.address) + '</div></div>';
+      }
+      if (m4.lat != null && m4.lng != null) {
+        html += row('GPS', Number(m4.lat).toFixed(4) + ', ' + Number(m4.lng).toFixed(4));
+      }
+      html += '</div>';
+
+      html += '<div class="detail-section-label">マシン・走行</div><div class="detail-group">';
+      html += row('種別', m4.eventType);
+      html += row('レーン', m4.lanes ? m4.lanes + 'レーン' : '');
+      html += row('クラス', m4.classType);
+      html += row('室内外', m4.indoorOutdoor);
+      html += row('天気', m4.weather);
+      if (m4.temperature != null) html += row('気温', m4.temperature + ' ℃');
+      html += row('モーター', m4.motorType);
+      html += row('M.No.', m4.motorNumber);
+      html += row('ギヤ比', m4.gearRatio);
+      if (m4.tireDiameter != null) html += row('タイヤ', m4.tireDiameter + ' mm');
+      if (m4.weight != null) html += row('車重', m4.weight + ' g');
+      html += row('電池', m4.batteryType);
+      if (m4.voltage != null) html += row('電圧', m4.voltage + ' V');
+      if (m4.speed != null) html += row('時速', m4.speed + ' km/h');
+      if (m4.rpm != null) html += row('回転数', m4.rpm + ' rpm');
+      html += row('結果', m4.result);
+      html += '</div>';
+
+      if (ev.machineName || ev.content) {
+        html += '<div class="detail-section-label">マシン名・メモ</div><div class="detail-group">';
+        html += row('マシン名', ev.machineName);
+        if (ev.content) {
+          html += '<div class="detail-memo">' + escapeHtml(ev.content) + '</div>';
+        }
+        html += '</div>';
+      }
+
+      var mediaList = (ev.media || []).filter(function(m) { return m && m.dataUrl; });
+      if (mediaList.length) {
+        html += '<div class="detail-section-label">写真・動画</div><div class="detail-group"><div class="detail-media">';
+        mediaList.forEach(function(m, mi) {
+          var attrs = ' data-event-id="' + escapeAttr(ev.id) + '" data-media-idx="' + mi + '" class="event-media-thumb"';
+          if (m.type === 'image') {
+            html += '<img src="' + m.dataUrl + '" alt=""' + attrs + '>';
+          } else {
+            html += '<video src="' + m.dataUrl + '" muted playsinline' + attrs + '></video>';
+          }
+        });
+        html += '</div></div>';
+      }
+
+      body.innerHTML = html;
+      document.getElementById('detailOverlay').classList.add('active');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailOverlay').classList.remove('active');
+      viewingEventId = null;
+    }
+
+    function editFromDetail() {
+      var id = viewingEventId;
+      closeDetailModal();
+      if (id) openEditModal(id);
+    }
+
     function buildAutoTitle(m4, content, machineName) {
       var parts = [];
       if (machineName) parts.push(machineName);
@@ -2389,33 +2399,26 @@
         }
         return;
       }
-      var copyBtn = e.target.closest('.copy-btn');
-      if (copyBtn) {
+      var dupBtn = e.target.closest('.dup-btn');
+      if (dupBtn) {
         e.stopPropagation();
-        openCopyModal(copyBtn.getAttribute('data-id'));
+        openCopyModal(dupBtn.getAttribute('data-id'));
         return;
       }
       // スワイプ中のカードクリックは無視（削除ボタン優先）
       var card = e.target.closest('.event-card');
-      if (card && !e.target.closest('.event-address') && !e.target.closest('.copy-btn') && !e.target.closest('.addr-copy-btn') && !e.target.closest('.event-media-thumb')) {
+      if (card && !e.target.closest('.event-address') && !e.target.closest('.dup-btn') && !e.target.closest('.event-media-thumb')) {
         var tx = card.style.transform || '';
         if (tx.indexOf('-88') >= 0 || tx.indexOf('-8') >= 0) {
           // 開いている場合は閉じるだけ
           card.style.transform = 'translateX(0)';
           return;
         }
-        openEditModal(card.getAttribute('data-id'));
-        return;
-      }
-      var addrCopy = e.target.closest('.addr-copy-btn');
-      if (addrCopy) {
-        e.stopPropagation();
-        var text = addrCopy.getAttribute('data-address') || '';
-        copyAddressToClipboard(text, addrCopy);
+        openDetailModal(card.getAttribute('data-id'));
         return;
       }
       var addr = e.target.closest('.event-address');
-      if (addr && !e.target.closest('.addr-copy-btn')) {
+      if (addr) {
         e.stopPropagation();
         openMaps(addr.getAttribute('data-address'));
       }
@@ -2626,7 +2629,7 @@
           var p = dateLabel.split('-');
           dateLabel = p[0] + '/' + parseInt(p[1], 10) + '/' + parseInt(p[2], 10);
         }
-        return '<div class="search-result-card" data-id="' + escapeAttr(ev.id) + '" onclick="openEditModal(\'' + escapeAttr(ev.id) + '\')">' +
+        return '<div class="search-result-card" data-id="' + escapeAttr(ev.id) + '" onclick="openDetailModal(\'' + escapeAttr(ev.id) + '\')">' +
           '<div class="search-result-date">' + escapeHtml(dateLabel) + (ev.address ? ' · ' + escapeHtml(ev.address) : '') + '</div>' +
           '<div class="search-result-title">' + escapeHtml(ev.title || 'セッティング') + '</div>' +
           (badges ? '<div style="margin:2px 0 4px;">' + badges + '</div>' : '') +
