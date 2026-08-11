@@ -6,9 +6,95 @@
   <title>スケジュール & ミニ四駆セッティング</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: #f2f2f7; color: #000; min-height: 100vh; overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
+    /* 全スクロール領域をスムーズに */
+    .today-section,
+    .week-view,
+    .day-view,
+    .search-view,
+    .modal,
+    .gallery-body,
+    .events-list,
+    .search-results,
+    .event-media {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      scroll-behavior: smooth;
+    }
+    /* ボタン・タップ可能要素の押し込みフィードバック */
+    button,
+    .view-tab,
+    .day-cell,
+    .event-card,
+    .search-result-card,
+    .media-btn,
+    .map-picker-item,
+    .gallery-item,
+    .week-event,
+    .fab,
+    .copy-btn,
+    .addr-copy-btn,
+    .search-action-btn,
+    .search-freeword-clear,
+    .nav-btn,
+    .today-btn,
+    .media-header-btn,
+    .search-header-btn,
+    .modal-close,
+    .modal-save,
+    .modal-save-bottom,
+    .delete-btn {
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+      transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+    button:active,
+    .view-tab:active,
+    .media-btn:active,
+    .map-picker-item:active,
+    .search-action-btn:active,
+    .search-freeword-clear:active,
+    .nav-btn:active,
+    .today-btn:active,
+    .media-header-btn:active,
+    .search-header-btn:active,
+    .modal-close:active,
+    .modal-save:active,
+    .modal-save-bottom:active,
+    .delete-btn:active,
+    .copy-btn:active,
+    .addr-copy-btn:active,
+    .gallery-item:active,
+    .search-result-card:active,
+    .week-event:active {
+      transform: scale(0.94);
+      opacity: 0.82;
+      filter: brightness(0.95);
+    }
+    .day-cell:active {
+      background: rgba(0, 0, 0, 0.08);
+      transform: scale(0.97);
+    }
+    .event-card:active {
+      transform: scale(0.985);
+      opacity: 0.92;
+    }
+    .fab:active {
+      transform: scale(0.88);
+      box-shadow: 0 2px 8px rgba(0, 122, 255, 0.35);
+    }
+    .view-tab.active:active {
+      transform: scale(0.96);
     }
     .app-header {
       background: rgba(255, 255, 255, 0.88);
@@ -19,14 +105,14 @@
     .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .header-title { font-size: 16px; font-weight: 600; }
     .header-actions { display: flex; align-items: center; gap: 4px; }
-    .today-btn, .media-header-btn {
+    .today-btn, .media-header-btn, .search-header-btn {
       background: none; border: none; color: #007aff; font-size: 15px; cursor: pointer; padding: 2px 6px;
     }
-    .media-header-btn { font-size: 15px; }
+    .media-header-btn, .search-header-btn { font-size: 15px; }
     .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .month-label { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
     .nav-arrows { display: flex; gap: 12px; }
-    .nav-btn { background: none; border: none; color: #007aff; font-size: 22px; cursor: pointer; padding: 2px 6px; line-height: 1; }
+    .nav-btn { background: none; border: none; color: #007aff; font-size: 33px; cursor: pointer; padding: 4px 10px; line-height: 1; font-weight: 500; }
     .view-tabs { display: flex; background: #e5e5ea; border-radius: 8px; padding: 2px; margin-bottom: 6px; }
     .view-tab {
       flex: 1; text-align: center; padding: 5px 0; font-size: 13px; font-weight: 500;
@@ -86,7 +172,12 @@
     }
     .month-view .calendar-grid { flex: 0 0 auto; }
     .month-view .today-section { flex: 1 1 auto; }
-    .week-view { display: none; background: #fff; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .week-view {
+      display: none; background: #fff;
+      overflow-x: auto; overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      max-height: calc(100vh - 120px);
+    }
     .week-view.active { display: block; }
     .week-header {
       display: grid; grid-template-columns: 48px repeat(7, 1fr); border-bottom: 0.5px solid #e5e5ea;
@@ -114,7 +205,7 @@
       height: 48px; font-size: 11px; color: #8e8e93; text-align: right;
       padding-right: 6px; line-height: 1; position: relative; top: -6px;
     }
-    .week-col { border-left: 0.5px solid #e5e5ea; position: relative; height: calc(48px * 15); }
+    .week-col { border-left: 0.5px solid #e5e5ea; position: relative; height: calc(48px * 24); }
     .week-col.holiday-col { background: rgba(255, 59, 48, 0.04); }
     .hour-line { position: absolute; left: 0; right: 0; height: 0.5px; background: #e5e5ea; }
     .week-event {
@@ -209,6 +300,9 @@
     }
     .form-input::placeholder { color: #c7c7cc; }
     textarea.form-input { min-height: 72px; resize: none; padding: 2px 0; }
+    input[type="time"].form-input {
+      min-height: 28px; font-size: 16px; font-variant-numeric: tabular-nums;
+    }
     .media-section { padding: 8px 16px 16px; }
     .media-buttons { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
     .media-btn-row { display: flex; gap: 8px; }
@@ -271,6 +365,63 @@
     }
     .month-view { display: none; }
     .month-view.active { display: block; }
+    .search-view { display: none; background: #f2f2f7; min-height: calc(100vh - 120px); padding-bottom: 80px; }
+    .search-view.active { display: block; }
+    .search-freeword-wrap {
+      margin: 10px 12px 0; background: #fff; border-radius: 12px; padding: 10px 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .search-freeword-label {
+      font-size: 11px; color: #8e8e93; font-weight: 600; margin-bottom: 6px; display: block;
+    }
+    .search-freeword-row {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .search-freeword-input {
+      flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #e5e5ea;
+      font-size: 15px; background: #f9f9fb; outline: none; color: #000;
+    }
+    .search-freeword-input:focus { border-color: #007aff; background: #fff; }
+    .search-freeword-clear {
+      border: none; background: #e5e5ea; color: #3a3a3c; border-radius: 8px;
+      padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0;
+    }
+    .search-filter-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+      background: #fff; margin: 10px 12px; padding: 12px; border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .search-filter-item { display: flex; flex-direction: column; gap: 4px; }
+    .search-filter-item label {
+      font-size: 11px; color: #8e8e93; font-weight: 600;
+    }
+    .search-filter-item select {
+      padding: 8px 10px; border-radius: 8px; border: 1px solid #e5e5ea;
+      font-size: 14px; background: #f9f9fb; outline: none; color: #000;
+      -webkit-appearance: none; appearance: none;
+    }
+    .search-btn-row {
+      grid-column: span 2; display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; flex-wrap: wrap;
+    }
+    .search-action-btn {
+      border: none; border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .search-action-btn.primary { background: #007aff; color: #fff; }
+    .search-action-btn.gray { background: #e5e5ea; color: #3a3a3c; }
+    .search-results {
+      padding: 0 12px 20px;
+    }
+    .search-results-title {
+      font-size: 13px; font-weight: 600; color: #8e8e93; margin: 4px 4px 10px;
+    }
+    .search-result-card {
+      background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: pointer;
+    }
+    .search-result-card:active { background: #f2f2f7; }
+    .search-result-date { font-size: 12px; color: #8e8e93; margin-bottom: 2px; }
+    .search-result-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .search-result-meta { font-size: 12px; color: #3a3a3c; line-height: 1.4; }
     .gallery-modal .modal { max-height: 88vh; }
     .gallery-tabs {
       display: flex; background: #e5e5ea; border-radius: 9px; padding: 2px; margin: 12px 16px;
@@ -380,6 +531,7 @@
       <div class="header-title">スケジュール / ミニ四駆</div>
       <div class="header-actions">
         <button class="today-btn" onclick="goToToday()">今日</button>
+        <button class="search-header-btn" onclick="openSearchView()" title="セッティング検索">🔍</button>
         <button class="media-header-btn" onclick="openGallery()" title="すべての写真・動画">📷</button>
       </div>
     </div>
@@ -427,6 +579,74 @@
     <div class="events-list" id="dayEventsList"></div>
   </div>
 
+  <!-- セッティング検索ビュー -->
+  <div class="search-view" id="searchView">
+    <div class="search-freeword-wrap">
+      <label class="search-freeword-label" for="sfFreeword">フリーワード検索</label>
+      <div class="search-freeword-row">
+        <input type="search" class="search-freeword-input" id="sfFreeword"
+          placeholder="タイトル・メモ・場所・モーターなど" enterkeyhint="search"
+          autocomplete="off" />
+        <button type="button" class="search-freeword-clear" onclick="clearFreeword()">クリア</button>
+      </div>
+    </div>
+    <div class="search-filter-grid">
+      <div class="search-filter-item">
+        <label>日付</label>
+        <select id="sfDate"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>種別</label>
+        <select id="sfEventType"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>モーター</label>
+        <select id="sfMotor"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>クラス</label>
+        <select id="sfClass"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>ギヤ比</label>
+        <select id="sfGear"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>電圧</label>
+        <select id="sfVoltage"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>場所</label>
+        <select id="sfPlace"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>RPM</label>
+        <select id="sfRpm"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>タイヤ径</label>
+        <select id="sfTire"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>結果</label>
+        <select id="sfResult"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>マシン名</label>
+        <select id="sfMachine"><option value="">すべて</option></select>
+      </div>
+      <div class="search-btn-row">
+        <button type="button" class="search-action-btn gray" onclick="resetSearchFilters()">リセット</button>
+        <button type="button" class="search-action-btn primary" onclick="runSearch()">検索</button>
+        <button type="button" class="search-action-btn gray" onclick="closeSearchView()">閉じる</button>
+      </div>
+    </div>
+    <div class="search-results">
+      <div class="search-results-title" id="searchResultsTitle">検索結果</div>
+      <div id="searchResultsList"></div>
+    </div>
+  </div>
+
   <button class="fab" onclick="openAddModal()">＋</button>
 
   <div class="modal-overlay" id="modalOverlay">
@@ -438,14 +658,29 @@
       </div>
       <!-- 日付はカレンダー選択日から自動（非表示） -->
       <input type="hidden" id="eventDate" value="">
-      <input type="hidden" id="eventStart" value="">
-      <input type="hidden" id="eventEnd" value="">
 
-      <div class="section-label">場所</div>
+      <div class="section-label">日時・場所</div>
       <div class="form-group">
+        <div class="form-row">
+          <div class="form-label">開始</div>
+          <input type="time" class="form-input" id="eventStart" value="09:00" step="300">
+        </div>
+        <div class="form-row">
+          <div class="form-label">終了</div>
+          <input type="time" class="form-input" id="eventEnd" value="10:00" step="300">
+        </div>
         <div class="form-row">
           <div class="form-label">場所</div>
           <input type="text" class="form-input" id="eventAddress" placeholder="コース名・会場など">
+        </div>
+        <div class="form-row">
+          <div class="form-label">GPS</div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+            <span id="m4GpsStatus" style="font-size:12px;color:#8e8e93;">未取得</span>
+            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="getM4GPS()">取得</button>
+          </div>
+          <input type="hidden" id="m4Lat" value="">
+          <input type="hidden" id="m4Lng" value="">
         </div>
       </div>
 
@@ -602,19 +837,14 @@
             <option value="コースアウト">コースアウト</option>
           </select>
         </div>
-        <div class="form-row">
-          <div class="form-label">GPS</div>
-          <div style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:8px;">
-            <span id="m4GpsStatus" style="font-size:12px;color:#8e8e93;">未取得</span>
-            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="getM4GPS()">取得</button>
-          </div>
-          <input type="hidden" id="m4Lat" value="">
-          <input type="hidden" id="m4Lng" value="">
-        </div>
       </div>
 
-      <div class="section-label">セッティングメモ</div>
+      <div class="section-label">マシン名・メモ</div>
       <div class="form-group">
+        <div class="form-row">
+          <div class="form-label">マシン名</div>
+          <input type="text" class="form-input" id="eventMachineName" placeholder="マシン名" maxlength="40">
+        </div>
         <div class="form-row" style="align-items: flex-start;">
           <textarea class="form-input" id="eventContent" placeholder="セッティングメモを入力" style="min-height:88px;"></textarea>
         </div>
@@ -637,9 +867,9 @@
         <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none" onchange="handleFiles(event)">
         <input type="file" id="fileInputImage" accept="image/*" multiple style="display:none" onchange="handleFiles(event)">
         <input type="file" id="fileInputVideo" accept="video/*" multiple style="display:none" onchange="handleFiles(event)">
-        <p style="font-size:11px;color:#8e8e93;margin-top:8px;">写真・動画は IndexedDB に保存され、保存後もプレビュー・拡大できます。動画の最高画質はライブラリ追加が確実です。</p>
       </div>
       <button class="modal-save-bottom" id="saveBtnBottom" onclick="saveEvent()">保存</button>
+      <button class="delete-btn" id="cancelBtnBottom" onclick="closeModal()" style="color:#3a3a3c;">キャンセル</button>
       <button class="delete-btn" id="deleteBtn" style="display:none" onclick="deleteEvent()">内容を削除</button>
     </div>
   </div>
@@ -909,12 +1139,26 @@
       document.getElementById('monthView').classList.toggle('active', view === 'month');
       document.getElementById('weekView').classList.toggle('active', view === 'week');
       document.getElementById('dayView').classList.toggle('active', view === 'day');
+      var searchEl = document.getElementById('searchView');
+      if (searchEl) searchEl.classList.toggle('active', view === 'search');
+      // 検索ビュー時はタブ・月ナビ・FABを隠す
+      var tabs = document.querySelector('.view-tabs');
+      var monthNav = document.querySelector('.month-nav');
+      var fab = document.querySelector('.fab');
+      if (tabs) tabs.style.display = (view === 'search') ? 'none' : '';
+      if (monthNav) monthNav.style.display = (view === 'search') ? 'none' : '';
+      if (fab) fab.style.display = (view === 'search') ? 'none' : '';
       if (view === 'month') renderMonth();
       else if (view === 'week') renderWeek();
-      else renderDay();
+      else if (view === 'day') renderDay();
+      else if (view === 'search') {
+        populateSearchFilters();
+        runSearch();
+      }
       updatePeriodLabel();
     }
     function navigate(delta) {
+      if (currentView === 'search') return;
       if (currentView === 'month') {
         currentDate.setMonth(currentDate.getMonth() + delta);
         renderMonth();
@@ -944,6 +1188,8 @@
         var end = new Date(start);
         end.setDate(end.getDate() + 6);
         label.textContent = (start.getMonth() + 1) + '/' + start.getDate() + ' – ' + (end.getMonth() + 1) + '/' + end.getDate();
+      } else if (currentView === 'search') {
+        label.textContent = 'セッティング検索';
       } else label.textContent = formatDisplayDate(selectedDate);
     }
 
@@ -1067,7 +1313,7 @@
         'rgba(255, 59, 48, 0.90)', 'rgba(255, 149, 0, 0.90)', 'rgba(255, 179, 0, 0.92)',
         'rgba(52, 199, 89, 0.90)', 'rgba(50, 173, 230, 0.90)', 'rgba(0, 122, 255, 0.90)', 'rgba(175, 82, 222, 0.90)'
       ];
-      var HOUR_START = 7, HOUR_END = 21, HOUR_COUNT = HOUR_END - HOUR_START, ROW_H = 48;
+      var HOUR_START = 0, HOUR_END = 23, HOUR_COUNT = HOUR_END - HOUR_START, ROW_H = 48;
 
       var headerHtml = '<div style="width:48px"></div>';
       for (var i = 0; i < 7; i++) {
@@ -1113,16 +1359,25 @@
         dayEvents.forEach(function(ev) {
           var startParts = (ev.start || '09:00').split(':').map(Number);
           var endParts = (ev.end || '10:00').split(':').map(Number);
-          var sh = startParts[0], sm = startParts[1];
-          var eh = endParts[0], em = endParts[1];
+          var sh = startParts[0] || 0, sm = startParts[1] || 0;
+          var eh = endParts[0] || 0, em = endParts[1] || 0;
+          // 終了が開始以前なら +1時間
+          if (eh * 60 + em <= sh * 60 + sm) {
+            eh = sh + 1;
+            em = sm;
+            if (eh > 23) { eh = 23; em = 59; }
+          }
           if (eh < HOUR_START || sh > HOUR_END) return;
           if (sh < HOUR_START) { sh = HOUR_START; sm = 0; }
           if (eh > HOUR_END) { eh = HOUR_END; em = 0; }
           var top = ((sh - HOUR_START) + sm / 60) * ROW_H;
           var height = ((eh + em / 60) - (sh + sm / 60)) * ROW_H;
-          if (height < 18) height = 18;
+          if (height < 22) height = 22;
+          var timeLabel = (ev.start || '') + (ev.end ? '–' + ev.end : '');
           bodyHtml += '<div class="week-event" style="top:' + top + 'px;height:' + height + 'px;background:' + color + '" data-id="' + ev.id + '">' +
-            '<div class="week-event-title">' + escapeHtml(ev.title || '無題') + '</div></div>';
+            '<div class="week-event-title">' + escapeHtml(ev.title || '無題') + '</div>' +
+            (timeLabel ? '<div style="font-size:9px;opacity:0.9;">' + escapeHtml(timeLabel) + '</div>' : '') +
+            '</div>';
         });
         bodyHtml += '</div>';
       }
@@ -1177,6 +1432,7 @@
       if (m4.result === '完走') badges += '<span class="m4-badge finish">完走</span>';
       if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">コースアウト</span>';
       var summaryParts = [];
+      if (ev.machineName) summaryParts.push(ev.machineName);
       if (m4.motorType) summaryParts.push('モーター ' + m4.motorType);
       if (m4.gearRatio) summaryParts.push('ギヤ ' + m4.gearRatio);
       if (m4.speed != null && m4.speed !== '') summaryParts.push(m4.speed + ' km/h');
@@ -1549,11 +1805,19 @@
       var baseDate = currentView === 'day' ? selectedDate : (currentView === 'week' ? currentDate : new Date());
       document.getElementById('eventDate').value = formatDateKey(baseDate);
       var now = new Date();
-      var hh = String(now.getHours()).padStart(2, '0');
-      var mm = String(now.getMinutes()).padStart(2, '0');
-      document.getElementById('eventStart').value = hh + ':' + mm;
-      document.getElementById('eventEnd').value = hh + ':' + mm;
+      // 5分単位に丸める
+      var totalMin = now.getHours() * 60 + now.getMinutes();
+      totalMin = Math.floor(totalMin / 5) * 5;
+      var endMin = totalMin + 60;
+      function toHHMM(mins) {
+        var h = Math.floor(mins / 60) % 24;
+        var m = mins % 60;
+        return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+      }
+      document.getElementById('eventStart').value = toHHMM(totalMin);
+      document.getElementById('eventEnd').value = toHHMM(endMin);
       document.getElementById('eventAddress').value = '';
+      document.getElementById('eventMachineName').value = '';
       document.getElementById('eventContent').value = '';
       clearM4Form();
       renderMediaPreview();
@@ -1572,6 +1836,7 @@
       document.getElementById('eventStart').value = ev.start || '';
       document.getElementById('eventEnd').value = ev.end || '';
       document.getElementById('eventAddress').value = ev.address || '';
+      document.getElementById('eventMachineName').value = ev.machineName || '';
       document.getElementById('eventContent').value = ev.content || '';
       fillM4Form(ev.m4);
       renderMediaPreview();
@@ -1588,12 +1853,23 @@
       document.getElementById('deleteBtn').style.display = 'none';
       var baseDate = currentView === 'day' ? selectedDate : (currentView === 'week' ? currentDate : new Date());
       document.getElementById('eventDate').value = formatDateKey(baseDate);
-      var now = new Date();
-      var hh = String(now.getHours()).padStart(2, '0');
-      var mm = String(now.getMinutes()).padStart(2, '0');
-      document.getElementById('eventStart').value = hh + ':' + mm;
-      document.getElementById('eventEnd').value = hh + ':' + mm;
+      // コピー時は元の時間帯を維持（無ければ現在〜+1h）
+      if (ev.start && ev.end) {
+        document.getElementById('eventStart').value = ev.start;
+        document.getElementById('eventEnd').value = ev.end;
+      } else {
+        var now = new Date();
+        var totalMin = Math.floor((now.getHours() * 60 + now.getMinutes()) / 5) * 5;
+        function toHHMM(mins) {
+          var h = Math.floor(mins / 60) % 24;
+          var m = mins % 60;
+          return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+        }
+        document.getElementById('eventStart').value = toHHMM(totalMin);
+        document.getElementById('eventEnd').value = toHHMM(totalMin + 60);
+      }
       document.getElementById('eventAddress').value = ev.address || '';
+      document.getElementById('eventMachineName').value = ev.machineName || '';
       document.getElementById('eventContent').value = ev.content || '';
       fillM4Form(ev.m4);
       renderMediaPreview();
@@ -1604,8 +1880,9 @@
       tempMedia = [];
       isCopying = false;
     }
-    function buildAutoTitle(m4, content) {
+    function buildAutoTitle(m4, content, machineName) {
       var parts = [];
+      if (machineName) parts.push(machineName);
       if (m4 && m4.eventType) parts.push(m4.eventType);
       if (m4 && m4.classType) parts.push(m4.classType);
       if (m4 && m4.motorType) parts.push(m4.motorType);
@@ -1615,22 +1892,33 @@
     }
     function saveEvent() {
       var date = document.getElementById('eventDate').value;
-      var start = document.getElementById('eventStart').value;
-      var end = document.getElementById('eventEnd').value;
+      var start = document.getElementById('eventStart').value || '09:00';
+      var end = document.getElementById('eventEnd').value || '10:00';
       var address = document.getElementById('eventAddress').value.trim();
+      var machineName = document.getElementById('eventMachineName').value.trim();
       var content = document.getElementById('eventContent').value.trim();
       var m4 = readM4FromForm();
       if (!date) {
         date = formatDateKey(new Date());
         document.getElementById('eventDate').value = date;
       }
+      // 終了時刻が開始以前なら自動で+1時間
+      (function() {
+        var sp = start.split(':').map(Number);
+        var ep = end.split(':').map(Number);
+        if ((ep[0] * 60 + (ep[1] || 0)) <= (sp[0] * 60 + (sp[1] || 0))) {
+          var nm = sp[0] * 60 + (sp[1] || 0) + 60;
+          end = String(Math.floor(nm / 60) % 24).padStart(2, '0') + ':' + String(nm % 60).padStart(2, '0');
+          document.getElementById('eventEnd').value = end;
+        }
+      })();
       var hasM4 = m4.motorType || m4.classType || m4.eventType || m4.gearRatio || m4.result ||
         m4.speed != null || m4.rpm != null;
-      if (!content && !address && !hasM4 && tempMedia.length === 0) {
+      if (!content && !address && !machineName && !hasM4 && tempMedia.length === 0) {
         alert('セッティングメモか項目を入力してください');
         return;
       }
-      var title = buildAutoTitle(m4, content);
+      var title = buildAutoTitle(m4, content, machineName);
       // IndexedDB に写真・動画本体も含めて保存（保存後もプレビュー・拡大可能）
       var mediaFull = (tempMedia || []).map(function(m) {
         return {
@@ -1645,7 +1933,7 @@
         if (idx !== -1) {
           events[idx] = {
             id: events[idx].id, date: date, title: title, start: start, end: end,
-            address: address, content: content, media: mediaFull, m4: m4,
+            address: address, machineName: machineName, content: content, media: mediaFull, m4: m4,
             updatedAt: Date.now(),
             createdAt: events[idx].createdAt || Date.now()
           };
@@ -1654,7 +1942,7 @@
         events.push({
           id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
           date: date, title: title, start: start, end: end,
-          address: address, content: content, media: mediaFull, m4: m4,
+          address: address, machineName: machineName, content: content, media: mediaFull, m4: m4,
           createdAt: Date.now(), updatedAt: Date.now()
         });
       }
@@ -1662,7 +1950,10 @@
         closeModal();
         if (currentView === 'month') renderMonth();
         else if (currentView === 'week') renderWeek();
-        else {
+        else if (currentView === 'search') {
+          populateSearchFilters();
+          runSearch();
+        } else {
           selectedDate = new Date(date + 'T12:00:00');
           renderDay();
         }
@@ -1675,7 +1966,10 @@
       closeModal();
       if (currentView === 'month') renderMonth();
       else if (currentView === 'week') renderWeek();
-      else renderDay();
+      else if (currentView === 'search') {
+        populateSearchFilters();
+        runSearch();
+      } else renderDay();
     }
 
     // ===== 端末保存 =====
@@ -2127,8 +2421,261 @@
       }
     });
 
+    // ===== セッティング検索（フリーワード + プルダウン） =====
+    function openSearchView() {
+      switchView('search');
+    }
+    function closeSearchView() {
+      switchView('month');
+    }
+
+    function getSearchFilterEls() {
+      return {
+        date: document.getElementById('sfDate'),
+        eventType: document.getElementById('sfEventType'),
+        motor: document.getElementById('sfMotor'),
+        classType: document.getElementById('sfClass'),
+        gear: document.getElementById('sfGear'),
+        voltage: document.getElementById('sfVoltage'),
+        place: document.getElementById('sfPlace'),
+        rpm: document.getElementById('sfRpm'),
+        tire: document.getElementById('sfTire'),
+        result: document.getElementById('sfResult'),
+        machine: document.getElementById('sfMachine')
+      };
+    }
+
+    function m4Val(ev, key) {
+      var m4 = ev.m4 || {};
+      var v = m4[key];
+      if (v == null || v === '') return '';
+      return String(v);
+    }
+
+    function getCurrentFilterValues() {
+      var els = getSearchFilterEls();
+      var freeEl = document.getElementById('sfFreeword');
+      return {
+        freeword: freeEl ? freeEl.value.trim() : '',
+        date: els.date ? els.date.value : '',
+        eventType: els.eventType ? els.eventType.value : '',
+        motor: els.motor ? els.motor.value : '',
+        classType: els.classType ? els.classType.value : '',
+        gear: els.gear ? els.gear.value : '',
+        voltage: els.voltage ? els.voltage.value : '',
+        place: els.place ? els.place.value : '',
+        rpm: els.rpm ? els.rpm.value : '',
+        tire: els.tire ? els.tire.value : '',
+        result: els.result ? els.result.value : '',
+        machine: els.machine ? els.machine.value : ''
+      };
+    }
+
+    /** プルダウン以外の条件で絞る（指定キー自身は除外＝連動用） */
+    function eventsMatchingFiltersExcept(excludeKey) {
+      var f = getCurrentFilterValues();
+      return getEvents().filter(function(ev) {
+        if (excludeKey !== 'date' && f.date && ev.date !== f.date) return false;
+        if (excludeKey !== 'eventType' && f.eventType && m4Val(ev, 'eventType') !== f.eventType) return false;
+        if (excludeKey !== 'motor' && f.motor && m4Val(ev, 'motorType') !== f.motor) return false;
+        if (excludeKey !== 'classType' && f.classType && m4Val(ev, 'classType') !== f.classType) return false;
+        if (excludeKey !== 'gear' && f.gear && m4Val(ev, 'gearRatio') !== f.gear) return false;
+        if (excludeKey !== 'voltage' && f.voltage && m4Val(ev, 'voltage') !== f.voltage) return false;
+        if (excludeKey !== 'place' && f.place && (ev.address || '') !== f.place) return false;
+        if (excludeKey !== 'rpm' && f.rpm && m4Val(ev, 'rpm') !== f.rpm) return false;
+        if (excludeKey !== 'tire' && f.tire && m4Val(ev, 'tireDiameter') !== f.tire) return false;
+        if (excludeKey !== 'result' && f.result && m4Val(ev, 'result') !== f.result) return false;
+        if (excludeKey !== 'machine' && f.machine && (ev.machineName || '') !== f.machine) return false;
+        // フリーワードはプルダウン候補にも反映（常に適用）
+        if (f.freeword && !eventMatchesFreeword(ev, f.freeword)) return false;
+        return true;
+      });
+    }
+
+    function eventMatchesFreeword(ev, keyword) {
+      if (!keyword) return true;
+      var q = keyword.toLowerCase();
+      var m4 = ev.m4 || {};
+      var bag = [
+        ev.title, ev.content, ev.address, ev.machineName, ev.date,
+        m4.eventType, m4.classType, m4.motorType, m4.motorNumber,
+        m4.gearRatio, m4.batteryType, m4.result, m4.weather,
+        m4.indoorOutdoor, m4.lanes,
+        m4.voltage != null ? String(m4.voltage) : '',
+        m4.speed != null ? String(m4.speed) : '',
+        m4.rpm != null ? String(m4.rpm) : '',
+        m4.tireDiameter != null ? String(m4.tireDiameter) : '',
+        m4.weight != null ? String(m4.weight) : ''
+      ].join(' ').toLowerCase();
+      // スペース区切りは AND
+      var tokens = q.split(/\s+/).filter(Boolean);
+      return tokens.every(function(t) { return bag.indexOf(t) !== -1; });
+    }
+
+    function collectFieldValues(events, fieldKey) {
+      var map = {};
+      events.forEach(function(ev) {
+        var v = '';
+        if (fieldKey === 'date') v = ev.date || '';
+        else if (fieldKey === 'place') v = ev.address || '';
+        else if (fieldKey === 'machine') v = ev.machineName || '';
+        else if (fieldKey === 'eventType') v = m4Val(ev, 'eventType');
+        else if (fieldKey === 'motor') v = m4Val(ev, 'motorType');
+        else if (fieldKey === 'classType') v = m4Val(ev, 'classType');
+        else if (fieldKey === 'gear') v = m4Val(ev, 'gearRatio');
+        else if (fieldKey === 'voltage') v = m4Val(ev, 'voltage');
+        else if (fieldKey === 'rpm') v = m4Val(ev, 'rpm');
+        else if (fieldKey === 'tire') v = m4Val(ev, 'tireDiameter');
+        else if (fieldKey === 'result') v = m4Val(ev, 'result');
+        if (v) map[v] = true;
+      });
+      return Object.keys(map);
+    }
+
+    function fillSelect(select, values, sortFn) {
+      if (!select) return;
+      var current = select.value;
+      var keys = values.slice();
+      if (sortFn) keys.sort(sortFn);
+      else keys.sort(function(a, b) { return String(a).localeCompare(String(b), 'ja'); });
+      select.innerHTML = '<option value="">すべて</option>';
+      keys.forEach(function(k) {
+        var opt = document.createElement('option');
+        opt.value = k;
+        opt.textContent = k;
+        select.appendChild(opt);
+      });
+      // 現在の選択が候補に残っていれば維持、なければ「すべて」
+      if (current && keys.indexOf(current) !== -1) select.value = current;
+      else select.value = '';
+    }
+
+    /**
+     * 各プルダウンは「他の条件に合う登録データに実際に存在する値」だけ表示。
+     * 例: 結果が完走のカードだけに絞ったとき、その完走カードに無いモーターは候補から消える。
+     */
+    function populateSearchFilters() {
+      var els = getSearchFilterEls();
+      var numSort = function(a, b) { return Number(a) - Number(b); };
+      var dateSort = function(a, b) { return b.localeCompare(a); };
+
+      fillSelect(els.date, collectFieldValues(eventsMatchingFiltersExcept('date'), 'date'), dateSort);
+      fillSelect(els.eventType, collectFieldValues(eventsMatchingFiltersExcept('eventType'), 'eventType'));
+      fillSelect(els.motor, collectFieldValues(eventsMatchingFiltersExcept('motor'), 'motor'));
+      fillSelect(els.classType, collectFieldValues(eventsMatchingFiltersExcept('classType'), 'classType'));
+      fillSelect(els.gear, collectFieldValues(eventsMatchingFiltersExcept('gear'), 'gear'));
+      fillSelect(els.voltage, collectFieldValues(eventsMatchingFiltersExcept('voltage'), 'voltage'), numSort);
+      fillSelect(els.place, collectFieldValues(eventsMatchingFiltersExcept('place'), 'place'));
+      fillSelect(els.rpm, collectFieldValues(eventsMatchingFiltersExcept('rpm'), 'rpm'), numSort);
+      fillSelect(els.tire, collectFieldValues(eventsMatchingFiltersExcept('tire'), 'tire'), numSort);
+      fillSelect(els.result, collectFieldValues(eventsMatchingFiltersExcept('result'), 'result'));
+      fillSelect(els.machine, collectFieldValues(eventsMatchingFiltersExcept('machine'), 'machine'));
+    }
+
+    function filterEventsBySearch() {
+      var f = getCurrentFilterValues();
+      return getEvents().filter(function(ev) {
+        if (f.date && ev.date !== f.date) return false;
+        if (f.eventType && m4Val(ev, 'eventType') !== f.eventType) return false;
+        if (f.motor && m4Val(ev, 'motorType') !== f.motor) return false;
+        if (f.classType && m4Val(ev, 'classType') !== f.classType) return false;
+        if (f.gear && m4Val(ev, 'gearRatio') !== f.gear) return false;
+        if (f.voltage && m4Val(ev, 'voltage') !== f.voltage) return false;
+        if (f.place && (ev.address || '') !== f.place) return false;
+        if (f.rpm && m4Val(ev, 'rpm') !== f.rpm) return false;
+        if (f.tire && m4Val(ev, 'tireDiameter') !== f.tire) return false;
+        if (f.result && m4Val(ev, 'result') !== f.result) return false;
+        if (f.machine && (ev.machineName || '') !== f.machine) return false;
+        if (f.freeword && !eventMatchesFreeword(ev, f.freeword)) return false;
+        return true;
+      }).sort(function(a, b) {
+        if (a.date !== b.date) return (b.date || '').localeCompare(a.date || '');
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+    }
+
+    function runSearch() {
+      // 連動：候補を先に更新してから結果表示
+      populateSearchFilters();
+      var filtered = filterEventsBySearch();
+      var list = document.getElementById('searchResultsList');
+      var title = document.getElementById('searchResultsTitle');
+      if (title) title.textContent = '検索結果（' + filtered.length + '件）';
+      if (!list) return;
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-state" style="padding:32px 0"><p>該当するセッティングはありません</p></div>';
+        return;
+      }
+      list.innerHTML = filtered.map(function(ev) {
+        var m4 = ev.m4 || {};
+        var badges = '';
+        if (m4.eventType) badges += '<span class="m4-badge' + (m4.eventType === '大会' ? ' race' : '') + '">' + escapeHtml(m4.eventType) + '</span>';
+        if (m4.classType) badges += '<span class="m4-badge">' + escapeHtml(m4.classType) + '</span>';
+        if (m4.result === '完走') badges += '<span class="m4-badge finish">完走</span>';
+        if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">コースアウト</span>';
+        var parts = [];
+        if (ev.machineName) parts.push(ev.machineName);
+        if (m4.motorType) parts.push(m4.motorType);
+        if (m4.gearRatio) parts.push('ギヤ ' + m4.gearRatio);
+        if (m4.voltage != null && m4.voltage !== '') parts.push(m4.voltage + 'V');
+        if (m4.speed != null && m4.speed !== '') parts.push(m4.speed + ' km/h');
+        if (m4.rpm != null && m4.rpm !== '') parts.push(m4.rpm + ' rpm');
+        if (m4.tireDiameter != null && m4.tireDiameter !== '') parts.push('タイヤ ' + m4.tireDiameter + 'mm');
+        var dateLabel = ev.date || '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateLabel)) {
+          var p = dateLabel.split('-');
+          dateLabel = p[0] + '/' + parseInt(p[1], 10) + '/' + parseInt(p[2], 10);
+        }
+        return '<div class="search-result-card" data-id="' + escapeAttr(ev.id) + '" onclick="openEditModal(\'' + escapeAttr(ev.id) + '\')">' +
+          '<div class="search-result-date">' + escapeHtml(dateLabel) + (ev.address ? ' · ' + escapeHtml(ev.address) : '') + '</div>' +
+          '<div class="search-result-title">' + escapeHtml(ev.title || 'セッティング') + '</div>' +
+          (badges ? '<div style="margin:2px 0 4px;">' + badges + '</div>' : '') +
+          (parts.length ? '<div class="search-result-meta">' + escapeHtml(parts.join(' · ')) + '</div>' : '') +
+          '</div>';
+      }).join('');
+    }
+
+    function clearFreeword() {
+      var el = document.getElementById('sfFreeword');
+      if (el) el.value = '';
+      runSearch();
+    }
+
+    function resetSearchFilters() {
+      var els = getSearchFilterEls();
+      Object.keys(els).forEach(function(k) {
+        if (els[k]) els[k].value = '';
+      });
+      var free = document.getElementById('sfFreeword');
+      if (free) free.value = '';
+      runSearch();
+    }
+
+    function bindSearchFilterEvents() {
+      var els = getSearchFilterEls();
+      Object.keys(els).forEach(function(k) {
+        if (!els[k]) return;
+        els[k].addEventListener('change', function() { runSearch(); });
+      });
+      var free = document.getElementById('sfFreeword');
+      if (free) {
+        free.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            runSearch();
+          }
+        });
+        // 入力中も軽く反映（デバウンスなしでシンプルに）
+        free.addEventListener('input', function() {
+          // 候補の連動＋結果更新
+          runSearch();
+        });
+      }
+    }
+
     // IndexedDB から読み込んでから表示
     initEventsStorage().then(function() {
+      bindSearchFilterEvents();
       switchView('month');
     });
   </script>
