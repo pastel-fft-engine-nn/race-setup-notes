@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>スケジュール & ミニ四駆セッティング</title>
+  <title>memory</title>
   <style>
     * {
       margin: 0; padding: 0; box-sizing: border-box;
@@ -131,12 +131,15 @@
     .weekday.sat { color: #007aff; }
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); background: #fff; padding: 0 1px 4px; gap: 0; }
     .day-cell {
-      min-height: 48px; max-height: 56px; display: flex; flex-direction: column; align-items: center;
-      padding: 2px 1px 3px; cursor: pointer; border-radius: 6px; margin: 0; transition: background 0.12s; overflow: hidden;
+      min-height: 42px; max-height: 48px; display: flex; flex-direction: column; align-items: center;
+      padding: 2px 1px 4px; cursor: pointer; border-radius: 8px; margin: 0; transition: background 0.12s; overflow: hidden;
     }
     .day-cell:active { background: rgba(0, 0, 0, 0.05); }
+    .day-cell.selected {
+      background: rgba(0, 122, 255, 0.1);
+    }
     .day-number {
-      font-size: 13px; font-weight: 400; width: 22px; height: 22px;
+      font-size: 13px; font-weight: 400; width: 24px; height: 24px;
       display: flex; align-items: center; justify-content: center; border-radius: 50%; line-height: 1; flex-shrink: 0;
     }
     .day-cell.other-month .day-number { color: #c7c7cc; }
@@ -148,36 +151,44 @@
     .day-cell.holiday .day-number { color: #ff3b30; }
     .day-cell.other-month.holiday .day-number { color: #ffb3ad; }
     .day-cell.today.holiday .day-number { background: #ff3b30; color: #fff !important; }
-    .day-events { width: 100%; margin-top: 1px; display: flex; flex-direction: column; gap: 0; overflow: hidden; max-height: 28px; }
-    .day-event-name {
-      font-size: 8px; line-height: 1.2; color: #007aff; background: rgba(0, 122, 255, 0.1);
-      border-radius: 2px; padding: 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; max-width: 100%;
-    }
-    .day-event-name.holiday-name { color: #ff3b30; background: rgba(255, 59, 48, 0.12); }
-    .day-event-name.more { color: #8e8e93; background: transparent; font-size: 7px; text-align: center; }
+    /* 数字＋色ドットのみ（セル内テキストなし） */
     .day-event-dots {
-      display: flex; justify-content: center; gap: 3px; margin-top: 2px; min-height: 5px;
+      display: flex; justify-content: center; align-items: center; gap: 3px; margin-top: 3px; min-height: 6px;
     }
     .day-event-dot {
       width: 5px; height: 5px; border-radius: 50%; background: #007aff;
     }
+    .day-event-dot.practice { background: #007aff; }
+    .day-event-dot.race { background: #af52de; }
     .day-event-dot.holiday { background: #ff3b30; }
+    .day-event-dot.more-dot { background: #8e8e93; width: 4px; height: 4px; }
     .today-section {
-      background: #fff; margin-top: 6px; border-radius: 12px 12px 0 0;
-      padding: 10px 14px 16px; min-height: 0; max-height: 28vh; overflow-y: auto;
+      background: #fff; margin-top: 8px; border-radius: 14px 14px 0 0;
+      padding: 12px 14px 16px; min-height: 0; max-height: 36vh; overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      border-top: 1px solid rgba(0,0,0,0.06);
     }
     .today-section-title {
-      font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #3a3a3c;
-      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #1c1c1e;
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     }
-    .today-section-title span { color: #007aff; font-weight: 500; font-size: 12px; }
-    /* 月ビュー：画面内にカレンダー＋今日の予定を収める */
+    .today-section-title span { color: #007aff; font-weight: 600; font-size: 13px; }
+    .today-section-title .sel-count {
+      margin-left: auto; font-size: 12px; font-weight: 500; color: #8e8e93;
+    }
+    /* カード左の結果バー */
+    .event-card.result-finish { border-left: 4px solid #34c759; }
+    .event-card.result-out { border-left: 4px solid #ff3b30; }
+    .event-card.result-none { border-left: 4px solid transparent; }
+    /* 月ビュー：カレンダー＋選択日の予定 */
     .month-view.active {
       display: flex; flex-direction: column; min-height: calc(100vh - 0px);
     }
     .month-view .calendar-grid { flex: 0 0 auto; }
     .month-view .today-section { flex: 1 1 auto; }
+    body.dark-mode .day-cell.selected { background: rgba(10, 132, 255, 0.18); }
+    body.dark-mode .today-section { border-top-color: rgba(255,255,255,0.08); }
+    body.dark-mode .today-section-title { color: #f2f2f7; }
     .week-view {
       display: none; background: #fff;
       overflow-x: auto; overflow-y: auto;
@@ -474,6 +485,106 @@
     body.dark-mode .analysis-combo-item select {
       background: #2c2c2e; color: #f2f2f7; border-color: #3a3a3c;
     }
+    .analysis-subtabs {
+      display: flex; gap: 0; background: #e5e5ea; border-radius: 10px; padding: 3px; margin-bottom: 12px;
+    }
+    .analysis-subtab {
+      flex: 1; border: none; background: transparent; padding: 8px 4px; border-radius: 8px;
+      font-size: 12px; font-weight: 600; color: #8e8e93; cursor: pointer;
+    }
+    .venue-card {
+      background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    body.dark-mode .venue-card { background: #1c1c1e; }
+    .venue-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #1c1c1e; }
+    body.dark-mode .venue-name { color: #f2f2f7; }
+    .venue-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .venue-actions button {
+      border: none; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .venue-btn-map { background: #007aff; color: #fff; }
+    .venue-btn-filter { background: #e5e5ea; color: #3a3a3c; }
+    body.dark-mode .venue-btn-filter { background: #2c2c2e; color: #f2f2f7; }
+    .venue-note {
+      width: 100%; margin-top: 8px; border: 1px solid #e5e5ea; border-radius: 8px;
+      padding: 8px 10px; font-size: 13px; background: #f9f9fb; outline: none; resize: none; min-height: 36px;
+    }
+    body.dark-mode .venue-note { background: #2c2c2e; border-color: #3a3a3c; color: #f2f2f7; }
+    .analysis-subtab.active {
+      background: #fff; color: #1c1c1e; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    body.dark-mode .analysis-subtabs { background: #2c2c2e; }
+    body.dark-mode .analysis-subtab.active { background: #3a3a3c; color: #fff; }
+    .parts-card {
+      background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    body.dark-mode .parts-card { background: #1c1c1e; }
+    .parts-card-head {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px;
+    }
+    .parts-motor-name { font-size: 15px; font-weight: 700; color: #1c1c1e; }
+    body.dark-mode .parts-motor-name { color: #f2f2f7; }
+    .parts-motor-no { font-size: 12px; color: #8e8e93; margin-top: 2px; }
+    .parts-rate-badge {
+      font-size: 16px; font-weight: 700; color: #34c759; white-space: nowrap;
+    }
+    .parts-rate-badge.low { color: #ff3b30; }
+    .parts-rate-badge.mid { color: #ff9f0a; }
+    .parts-meta {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;
+    }
+    .parts-meta-item {
+      background: #f2f2f7; border-radius: 8px; padding: 8px 4px; text-align: center;
+    }
+    body.dark-mode .parts-meta-item { background: #2c2c2e; }
+    .parts-meta-item .n { font-size: 15px; font-weight: 700; color: #007aff; }
+    .parts-meta-item .l { font-size: 10px; color: #8e8e93; margin-top: 2px; }
+    .parts-places { font-size: 12px; color: #3a3a3c; line-height: 1.4; margin-bottom: 6px; }
+    body.dark-mode .parts-places { color: #aeaeb2; }
+    .parts-note {
+      width: 100%; border: 1px solid #e5e5ea; border-radius: 8px; padding: 8px 10px;
+      font-size: 13px; background: #f9f9fb; outline: none; color: #000; resize: none; min-height: 36px;
+    }
+    body.dark-mode .parts-note {
+      background: #2c2c2e; border-color: #3a3a3c; color: #f2f2f7;
+    }
+    .parts-last { font-size: 11px; color: #8e8e93; margin-top: 6px; }
+    .compare-bar {
+      position: fixed; left: 12px; right: 12px; bottom: 88px; z-index: 90;
+      background: #1c1c1e; color: #fff; border-radius: 14px; padding: 10px 12px;
+      display: none; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      font-size: 13px;
+    }
+    .compare-bar.show { display: flex; }
+    .compare-bar .cmp-info { flex: 1; min-width: 0; line-height: 1.35; }
+    .compare-bar .cmp-info small { color: #aeaeb2; font-size: 11px; }
+    .compare-bar button {
+      border: none; border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .compare-bar .cmp-go { background: #007aff; color: #fff; }
+    .compare-bar .cmp-go:disabled { opacity: 0.4; }
+    .compare-bar .cmp-clear { background: #3a3a3c; color: #fff; }
+    .compare-grid {
+      display: grid; grid-template-columns: 76px 1fr 1fr; gap: 0; font-size: 13px;
+    }
+    .compare-grid .ch {
+      padding: 8px 6px; font-weight: 700; font-size: 11px; color: #8e8e93;
+      border-bottom: 1px solid rgba(0,0,0,0.08); background: #f9f9fb;
+    }
+    .compare-grid .cl {
+      padding: 8px 6px; color: #8e8e93; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 12px;
+    }
+    .compare-grid .cv {
+      padding: 8px 6px; border-bottom: 1px solid rgba(0,0,0,0.06); word-break: break-all;
+    }
+    .compare-grid .cv.diff { background: rgba(255, 204, 0, 0.22); font-weight: 600; }
+    .compare-grid .cv.same { color: #8e8e93; }
+    body.dark-mode .compare-grid .ch { background: #2c2c2e; border-bottom-color: #3a3a3c; }
+    body.dark-mode .compare-grid .cl,
+    body.dark-mode .compare-grid .cv { border-bottom-color: #2c2c2e; }
+    body.dark-mode .compare-grid .cv.diff { background: rgba(255, 214, 10, 0.18); color: #f2f2f7; }
     .analysis-hint { font-size: 12px; color: #8e8e93; margin-bottom: 10px; line-height: 1.4; }
     .analysis-close-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
     body.dark-mode .analysis-view { background: #0d0d0f; }
@@ -788,16 +899,62 @@
     body.dark-mode .gallery-tab.active { background: #3a3a3c; color: #fff; }
     body.dark-mode .gallery-caption { background: #1c1c1e; color: #aeaeb2; }
     body.dark-mode input[type="range"] { accent-color: #0a84ff; }
+    /* タイム計測 */
+    .stopwatch-overlay {
+      position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.55);
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .stopwatch-overlay.active { display: flex; }
+    .stopwatch-panel {
+      width: 100%; max-width: 480px; background: #1c1c1e; color: #fff;
+      border-radius: 20px 20px 0 0; padding: 20px 18px 28px;
+      max-height: 92vh; overflow-y: auto;
+    }
+    .stopwatch-display {
+      font-size: 48px; font-weight: 700; text-align: center;
+      font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
+      padding: 16px 0 8px; color: #fff;
+    }
+    .stopwatch-sub {
+      text-align: center; font-size: 13px; color: #8e8e93; margin-bottom: 14px;
+    }
+    .stopwatch-btns {
+      display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .stopwatch-btns button {
+      border: none; border-radius: 999px; padding: 14px 20px; font-size: 15px; font-weight: 700; cursor: pointer;
+      min-width: 88px;
+    }
+    .sw-start { background: #34c759; color: #fff; }
+    .sw-stop { background: #ff3b30; color: #fff; }
+    .sw-lap { background: #3a3a3c; color: #fff; }
+    .sw-reset { background: #48484a; color: #fff; }
+    .sw-apply { background: #007aff; color: #fff; width: 100%; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; }
+    .sw-apply:disabled { opacity: 0.4; }
+    .stopwatch-laps {
+      margin: 12px 0; max-height: 160px; overflow-y: auto;
+    }
+    .stopwatch-lap-row {
+      display: flex; justify-content: space-between; padding: 8px 4px;
+      border-bottom: 0.5px solid rgba(255,255,255,0.1); font-size: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+    .stopwatch-lap-row.best { color: #34c759; font-weight: 600; }
+    .stopwatch-close {
+      background: none; border: none; color: #0a84ff; font-size: 15px; font-weight: 600;
+      padding: 4px 0; cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="app-header">
     <div class="header-row">
-      <div class="header-title">スケジュール / ミニ四駆</div>
+      <div class="header-title">memory</div>
       <div class="header-actions">
         <button class="today-btn" id="themeToggleBtn" onclick="toggleTheme()" title="表示モード切替">🌙</button>
-        <button class="today-btn" onclick="goToToday()">今日</button>
+        <button class="today-btn" onclick="goHome()" title="ホーム（月ビュー）">🏠</button>
         <button class="search-header-btn" onclick="openAnalysisView()" title="分析">📊</button>
+        <button class="search-header-btn" onclick="openStopwatch()" title="タイム計測">⏱️</button>
         <button class="search-header-btn" onclick="openSearchView()" title="セッティング検索">🔍</button>
         <button class="media-header-btn" onclick="openGallery()" title="すべての写真・動画">📷</button>
       </div>
@@ -829,8 +986,9 @@
     <div class="calendar-grid" id="calendarGrid"></div>
     <div class="today-section">
       <div class="today-section-title">
-        今日の予定
+        <span id="selectedDayTitle">選択日の予定</span>
         <span id="todayDateLabel"></span>
+        <span class="sel-count" id="selectedDayCount"></span>
       </div>
       <div id="todayEventsList"></div>
     </div>
@@ -852,39 +1010,57 @@
       <div class="analysis-close-row">
         <button type="button" class="search-action-btn gray" onclick="closeAnalysisView()">閉じる</button>
       </div>
-      <p class="analysis-hint">結果（完走／コースアウト）付きの記録を集計します。<br>
-        <b>条件分析</b>：場所・モーター番号・電圧・ギヤ・タイヤを指定したときの完走率。<br>
-        <b>総合比率</b>：従来どおり項目ごとの傾向も下に表示します。</p>
-      <div class="analysis-card" style="margin-bottom:10px;">
-        <div class="analysis-card-title">条件を指定して分析</div>
-        <div class="analysis-combo-grid">
-          <div class="analysis-combo-item full">
-            <label>場所</label>
-            <select id="anPlace" onchange="onAnalysisComboChange()"></select>
-          </div>
-          <div class="analysis-combo-item full">
-            <label>モーター × 番号</label>
-            <select id="anMotorFilter" onchange="onAnalysisComboChange()"></select>
-          </div>
-          <div class="analysis-combo-item">
-            <label>電圧</label>
-            <select id="anVoltage" onchange="onAnalysisComboChange()"></select>
-          </div>
-          <div class="analysis-combo-item">
-            <label>ギヤ比</label>
-            <select id="anGear" onchange="onAnalysisComboChange()"></select>
-          </div>
-          <div class="analysis-combo-item">
-            <label>タイヤ径</label>
-            <select id="anTire" onchange="onAnalysisComboChange()"></select>
-          </div>
-          <div class="analysis-combo-item">
-            <label>　</label>
-            <button type="button" class="search-action-btn gray" style="width:100%;padding:9px 8px;" onclick="resetAnalysisCombo()">条件リセット</button>
+      <div class="analysis-subtabs">
+        <button type="button" class="analysis-subtab active" data-atab="analysis" onclick="switchAnalysisTab('analysis')">分析</button>
+        <button type="button" class="analysis-subtab" data-atab="parts" onclick="switchAnalysisTab('parts')">台帳</button>
+        <button type="button" class="analysis-subtab" data-atab="loss" onclick="switchAnalysisTab('loss')">負け</button>
+        <button type="button" class="analysis-subtab" data-atab="venues" onclick="switchAnalysisTab('venues')">会場</button>
+      </div>
+
+      <div id="analysisTabPanel">
+        <div class="analysis-card" style="margin-bottom:10px;">
+          <div class="analysis-card-title">条件を指定して分析</div>
+          <div class="analysis-combo-grid">
+            <div class="analysis-combo-item full">
+              <label>場所</label>
+              <select id="anPlace" onchange="onAnalysisComboChange()"></select>
+            </div>
+            <div class="analysis-combo-item full">
+              <label>モーター × 番号</label>
+              <select id="anMotorFilter" onchange="onAnalysisComboChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>電圧</label>
+              <select id="anVoltage" onchange="onAnalysisComboChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>ギヤ比</label>
+              <select id="anGear" onchange="onAnalysisComboChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>タイヤ径</label>
+              <select id="anTire" onchange="onAnalysisComboChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>　</label>
+              <button type="button" class="search-action-btn gray" style="width:100%;padding:9px 8px;" onclick="resetAnalysisCombo()">条件リセット</button>
+            </div>
           </div>
         </div>
+        <div id="analysisContent"></div>
       </div>
-      <div id="analysisContent"></div>
+
+      <div id="partsTabPanel" style="display:none;">
+        <div id="partsLedgerContent"></div>
+      </div>
+
+      <div id="lossTabPanel" style="display:none;">
+        <div id="lossPatternContent"></div>
+      </div>
+
+      <div id="venuesTabPanel" style="display:none;">
+        <div id="venuesMapContent"></div>
+      </div>
     </div>
   </div>
 
@@ -1050,7 +1226,54 @@
               <option value="">-</option>
               <option value="完走">完走</option>
               <option value="コースアウト">コースアウト</option>
+              <option value="失格">失格</option>
             </select>
+          </div>
+        </div>
+        <!-- 大会モード専用 -->
+        <div id="raceModeSection" style="display:none;border-top:0.5px solid rgba(0,0,0,0.07);">
+          <div style="padding:8px 12px 4px;font-size:12px;font-weight:600;color:#af52de;">🏁 大会モード</div>
+          <div class="form-select-grid">
+            <div class="form-select-cell">
+              <span class="cell-label">ラウンド</span>
+              <select class="form-input" id="m4Round">
+                <option value="">-</option>
+                <option value="予選1">予選1</option>
+                <option value="予選2">予選2</option>
+                <option value="予選3">予選3</option>
+                <option value="敗者復活">敗者復活</option>
+                <option value="準々決勝">準々決勝</option>
+                <option value="準決勝">準決勝</option>
+                <option value="決勝">決勝</option>
+                <option value="その他">その他</option>
+              </select>
+            </div>
+            <div class="form-select-cell">
+              <span class="cell-label">出走レーン</span>
+              <select class="form-input" id="m4RaceLane">
+                <option value="">-</option>
+                <option value="1">1レーン</option>
+                <option value="2">2レーン</option>
+                <option value="3">3レーン</option>
+                <option value="4">4レーン</option>
+                <option value="5">5レーン</option>
+              </select>
+            </div>
+            <div class="form-select-cell">
+              <span class="cell-label">順位</span>
+              <select class="form-input" id="m4Rank">
+                <option value="">-</option>
+                <option value="1">1位</option>
+                <option value="2">2位</option>
+                <option value="3">3位</option>
+                <option value="4">4位</option>
+                <option value="5">5位</option>
+              </select>
+            </div>
+            <div class="form-select-cell">
+              <span class="cell-label">大会名</span>
+              <input type="text" class="form-input" id="m4RaceName" placeholder="大会名">
+            </div>
           </div>
         </div>
         <div class="form-row form-row-slider">
@@ -1146,8 +1369,31 @@
           </div>
         </div>
         <div class="form-row">
+          <div class="form-label">タイム</div>
+          <input type="text" class="form-input" id="m4LapTime" placeholder="例 3.245 秒" inputmode="decimal">
+        </div>
+        <div class="form-row">
+          <div class="form-label">ベストラップ</div>
+          <input type="text" class="form-input" id="m4BestLap" placeholder="自動入力可" inputmode="decimal" readonly style="opacity:0.85;">
+        </div>
+        <div class="form-row">
           <div class="form-label"></div>
-          <a href="https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/" target="_blank" rel="noopener noreferrer" class="rpm-link">回転数を確認する →</a>
+          <button type="button" class="rpm-link" style="background:none;border:none;cursor:pointer;padding:0;" onclick="openStopwatch(true)">⏱️ タイムを計測する →</button>
+        </div>
+        <div class="form-row" style="flex-wrap:wrap;gap:8px;">
+          <div class="form-label">RPM連携</div>
+          <div style="flex:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;">
+            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzer()">計測を開く</button>
+            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="importRpmFromAnalyzer()">結果を取り込む</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-label"></div>
+          <span id="rpmLinkStatus" style="font-size:12px;color:#8e8e93;flex:1;text-align:right;">未連携</span>
+        </div>
+        <div class="form-row">
+          <div class="form-label"></div>
+          <a href="https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/" target="_blank" rel="noopener noreferrer" class="rpm-link">RPM Analyzer をブラウザで開く →</a>
         </div>
       </div>
 
@@ -1175,6 +1421,7 @@
         <input type="file" id="fileInputVideo" accept="video/*" multiple style="display:none" onchange="handleFiles(event)">
       </div>
       <button class="modal-save-bottom" id="saveBtnBottom" onclick="saveEvent()">保存</button>
+      <button class="modal-save-bottom" id="saveNextRoundBtn" onclick="saveEventAndNextRound()" style="display:none;background:#af52de;margin-top:0;">保存して次のラウンド</button>
       <button class="delete-btn" id="cancelBtnBottom" onclick="closeModal()" style="color:#3a3a3c;">キャンセル</button>
       <button class="delete-btn" id="deleteBtn" style="display:none" onclick="deleteEvent()">内容を削除</button>
     </div>
@@ -1190,8 +1437,28 @@
       </div>
       <div id="detailBody" style="padding:0 0 8px;"></div>
       <button class="modal-save-bottom" onclick="editFromDetail()">編集</button>
+      <button class="modal-save-bottom" onclick="addToCompareFromDetail()" style="background:#5856d6;margin-top:0;">比較に追加</button>
       <button class="delete-btn" onclick="closeDetailModal()" style="color:#3a3a3c;">キャンセル</button>
     </div>
+  </div>
+
+  <!-- 比較モーダル -->
+  <div class="modal-overlay" id="compareOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeCompareModal()">閉じる</button>
+        <div class="modal-title">セッティング比較</div>
+        <div style="width:48px"></div>
+      </div>
+      <div id="compareBody" style="padding:12px 14px 24px;"></div>
+    </div>
+  </div>
+
+  <!-- 比較選択バー -->
+  <div class="compare-bar" id="compareBar">
+    <div class="cmp-info" id="compareBarInfo">比較用に選択中</div>
+    <button type="button" class="cmp-clear" onclick="clearCompareSelection()">解除</button>
+    <button type="button" class="cmp-go" id="compareGoBtn" onclick="openCompareModal()" disabled>比較</button>
   </div>
 
   <div class="modal-overlay gallery-modal" id="galleryOverlay">
@@ -1205,6 +1472,20 @@
         <button class="gallery-tab active" data-mode="all" onclick="switchGalleryMode('all')">すべて</button>
         <button class="gallery-tab" data-mode="image" onclick="switchGalleryMode('image')">写真</button>
         <button class="gallery-tab" data-mode="video" onclick="switchGalleryMode('video')">動画</button>
+      </div>
+      <div class="analysis-combo-grid" style="margin:0 16px 10px;">
+        <div class="analysis-combo-item">
+          <label>日付</label>
+          <select id="galleryDateFilter" onchange="renderGallery()">
+            <option value="">すべて</option>
+          </select>
+        </div>
+        <div class="analysis-combo-item">
+          <label>場所</label>
+          <select id="galleryPlaceFilter" onchange="renderGallery()">
+            <option value="">すべて</option>
+          </select>
+        </div>
       </div>
       <div class="gallery-body" id="galleryBody"></div>
     </div>
@@ -1241,6 +1522,27 @@
     <div id="lightboxContent"></div>
     <div class="lightbox-info" id="lightboxInfo"></div>
     <button type="button" class="lightbox-save" id="lightboxSaveBtn" onclick="event.stopPropagation();saveCurrentLightboxToDevice()">端末に保存</button>
+  </div>
+
+  <!-- タイム計測（ストップウォッチ） -->
+  <div class="stopwatch-overlay" id="stopwatchOverlay">
+    <div class="stopwatch-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:16px;font-weight:700;">⏱️ タイム計測</div>
+        <button type="button" class="stopwatch-close" onclick="closeStopwatch()">閉じる</button>
+      </div>
+      <div class="stopwatch-display" id="swDisplay">0.000</div>
+      <div class="stopwatch-sub" id="swSub">停止中</div>
+      <div class="stopwatch-btns">
+        <button type="button" class="sw-start" id="swStartBtn" onclick="swStart()">スタート</button>
+        <button type="button" class="sw-stop" id="swStopBtn" onclick="swStop()" style="display:none;">ストップ</button>
+        <button type="button" class="sw-lap" id="swLapBtn" onclick="swLap()" disabled>ラップ</button>
+        <button type="button" class="sw-reset" onclick="swReset()">リセット</button>
+      </div>
+      <div class="stopwatch-laps" id="swLaps"></div>
+      <button type="button" class="sw-apply" id="swApplyBtn" onclick="swApplyToForm()" disabled>このタイムをセッティングに反映</button>
+      <p style="font-size:11px;color:#8e8e93;text-align:center;margin-top:10px;">単位は秒です。ベストラップも自動で更新します。</p>
+    </div>
   </div>
 
   <script>
@@ -1478,7 +1780,10 @@
         populateSearchFilters();
         runSearch();
       } else if (view === 'analysis') {
-        renderAnalysis();
+        if (analysisSubTab === 'parts') renderPartsLedger();
+        else if (analysisSubTab === 'loss') renderLossPatterns();
+        else if (analysisSubTab === 'venues') renderVenuesMap();
+        else renderAnalysis();
       }
       updatePeriodLabel();
     }
@@ -1505,6 +1810,12 @@
       else renderDay();
       updatePeriodLabel();
     }
+    /** ホーム：月ビューへ（今日の月に戻る） */
+    function goHome() {
+      currentDate = new Date();
+      selectedDate = new Date();
+      switchView('month');
+    }
     function updatePeriodLabel() {
       var label = document.getElementById('periodLabel');
       if (currentView === 'month') label.textContent = formatMonthLabel(currentDate);
@@ -1516,7 +1827,9 @@
       } else if (currentView === 'search') {
         label.textContent = 'セッティング検索';
       } else if (currentView === 'analysis') {
-        label.textContent = 'セッティング分析';
+        label.textContent = analysisSubTab === 'parts' ? 'パーツ台帳'
+          : (analysisSubTab === 'loss' ? '負けパターン'
+          : (analysisSubTab === 'venues' ? '会場マップ' : 'セッティング分析'));
       } else label.textContent = formatDisplayDate(selectedDate);
     }
 
@@ -1559,6 +1872,8 @@
       if (date.getDay() === 6) cell.classList.add('saturday');
       var key = formatDateKey(date);
       if (key === todayKey) cell.classList.add('today');
+      var selKey = formatDateKey(selectedDate);
+      if (key === selKey) cell.classList.add('selected');
       var holidayName = holidays[key];
       if (holidayName) cell.classList.add('holiday');
       var num = document.createElement('div');
@@ -1567,7 +1882,7 @@
       cell.appendChild(num);
 
       var dayEvents = events.filter(function(e) { return e.date === key; });
-      // コンパクト表示：ドット＋最大1件の名前
+      // 数字＋色ドットのみ（練習=青 / 大会=紫 / 祝日=赤）
       if (holidayName || dayEvents.length > 0) {
         var dots = document.createElement('div');
         dots.className = 'day-event-dots';
@@ -1576,51 +1891,47 @@
           hd.className = 'day-event-dot holiday';
           dots.appendChild(hd);
         }
-        var dotCount = Math.min(dayEvents.length, 3);
-        for (var di = 0; di < dotCount; di++) {
+        var maxDots = 3;
+        var shown = 0;
+        for (var di = 0; di < dayEvents.length && shown < maxDots; di++) {
           var d = document.createElement('span');
-          d.className = 'day-event-dot';
+          var et = (dayEvents[di].m4 && dayEvents[di].m4.eventType) || '';
+          d.className = 'day-event-dot ' + (et === '大会' ? 'race' : 'practice');
           dots.appendChild(d);
+          shown++;
+        }
+        if (dayEvents.length > maxDots) {
+          var md = document.createElement('span');
+          md.className = 'day-event-dot more-dot';
+          dots.appendChild(md);
         }
         cell.appendChild(dots);
-        if (dayEvents.length > 0) {
-          var wrap = document.createElement('div');
-          wrap.className = 'day-events';
-          var el = document.createElement('div');
-          el.className = 'day-event-name';
-          el.textContent = getEventShortLabel(dayEvents[0]);
-          wrap.appendChild(el);
-          if (dayEvents.length > 1) {
-            var more = document.createElement('div');
-            more.className = 'day-event-name more';
-            more.textContent = '+' + (dayEvents.length - 1);
-            wrap.appendChild(more);
-          }
-          cell.appendChild(wrap);
-        } else if (holidayName) {
-          var wrapH = document.createElement('div');
-          wrapH.className = 'day-events';
-          var elH = document.createElement('div');
-          elH.className = 'day-event-name holiday-name';
-          elH.textContent = holidayName;
-          wrapH.appendChild(elH);
-          cell.appendChild(wrapH);
-        }
       }
       cell.onclick = function() {
-        selectedDate = new Date(date);
-        currentDate = new Date(date);
-        switchView('day');
+        selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        // 他月をタップしたら月も移動
+        if (date.getMonth() !== currentDate.getMonth() || date.getFullYear() !== currentDate.getFullYear()) {
+          currentDate = new Date(selectedDate);
+        }
+        renderMonth();
       };
       return cell;
     }
 
     function renderTodaySection() {
-      document.getElementById('todayDateLabel').textContent = formatDisplayDate(new Date());
+      var key = formatDateKey(selectedDate);
+      var todayKey = formatDateKey(new Date());
+      var isToday = key === todayKey;
+      var titleEl = document.getElementById('selectedDayTitle');
+      if (titleEl) titleEl.textContent = isToday ? '今日の予定' : '選択日の予定';
+      document.getElementById('todayDateLabel').textContent = formatDisplayDate(selectedDate);
       var list = document.getElementById('todayEventsList');
-      var events = getEventsForDate(formatDateKey(new Date()));
+      var events = getEventsForDate(key);
+      var countEl = document.getElementById('selectedDayCount');
+      if (countEl) countEl.textContent = events.length ? (events.length + '件') : '';
       if (events.length === 0) {
-        list.innerHTML = '<div class="empty-state" style="padding:24px 0"><p>今日の予定はありません</p></div>';
+        list.innerHTML = '<div class="empty-state" style="padding:24px 0"><p>' +
+          (isToday ? '今日の予定はありません' : 'この日の予定はありません') + '</p></div>';
         return;
       }
       list.innerHTML = events.map(function(ev) { return eventCardHtml(ev, { showDup: true }); }).join('');
@@ -1773,9 +2084,13 @@
       var m4 = ev.m4 || {};
       var badges = '';
       if (m4.eventType) badges += '<span class="m4-badge' + (m4.eventType === '大会' ? ' race' : '') + '">' + escapeHtml(m4.eventType) + '</span>';
+      if (m4.round) badges += '<span class="m4-badge race">' + escapeHtml(m4.round) + '</span>';
+      if (m4.raceLane) badges += '<span class="m4-badge">' + escapeHtml(m4.raceLane) + 'L</span>';
+      if (m4.rank) badges += '<span class="m4-badge">' + escapeHtml(m4.rank) + '位</span>';
       if (m4.classType) badges += '<span class="m4-badge">' + escapeHtml(m4.classType) + '</span>';
       if (m4.result === '完走') badges += '<span class="m4-badge finish">完走</span>';
       if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">コースアウト</span>';
+      if (m4.result === '失格') badges += '<span class="m4-badge out">失格</span>';
       // 太字タイトル：モーター・電圧・RPM・ギヤ
       var titleParts = [];
       if (m4.motorType) titleParts.push(m4.motorType);
@@ -1786,12 +2101,16 @@
       var summaryParts = [];
       if (ev.machineName) summaryParts.push(ev.machineName);
       if (m4.speed != null && m4.speed !== '') summaryParts.push(m4.speed + ' km/h');
+      if (m4.lapTime) summaryParts.push(m4.lapTime + '秒');
       if (m4.tireDiameter != null && m4.tireDiameter !== '') summaryParts.push('タイヤ ' + m4.tireDiameter + 'mm');
       if (m4.weight != null && m4.weight !== '') summaryParts.push(m4.weight + 'g');
       var summaryHtml = summaryParts.length
         ? '<div class="m4-summary">' + escapeHtml(summaryParts.join(' · ')) + '</div>'
         : '';
-      return '<div class="event-card" data-id="' + ev.id + '">' +
+      var resultClass = 'result-none';
+      if (m4.result === '完走') resultClass = 'result-finish';
+      else if (m4.result === 'コースアウト' || m4.result === '失格') resultClass = 'result-out';
+      return '<div class="event-card ' + resultClass + '" data-id="' + ev.id + '">' +
         dupHtml +
         '<div class="event-time">' + (ev.start || '') + ' – ' + (ev.end || '') + '</div>' +
         '<div class="event-title">' + escapeHtml(displayTitle) + '</div>' +
@@ -1851,6 +2170,12 @@
         speed: num('m4Speed'),
         rpm: num('m4Rpm'),
         result: val('m4Result'),
+        round: val('m4Round'),
+        raceLane: val('m4RaceLane'),
+        rank: val('m4Rank'),
+        raceName: val('m4RaceName'),
+        lapTime: val('m4LapTime'),
+        bestLap: val('m4BestLap'),
         lat: num('m4Lat'),
         lng: num('m4Lng')
       };
@@ -1882,6 +2207,12 @@
       updateSliderLabel('m4Speed', 'm4SpeedVal', 1);
       set('m4Rpm', m4.rpm != null ? m4.rpm : '');
       set('m4Result', m4.result || '');
+      set('m4Round', m4.round || '');
+      set('m4RaceLane', m4.raceLane || '');
+      set('m4Rank', m4.rank || '');
+      set('m4RaceName', m4.raceName || '');
+      set('m4LapTime', m4.lapTime != null ? m4.lapTime : '');
+      set('m4BestLap', m4.bestLap != null ? m4.bestLap : '');
       set('m4Lat', m4.lat != null ? m4.lat : '');
       set('m4Lng', m4.lng != null ? m4.lng : '');
       var st = document.getElementById('m4GpsStatus');
@@ -1890,6 +2221,16 @@
       } else {
         st.textContent = '未取得';
       }
+      updateRaceModeUI();
+    }
+
+    function updateRaceModeUI() {
+      var typeEl = document.getElementById('m4EventType');
+      var isRace = typeEl && typeEl.value === '大会';
+      var sec = document.getElementById('raceModeSection');
+      var nextBtn = document.getElementById('saveNextRoundBtn');
+      if (sec) sec.style.display = isRace ? '' : 'none';
+      if (nextBtn) nextBtn.style.display = isRace ? '' : 'none';
     }
     function clearM4Form() {
       fillM4Form({});
@@ -2052,6 +2393,7 @@
       document.getElementById('eventContent').value = '';
       clearM4Form();
       renderMediaPreview();
+      updateRaceModeUI();
       document.getElementById('modalOverlay').classList.add('active');
     }
     function openEditModal(id) {
@@ -2071,6 +2413,7 @@
       document.getElementById('eventContent').value = ev.content || '';
       fillM4Form(ev.m4);
       renderMediaPreview();
+      updateRaceModeUI();
       document.getElementById('modalOverlay').classList.add('active');
     }
     function openCopyModal(id) {
@@ -2105,6 +2448,7 @@
       document.getElementById('eventContent').value = ev.content || '';
       fillM4Form(ev.m4);
       renderMediaPreview();
+      updateRaceModeUI();
       document.getElementById('modalOverlay').classList.add('active');
     }
     function closeModal() {
@@ -2147,6 +2491,10 @@
 
       html += '<div class="detail-section-label">マシン・走行</div><div class="detail-group">';
       html += row('種別', m4.eventType);
+      if (m4.raceName) html += row('大会名', m4.raceName);
+      if (m4.round) html += row('ラウンド', m4.round);
+      if (m4.raceLane) html += row('出走レーン', m4.raceLane + 'レーン');
+      if (m4.rank) html += row('順位', m4.rank + '位');
       html += row('レーン', m4.lanes ? m4.lanes + 'レーン' : '');
       html += row('クラス', m4.classType);
       html += row('室内外', m4.indoorOutdoor);
@@ -2161,6 +2509,8 @@
       if (m4.voltage != null) html += row('電圧', m4.voltage + ' V');
       if (m4.speed != null) html += row('時速', m4.speed + ' km/h');
       if (m4.rpm != null) html += row('回転数', m4.rpm + ' rpm');
+      if (m4.lapTime) html += row('タイム', m4.lapTime + ' 秒');
+      if (m4.bestLap) html += row('ベストラップ', m4.bestLap + ' 秒');
       html += row('結果', m4.result);
       html += '</div>';
 
@@ -2202,17 +2552,154 @@
       if (id) openEditModal(id);
     }
 
+    // ===== 比較モード =====
+    var compareIds = [];
+
+    function shortCompareLabel(ev) {
+      if (!ev) return '';
+      var m4 = ev.m4 || {};
+      var parts = [];
+      if (m4.motorType) parts.push(m4.motorType);
+      if (m4.motorNumber) parts.push('No.' + m4.motorNumber);
+      if (ev.address) parts.push(ev.address);
+      if (!parts.length) parts.push(ev.title || 'セッティング');
+      return parts.join(' ');
+    }
+
+    function updateCompareBar() {
+      var bar = document.getElementById('compareBar');
+      var info = document.getElementById('compareBarInfo');
+      var go = document.getElementById('compareGoBtn');
+      if (!bar) return;
+      if (!compareIds.length) {
+        bar.classList.remove('show');
+        return;
+      }
+      bar.classList.add('show');
+      var labels = compareIds.map(function(id) {
+        var ev = getEvents().find(function(e) { return e.id === id; });
+        return shortCompareLabel(ev) || '（削除済）';
+      });
+      if (compareIds.length === 1) {
+        info.innerHTML = '比較1: ' + escapeHtml(labels[0]) + '<br><small>もう1件を詳細から「比較に追加」</small>';
+        if (go) go.disabled = true;
+      } else {
+        info.innerHTML = escapeHtml(labels[0]) + '<br><small>vs ' + escapeHtml(labels[1]) + '</small>';
+        if (go) go.disabled = false;
+      }
+    }
+
+    function addToCompare(id) {
+      if (!id) return;
+      if (compareIds.indexOf(id) !== -1) {
+        alert('すでに比較リストに入っています');
+        return;
+      }
+      if (compareIds.length >= 2) {
+        compareIds = [compareIds[1], id];
+      } else {
+        compareIds.push(id);
+      }
+      updateCompareBar();
+      if (compareIds.length === 2) {
+        // 2件揃ったら比較画面を開く
+        openCompareModal();
+      }
+    }
+
+    function addToCompareFromDetail() {
+      if (!viewingEventId) return;
+      addToCompare(viewingEventId);
+      closeDetailModal();
+    }
+
+    function clearCompareSelection() {
+      compareIds = [];
+      updateCompareBar();
+    }
+
+    function closeCompareModal() {
+      var el = document.getElementById('compareOverlay');
+      if (el) el.classList.remove('active');
+    }
+
+    function openCompareModal() {
+      if (compareIds.length < 2) return;
+      var evA = getEvents().find(function(e) { return e.id === compareIds[0]; });
+      var evB = getEvents().find(function(e) { return e.id === compareIds[1]; });
+      if (!evA || !evB) {
+        alert('比較対象のセッティングが見つかりません');
+        clearCompareSelection();
+        return;
+      }
+      var mA = evA.m4 || {};
+      var mB = evB.m4 || {};
+      function val(v) {
+        if (v == null || v === '') return '—';
+        return String(v);
+      }
+      var rows = [
+        ['日付', evA.date, evB.date],
+        ['時間', (evA.start || '') + (evA.end ? '–' + evA.end : ''), (evB.start || '') + (evB.end ? '–' + evB.end : '')],
+        ['場所', evA.address, evB.address],
+        ['マシン名', evA.machineName, evB.machineName],
+        ['種別', mA.eventType, mB.eventType],
+        ['大会名', mA.raceName, mB.raceName],
+        ['ラウンド', mA.round, mB.round],
+        ['出走レーン', mA.raceLane, mB.raceLane],
+        ['順位', mA.rank, mB.rank],
+        ['レーン', mA.lanes, mB.lanes],
+        ['クラス', mA.classType, mB.classType],
+        ['室内外', mA.indoorOutdoor, mB.indoorOutdoor],
+        ['天気', mA.weather, mB.weather],
+        ['気温', mA.temperature != null ? mA.temperature + '℃' : '', mB.temperature != null ? mB.temperature + '℃' : ''],
+        ['モーター', mA.motorType, mB.motorType],
+        ['M.No.', mA.motorNumber, mB.motorNumber],
+        ['ギヤ比', mA.gearRatio, mB.gearRatio],
+        ['タイヤ', mA.tireDiameter != null ? mA.tireDiameter + 'mm' : '', mB.tireDiameter != null ? mB.tireDiameter + 'mm' : ''],
+        ['車重', mA.weight != null ? mA.weight + 'g' : '', mB.weight != null ? mB.weight + 'g' : ''],
+        ['電池', mA.batteryType, mB.batteryType],
+        ['電圧', mA.voltage != null ? mA.voltage + 'V' : '', mB.voltage != null ? mB.voltage + 'V' : ''],
+        ['時速', mA.speed != null ? mA.speed + 'km/h' : '', mB.speed != null ? mB.speed + 'km/h' : ''],
+        ['回転数', mA.rpm != null ? mA.rpm + 'rpm' : '', mB.rpm != null ? mB.rpm + 'rpm' : ''],
+        ['タイム', mA.lapTime, mB.lapTime],
+        ['ベストラップ', mA.bestLap, mB.bestLap],
+        ['結果', mA.result, mB.result],
+        ['メモ', evA.content, evB.content]
+      ];
+      var html = '<div class="compare-grid">';
+      html += '<div class="ch">項目</div><div class="ch">A</div><div class="ch">B</div>';
+      rows.forEach(function(r) {
+        var a = val(r[1]);
+        var b = val(r[2]);
+        var diff = a !== b;
+        var cls = diff ? 'diff' : 'same';
+        html += '<div class="cl">' + escapeHtml(r[0]) + '</div>';
+        html += '<div class="cv ' + cls + '">' + escapeHtml(a) + '</div>';
+        html += '<div class="cv ' + cls + '">' + escapeHtml(b) + '</div>';
+      });
+      html += '</div>';
+      html += '<p style="font-size:11px;color:#8e8e93;margin-top:10px;">黄色い行は値が異なる項目です。</p>';
+      document.getElementById('compareBody').innerHTML = html;
+      document.getElementById('compareOverlay').classList.add('active');
+      updateCompareBar();
+    }
+
     function buildAutoTitle(m4, content, machineName) {
       var parts = [];
-      if (machineName) parts.push(machineName);
+      if (m4 && m4.raceName) parts.push(m4.raceName);
+      else if (machineName) parts.push(machineName);
       if (m4 && m4.eventType) parts.push(m4.eventType);
+      if (m4 && m4.round) parts.push(m4.round);
       if (m4 && m4.classType) parts.push(m4.classType);
       if (m4 && m4.motorType) parts.push(m4.motorType);
       if (parts.length) return parts.join(' / ');
       if (content) return content.slice(0, 20) + (content.length > 20 ? '…' : '');
       return 'セッティング';
     }
-    function saveEvent() {
+    function saveEvent(options) {
+      options = options || {};
+      var keepOpenForNext = !!options.keepOpenForNext;
       var date = document.getElementById('eventDate').value;
       var start = document.getElementById('eventStart').value || '09:00';
       var end = document.getElementById('eventEnd').value || '10:00';
@@ -2235,13 +2722,12 @@
         }
       })();
       var hasM4 = m4.motorType || m4.classType || m4.eventType || m4.gearRatio || m4.result ||
-        m4.speed != null || m4.rpm != null;
+        m4.speed != null || m4.rpm != null || m4.round || m4.raceName;
       if (!content && !address && !machineName && !hasM4 && tempMedia.length === 0) {
         alert('セッティングメモか項目を入力してください');
-        return;
+        return Promise.resolve(false);
       }
       var title = buildAutoTitle(m4, content, machineName);
-      // IndexedDB に写真・動画本体も含めて保存（保存後もプレビュー・拡大可能）
       var mediaFull = (tempMedia || []).map(function(m) {
         return {
           type: m.type || 'image',
@@ -2268,7 +2754,40 @@
           createdAt: Date.now(), updatedAt: Date.now()
         });
       }
-      saveEventsAsync(events).then(function() {
+      return saveEventsAsync(events).then(function() {
+        if (keepOpenForNext) {
+          // 大会の連続記録：結果・ラウンド・レーン・順位だけリセットして新規入力へ
+          editingEventId = null;
+          isCopying = true;
+          tempMedia = [];
+          document.getElementById('modalTitle').textContent = '次のラウンドを記録';
+          document.getElementById('deleteBtn').style.display = 'none';
+          document.getElementById('m4Result').value = '';
+          document.getElementById('m4RaceLane').value = '';
+          document.getElementById('m4Rank').value = '';
+          // ラウンドを次候補へ進める
+          var order = ['予選1', '予選2', '予選3', '敗者復活', '準々決勝', '準決勝', '決勝'];
+          var cur = document.getElementById('m4Round').value;
+          var ix = order.indexOf(cur);
+          if (ix >= 0 && ix < order.length - 1) {
+            document.getElementById('m4Round').value = order[ix + 1];
+          } else if (!cur) {
+            document.getElementById('m4Round').value = '予選1';
+          }
+          renderMediaPreview();
+          updateRaceModeUI();
+          // 背景のリストだけ更新
+          if (currentView === 'month') renderMonth();
+          else if (currentView === 'week') renderWeek();
+          else if (currentView === 'day') {
+            selectedDate = new Date(date + 'T12:00:00');
+            renderDay();
+          } else if (currentView === 'search') {
+            populateSearchFilters();
+            runSearch();
+          }
+          return true;
+        }
         closeModal();
         if (currentView === 'month') renderMonth();
         else if (currentView === 'week') renderWeek();
@@ -2279,7 +2798,17 @@
           selectedDate = new Date(date + 'T12:00:00');
           renderDay();
         }
+        return true;
       });
+    }
+
+    function saveEventAndNextRound() {
+      var typeEl = document.getElementById('m4EventType');
+      if (!typeEl || typeEl.value !== '大会') {
+        saveEvent();
+        return;
+      }
+      saveEvent({ keepOpenForNext: true });
     }
     function deleteEvent() {
       if (!confirm('この内容を削除しますか？')) return;
@@ -2597,6 +3126,11 @@
       document.querySelectorAll('.gallery-tab').forEach(function(t) {
         t.classList.toggle('active', t.dataset.mode === 'all');
       });
+      var gd = document.getElementById('galleryDateFilter');
+      var gp = document.getElementById('galleryPlaceFilter');
+      if (gd) gd.value = '';
+      if (gp) gp.value = '';
+      populateGalleryFilters();
       renderGallery();
       document.getElementById('galleryOverlay').classList.add('active');
     }
@@ -2608,6 +3142,7 @@
       document.querySelectorAll('.gallery-tab').forEach(function(t) {
         t.classList.toggle('active', t.dataset.mode === mode);
       });
+      populateGalleryFilters();
       renderGallery();
     }
     function collectAllMedia() {
@@ -2637,16 +3172,65 @@
       var p = dateStr.split('-');
       return p[0] + '年' + parseInt(p[1], 10) + '月' + parseInt(p[2], 10) + '日';
     }
-    function renderGallery() {
-      var body = document.getElementById('galleryBody');
-      var allItems = collectAllMedia();
-      var items = allItems.filter(function(it) {
+    function populateGalleryFilters() {
+      var allItems = collectAllMedia().filter(function(it) {
         if (galleryMode === 'image') return it.type === 'image';
         if (galleryMode === 'video') return it.type === 'video';
         return true;
       });
+      var dateSel = document.getElementById('galleryDateFilter');
+      var placeSel = document.getElementById('galleryPlaceFilter');
+      var curDate = dateSel ? dateSel.value : '';
+      var curPlace = placeSel ? placeSel.value : '';
+      var dates = {}, places = {};
+      allItems.forEach(function(it) {
+        if (curPlace && it.place !== curPlace) return;
+        if (it.date) dates[it.date] = true;
+      });
+      allItems.forEach(function(it) {
+        if (curDate && it.date !== curDate) return;
+        if (it.place) places[it.place] = true;
+      });
+      if (dateSel) {
+        var dKeys = Object.keys(dates).sort().reverse();
+        dateSel.innerHTML = '<option value="">すべて</option>';
+        dKeys.forEach(function(d) {
+          var o = document.createElement('option');
+          o.value = d;
+          o.textContent = formatGalleryDate(d);
+          dateSel.appendChild(o);
+        });
+        if (curDate && dKeys.indexOf(curDate) !== -1) dateSel.value = curDate;
+      }
+      if (placeSel) {
+        var pKeys = Object.keys(places).sort(function(a, b) {
+          return a.localeCompare(b, 'ja');
+        });
+        placeSel.innerHTML = '<option value="">すべて</option>';
+        pKeys.forEach(function(p) {
+          var o = document.createElement('option');
+          o.value = p;
+          o.textContent = p;
+          placeSel.appendChild(o);
+        });
+        if (curPlace && pKeys.indexOf(curPlace) !== -1) placeSel.value = curPlace;
+      }
+    }
+    function renderGallery() {
+      var body = document.getElementById('galleryBody');
+      populateGalleryFilters();
+      var allItems = collectAllMedia();
+      var dateF = (document.getElementById('galleryDateFilter') || {}).value || '';
+      var placeF = (document.getElementById('galleryPlaceFilter') || {}).value || '';
+      var items = allItems.filter(function(it) {
+        if (galleryMode === 'image' && it.type !== 'image') return false;
+        if (galleryMode === 'video' && it.type !== 'video') return false;
+        if (dateF && it.date !== dateF) return false;
+        if (placeF && it.place !== placeF) return false;
+        return true;
+      });
       if (items.length === 0) {
-        body.innerHTML = '<div class="gallery-empty">写真・動画はまだありません</div>';
+        body.innerHTML = '<div class="gallery-empty">該当する写真・動画はありません</div>';
         return;
       }
       var html = '<div class="gallery-grid" style="margin-top:4px;">';
@@ -2737,11 +3321,469 @@
     });
 
     // ===== 分析 =====
+    var analysisSubTab = 'analysis';
+
     function openAnalysisView() {
       switchView('analysis');
     }
     function closeAnalysisView() {
       switchView('month');
+    }
+
+    function switchAnalysisTab(tab) {
+      if (tab === 'parts') analysisSubTab = 'parts';
+      else if (tab === 'loss') analysisSubTab = 'loss';
+      else if (tab === 'venues') analysisSubTab = 'venues';
+      else analysisSubTab = 'analysis';
+      document.querySelectorAll('.analysis-subtab').forEach(function(b) {
+        b.classList.toggle('active', b.getAttribute('data-atab') === analysisSubTab);
+      });
+      var ap = document.getElementById('analysisTabPanel');
+      var pp = document.getElementById('partsTabPanel');
+      var lp = document.getElementById('lossTabPanel');
+      var vp = document.getElementById('venuesTabPanel');
+      if (ap) ap.style.display = analysisSubTab === 'analysis' ? '' : 'none';
+      if (pp) pp.style.display = analysisSubTab === 'parts' ? '' : 'none';
+      if (lp) lp.style.display = analysisSubTab === 'loss' ? '' : 'none';
+      if (vp) vp.style.display = analysisSubTab === 'venues' ? '' : 'none';
+      if (analysisSubTab === 'parts') renderPartsLedger();
+      else if (analysisSubTab === 'loss') renderLossPatterns();
+      else if (analysisSubTab === 'venues') renderVenuesMap();
+      else renderAnalysis();
+      updatePeriodLabel();
+    }
+
+    function loadPartsNotes() {
+      try {
+        return JSON.parse(localStorage.getItem('memory_partsNotes') || '{}') || {};
+      } catch (e) { return {}; }
+    }
+    function savePartsNote(key, text) {
+      var notes = loadPartsNotes();
+      if (text && text.trim()) notes[key] = text.trim();
+      else delete notes[key];
+      try { localStorage.setItem('memory_partsNotes', JSON.stringify(notes)); } catch (e) {}
+    }
+
+    function buildPartsLedgerData() {
+      var map = {};
+      getEvents().forEach(function(ev) {
+        var m4 = ev.m4 || {};
+        if (!m4.motorType) return;
+        var key = motorKey(ev);
+        if (!map[key]) {
+          map[key] = {
+            key: key,
+            motorType: m4.motorType || '',
+            motorNumber: (m4.motorNumber && String(m4.motorNumber).trim()) || '',
+            total: 0,
+            finish: 0,
+            out: 0,
+            noResult: 0,
+            places: {},
+            lastDate: '',
+            voltages: {},
+            gears: {}
+          };
+        }
+        var row = map[key];
+        row.total++;
+        var r = m4.result || '';
+        if (r === '完走') row.finish++;
+        else if (r === 'コースアウト') row.out++;
+        else row.noResult++;
+        var place = (ev.address && String(ev.address).trim()) || '';
+        if (place) row.places[place] = (row.places[place] || 0) + 1;
+        if (ev.date && (!row.lastDate || ev.date > row.lastDate)) row.lastDate = ev.date;
+        if (m4.voltage != null && m4.voltage !== '') {
+          var vk = String(m4.voltage);
+          row.voltages[vk] = (row.voltages[vk] || 0) + 1;
+        }
+        if (m4.gearRatio) row.gears[m4.gearRatio] = (row.gears[m4.gearRatio] || 0) + 1;
+      });
+      return Object.keys(map).map(function(k) { return map[k]; }).sort(function(a, b) {
+        var ra = (a.finish + a.out) ? a.finish / (a.finish + a.out) : -1;
+        var rb = (b.finish + b.out) ? b.finish / (b.finish + b.out) : -1;
+        if (rb !== ra) return rb - ra;
+        return b.total - a.total;
+      });
+    }
+
+    function renderPartsLedger() {
+      var body = document.getElementById('partsLedgerContent');
+      if (!body) return;
+      var rows = buildPartsLedgerData();
+      var notes = loadPartsNotes();
+      if (!rows.length) {
+        body.innerHTML = '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:20px 0;font-size:14px;">モーターが記録されたセッティングがありません。<br>セッティングにモーター名を入れて保存すると台帳に表示されます。</p></div>';
+        return;
+      }
+      var html = '<p style="font-size:12px;color:#8e8e93;margin-bottom:10px;">モーター＋番号ごとの走行回数・完走率です。メモは端末に保存されます。</p>';
+      rows.forEach(function(row, idx) {
+        var judged = row.finish + row.out;
+        var rate = judged ? (row.finish / judged * 100) : null;
+        var rateClass = '';
+        var rateText = '—';
+        if (rate != null) {
+          rateText = rate.toFixed(0) + '%';
+          if (rate < 50) rateClass = 'low';
+          else if (rate < 70) rateClass = 'mid';
+        }
+        var placeList = Object.keys(row.places).sort(function(a, b) {
+          return row.places[b] - row.places[a];
+        });
+        var placeStr = placeList.length
+          ? placeList.slice(0, 4).map(function(p) { return p + '(' + row.places[p] + ')'; }).join(' · ')
+          : '場所未設定';
+        if (placeList.length > 4) placeStr += ' 他';
+        var lastLabel = row.lastDate || '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(lastLabel)) {
+          var p = lastLabel.split('-');
+          lastLabel = p[0] + '/' + parseInt(p[1], 10) + '/' + parseInt(p[2], 10);
+        }
+        var noteVal = notes[row.key] || '';
+        html += '<div class="parts-card" data-parts-key="' + escapeAttr(row.key) + '">';
+        html += '<div class="parts-card-head"><div>';
+        html += '<div class="parts-motor-name">' + escapeHtml(row.motorType) + '</div>';
+        html += '<div class="parts-motor-no">No.' + escapeHtml(row.motorNumber || '-') + '</div>';
+        html += '</div><div class="parts-rate-badge ' + rateClass + '">' + rateText + '</div></div>';
+        html += '<div class="parts-meta">';
+        html += '<div class="parts-meta-item"><div class="n">' + row.total + '</div><div class="l">走行</div></div>';
+        html += '<div class="parts-meta-item"><div class="n" style="color:#34c759">' + row.finish + '</div><div class="l">完走</div></div>';
+        html += '<div class="parts-meta-item"><div class="n" style="color:#ff3b30">' + row.out + '</div><div class="l">アウト</div></div>';
+        html += '<div class="parts-meta-item"><div class="n">' + judged + '</div><div class="l">判定あり</div></div>';
+        html += '</div>';
+        html += '<div class="parts-places">📍 ' + escapeHtml(placeStr) + '</div>';
+        html += '<textarea class="parts-note" placeholder="メモ（消耗・特性など）" data-note-key="' + escapeAttr(row.key) + '">' + escapeHtml(noteVal) + '</textarea>';
+        html += '<div class="parts-last">最終使用: ' + escapeHtml(lastLabel || '—') + '</div>';
+        html += '</div>';
+      });
+      body.innerHTML = html;
+      body.querySelectorAll('.parts-note').forEach(function(ta) {
+        ta.addEventListener('change', function() {
+          savePartsNote(ta.getAttribute('data-note-key'), ta.value);
+        });
+        ta.addEventListener('blur', function() {
+          savePartsNote(ta.getAttribute('data-note-key'), ta.value);
+        });
+      });
+    }
+
+    /** コースアウトの共通条件を抽出 */
+    function renderLossPatterns() {
+      var body = document.getElementById('lossPatternContent');
+      if (!body) return;
+      var all = getResultedEvents();
+      var losses = all.filter(function(ev) {
+        return (ev.m4 && ev.m4.result) === 'コースアウト';
+      });
+      var finishes = all.filter(function(ev) {
+        return (ev.m4 && ev.m4.result) === '完走';
+      });
+
+      if (!losses.length) {
+        body.innerHTML = '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:24px 0;font-size:14px;">コースアウトの記録がありません。<br>結果に「コースアウト」を付けて保存するとパターン分析できます。</p></div>';
+        return;
+      }
+
+      function countMap(list, keyFn) {
+        var m = {};
+        list.forEach(function(ev) {
+          var k = keyFn(ev);
+          if (!k) k = '（未設定）';
+          m[k] = (m[k] || 0) + 1;
+        });
+        return m;
+      }
+
+      function topRows(map, total, limit) {
+        return Object.keys(map).map(function(k) {
+          return { key: k, count: map[k], pct: total ? map[k] / total * 100 : 0 };
+        }).sort(function(a, b) {
+          return b.count - a.count;
+        }).slice(0, limit || 8);
+      }
+
+      function riskTable(title, lossMap, finishMap, lossTotal) {
+        var keys = {};
+        Object.keys(lossMap).forEach(function(k) { keys[k] = true; });
+        Object.keys(finishMap).forEach(function(k) { keys[k] = true; });
+        var rows = Object.keys(keys).map(function(k) {
+          var lo = lossMap[k] || 0;
+          var fi = finishMap[k] || 0;
+          var tot = lo + fi;
+          var outRate = tot ? lo / tot * 100 : 0;
+          return { key: k, lo: lo, fi: fi, tot: tot, outRate: outRate };
+        }).filter(function(r) {
+          return r.lo > 0 && r.tot >= 1;
+        }).sort(function(a, b) {
+          if (b.outRate !== a.outRate) return b.outRate - a.outRate;
+          return b.lo - a.lo;
+        }).slice(0, 10);
+
+        var html = '<div class="analysis-card"><div class="analysis-card-title">' + escapeHtml(title) + '</div>';
+        if (!rows.length) {
+          html += '<p style="font-size:13px;color:#8e8e93;">データ不足</p></div>';
+          return html;
+        }
+        html += '<table class="analysis-table"><thead><tr><th>項目</th><th>アウト率</th><th>アウト</th><th>完走</th><th>合計</th></tr></thead><tbody>';
+        rows.forEach(function(r) {
+          var barClass = r.outRate >= 50 ? ' low' : '';
+          html += '<tr><td>' + escapeHtml(r.key) +
+            '<div class="analysis-bar-wrap"><div class="analysis-bar' + barClass + '" style="width:' + Math.min(100, r.outRate).toFixed(0) + '%;background:' +
+            (r.outRate >= 50 ? 'linear-gradient(90deg,#ff9f0a,#ff453a)' : 'linear-gradient(90deg,#34c759,#30d158)') +
+            '"></div></div></td>' +
+            '<td class="analysis-rate">' + r.outRate.toFixed(0) + '%</td>' +
+            '<td>' + r.lo + '</td><td>' + r.fi + '</td><td>' + r.tot + '</td></tr>';
+        });
+        html += '</tbody></table></div>';
+        return html;
+      }
+
+      var lossTotal = losses.length;
+      var lossPlace = countMap(losses, function(ev) {
+        return (ev.address && String(ev.address).trim()) || '';
+      });
+      var finishPlace = countMap(finishes, function(ev) {
+        return (ev.address && String(ev.address).trim()) || '';
+      });
+      var lossMotor = countMap(losses, motorKey);
+      var finishMotor = countMap(finishes, motorKey);
+      var lossGear = countMap(losses, function(ev) { return (ev.m4 && ev.m4.gearRatio) || ''; });
+      var finishGear = countMap(finishes, function(ev) { return (ev.m4 && ev.m4.gearRatio) || ''; });
+      var lossVolt = countMap(losses, function(ev) {
+        var v = ev.m4 && ev.m4.voltage;
+        return (v != null && v !== '') ? String(v) + ' V' : '';
+      });
+      var finishVolt = countMap(finishes, function(ev) {
+        var v = ev.m4 && ev.m4.voltage;
+        return (v != null && v !== '') ? String(v) + ' V' : '';
+      });
+      var lossTire = countMap(losses, function(ev) {
+        var t = ev.m4 && ev.m4.tireDiameter;
+        return (t != null && t !== '') ? String(t) + ' mm' : '';
+      });
+      var finishTire = countMap(finishes, function(ev) {
+        var t = ev.m4 && ev.m4.tireDiameter;
+        return (t != null && t !== '') ? String(t) + ' mm' : '';
+      });
+      var lossCombo = countMap(losses, function(ev) {
+        var place = (ev.address && String(ev.address).trim()) || '場所未設定';
+        var motor = motorKey(ev);
+        var gear = (ev.m4 && ev.m4.gearRatio) || 'ギヤ未設定';
+        return place + ' / ' + motor + ' / ' + gear;
+      });
+
+      var html = '';
+      html += '<div class="analysis-card"><div class="analysis-card-title">コースアウト概要</div>';
+      html += '<div class="analysis-summary">';
+      html += '<div class="analysis-stat out"><div class="num">' + lossTotal + '</div><div class="lbl">アウト件数</div></div>';
+      html += '<div class="analysis-stat finish"><div class="num">' + finishes.length + '</div><div class="lbl">完走件数</div></div>';
+      html += '<div class="analysis-stat"><div class="num">' + all.length + '</div><div class="lbl">判定合計</div></div>';
+      html += '<div class="analysis-stat out"><div class="num">' +
+        (all.length ? (lossTotal / all.length * 100).toFixed(0) + '%' : '—') +
+        '</div><div class="lbl">全体アウト率</div></div>';
+      html += '</div></div>';
+
+      // アウトが多い組み合わせ（件数）
+      html += '<div class="analysis-card"><div class="analysis-card-title">よくある負け組み合わせ（件数）</div>';
+      var combos = topRows(lossCombo, lossTotal, 8);
+      if (!combos.length) {
+        html += '<p style="font-size:13px;color:#8e8e93;">データ不足</p>';
+      } else {
+        html += '<table class="analysis-table"><thead><tr><th>場所 / モーター / ギヤ</th><th>件数</th><th>割合</th></tr></thead><tbody>';
+        combos.forEach(function(r) {
+          html += '<tr><td>' + escapeHtml(r.key) +
+            '<div class="analysis-bar-wrap"><div class="analysis-bar low" style="width:' + r.pct.toFixed(0) + '%"></div></div></td>' +
+            '<td>' + r.count + '</td><td class="analysis-rate">' + r.pct.toFixed(0) + '%</td></tr>';
+        });
+        html += '</tbody></table>';
+      }
+      html += '</div>';
+
+      html += riskTable('場所別アウト率（高い順）', lossPlace, finishPlace, lossTotal);
+      html += riskTable('モーター×番号別アウト率', lossMotor, finishMotor, lossTotal);
+      html += riskTable('ギヤ比別アウト率', lossGear, finishGear, lossTotal);
+      html += riskTable('電圧別アウト率', lossVolt, finishVolt, lossTotal);
+      html += riskTable('タイヤ径別アウト率', lossTire, finishTire, lossTotal);
+
+      // 注意ポイント（アウト率が高い＆件数がある）
+      var warnings = [];
+      function collectWarn(label, lossMap, finishMap, minN) {
+        Object.keys(lossMap).forEach(function(k) {
+          if (k === '（未設定）') return;
+          var lo = lossMap[k] || 0;
+          var fi = finishMap[k] || 0;
+          var tot = lo + fi;
+          if (tot < (minN || 2)) return;
+          var rate = lo / tot * 100;
+          if (rate >= 50) {
+            warnings.push({ label: label + ': ' + k, rate: rate, lo: lo, tot: tot });
+          }
+        });
+      }
+      collectWarn('場所', lossPlace, finishPlace, 2);
+      collectWarn('モーター', lossMotor, finishMotor, 2);
+      collectWarn('ギヤ', lossGear, finishGear, 2);
+      collectWarn('電圧', lossVolt, finishVolt, 2);
+      warnings.sort(function(a, b) { return b.rate - a.rate; });
+      warnings = warnings.slice(0, 6);
+
+      html += '<div class="analysis-card"><div class="analysis-card-title">注意したい条件</div>';
+      if (!warnings.length) {
+        html += '<p style="font-size:13px;color:#8e8e93;">まだ十分なデータがありません（同じ条件で2回以上の記録があると表示されます）。</p>';
+      } else {
+        html += '<ul style="padding-left:18px;margin:0;font-size:13px;line-height:1.6;">';
+        warnings.forEach(function(w) {
+          html += '<li><b>' + escapeHtml(w.label) + '</b> … アウト率 ' + w.rate.toFixed(0) + '%（' + w.lo + '/' + w.tot + '）</li>';
+        });
+        html += '</ul>';
+      }
+      html += '</div>';
+
+      body.innerHTML = html;
+    }
+
+    // ===== 会場マップ =====
+    function loadVenueNotes() {
+      try {
+        return JSON.parse(localStorage.getItem('memory_venueNotes') || '{}') || {};
+      } catch (e) { return {}; }
+    }
+    function saveVenueNote(place, text) {
+      var notes = loadVenueNotes();
+      if (text && text.trim()) notes[place] = text.trim();
+      else delete notes[place];
+      try { localStorage.setItem('memory_venueNotes', JSON.stringify(notes)); } catch (e) {}
+    }
+
+    function buildVenuesData() {
+      var map = {};
+      getEvents().forEach(function(ev) {
+        var place = (ev.address && String(ev.address).trim()) || '';
+        if (!place) return;
+        if (!map[place]) {
+          map[place] = {
+            place: place,
+            total: 0,
+            finish: 0,
+            out: 0,
+            lastDate: '',
+            lat: null,
+            lng: null,
+            motors: {}
+          };
+        }
+        var row = map[place];
+        row.total++;
+        var r = (ev.m4 && ev.m4.result) || '';
+        if (r === '完走') row.finish++;
+        else if (r === 'コースアウト') row.out++;
+        if (ev.date && (!row.lastDate || ev.date > row.lastDate)) row.lastDate = ev.date;
+        var m4 = ev.m4 || {};
+        if (m4.lat != null && m4.lng != null && m4.lat !== '' && m4.lng !== '') {
+          row.lat = Number(m4.lat);
+          row.lng = Number(m4.lng);
+        }
+        if (m4.motorType) {
+          var mk = motorKey(ev);
+          row.motors[mk] = (row.motors[mk] || 0) + 1;
+        }
+      });
+      return Object.keys(map).map(function(k) { return map[k]; }).sort(function(a, b) {
+        return b.total - a.total;
+      });
+    }
+
+    function openVenueOnMap(place, lat, lng) {
+      if (lat != null && lng != null && !isNaN(lat) && !isNaN(lng)) {
+        var q = lat + ',' + lng;
+        var appUrl = 'comgooglemaps://?q=' + encodeURIComponent(q) + '&center=' + q;
+        var webUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+        var opened = false;
+        var onHide = function() {
+          if (document.hidden) opened = true;
+        };
+        document.addEventListener('visibilitychange', onHide);
+        try { window.location.href = appUrl; } catch (e) {}
+        setTimeout(function() {
+          document.removeEventListener('visibilitychange', onHide);
+          if (!opened && !document.hidden) window.open(webUrl, '_blank');
+        }, 700);
+        return;
+      }
+      openMaps(place);
+    }
+
+    function renderVenuesMap() {
+      var body = document.getElementById('venuesMapContent');
+      if (!body) return;
+      var rows = buildVenuesData();
+      var notes = loadVenueNotes();
+      if (!rows.length) {
+        body.innerHTML = '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:24px 0;font-size:14px;">場所が記録されたセッティングがありません。<br>場所名やGPSを保存すると会場一覧に表示されます。</p></div>';
+        return;
+      }
+      var html = '<p style="font-size:12px;color:#8e8e93;margin-bottom:10px;">よく行く会場の一覧です。マップで開けます。メモは端末に保存されます。</p>';
+      rows.forEach(function(row) {
+        var judged = row.finish + row.out;
+        var rate = judged ? (row.finish / judged * 100) : null;
+        var rateText = rate != null ? rate.toFixed(0) + '%' : '—';
+        var lastLabel = row.lastDate || '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(lastLabel)) {
+          var p = lastLabel.split('-');
+          lastLabel = p[0] + '/' + parseInt(p[1], 10) + '/' + parseInt(p[2], 10);
+        }
+        var motorList = Object.keys(row.motors).sort(function(a, b) {
+          return row.motors[b] - row.motors[a];
+        }).slice(0, 3);
+        var motorStr = motorList.length
+          ? motorList.map(function(m) { return m + '(' + row.motors[m] + ')'; }).join(' · ')
+          : '—';
+        var gpsLabel = (row.lat != null && row.lng != null)
+          ? (row.lat.toFixed(4) + ', ' + row.lng.toFixed(4))
+          : 'GPSなし';
+        var noteVal = notes[row.place] || '';
+        html += '<div class="venue-card">';
+        html += '<div class="venue-name">📍 ' + escapeHtml(row.place) + '</div>';
+        html += '<div class="parts-meta">';
+        html += '<div class="parts-meta-item"><div class="n">' + row.total + '</div><div class="l">訪問</div></div>';
+        html += '<div class="parts-meta-item"><div class="n" style="color:#34c759">' + row.finish + '</div><div class="l">完走</div></div>';
+        html += '<div class="parts-meta-item"><div class="n" style="color:#ff3b30">' + row.out + '</div><div class="l">アウト</div></div>';
+        html += '<div class="parts-meta-item"><div class="n">' + rateText + '</div><div class="l">完走率</div></div>';
+        html += '</div>';
+        html += '<div class="parts-places">よく使う: ' + escapeHtml(motorStr) + '</div>';
+        html += '<div class="parts-last">最終: ' + escapeHtml(lastLabel || '—') + ' · ' + escapeHtml(gpsLabel) + '</div>';
+        html += '<div class="venue-actions">';
+        html += '<button type="button" class="venue-btn-map" data-place="' + escapeAttr(row.place) + '" data-lat="' +
+          (row.lat != null ? row.lat : '') + '" data-lng="' + (row.lng != null ? row.lng : '') +
+          '">Googleマップで開く</button>';
+        html += '</div>';
+        html += '<textarea class="venue-note" placeholder="会場メモ（レーン・注意点など）" data-venue-key="' +
+          escapeAttr(row.place) + '">' + escapeHtml(noteVal) + '</textarea>';
+        html += '</div>';
+      });
+      body.innerHTML = html;
+      body.querySelectorAll('.venue-btn-map').forEach(function(btn) {
+        btn.onclick = function() {
+          var place = btn.getAttribute('data-place') || '';
+          var lat = btn.getAttribute('data-lat');
+          var lng = btn.getAttribute('data-lng');
+          openVenueOnMap(
+            place,
+            lat !== '' ? Number(lat) : null,
+            lng !== '' ? Number(lng) : null
+          );
+        };
+      });
+      body.querySelectorAll('.venue-note').forEach(function(ta) {
+        ta.addEventListener('change', function() {
+          saveVenueNote(ta.getAttribute('data-venue-key'), ta.value);
+        });
+        ta.addEventListener('blur', function() {
+          saveVenueNote(ta.getAttribute('data-venue-key'), ta.value);
+        });
+      });
     }
 
     function getResultedEvents() {
@@ -3264,9 +4306,13 @@
         var m4 = ev.m4 || {};
         var badges = '';
         if (m4.eventType) badges += '<span class="m4-badge' + (m4.eventType === '大会' ? ' race' : '') + '">' + escapeHtml(m4.eventType) + '</span>';
+        if (m4.round) badges += '<span class="m4-badge race">' + escapeHtml(m4.round) + '</span>';
+        if (m4.raceLane) badges += '<span class="m4-badge">' + escapeHtml(m4.raceLane) + 'L</span>';
+        if (m4.rank) badges += '<span class="m4-badge">' + escapeHtml(m4.rank) + '位</span>';
         if (m4.classType) badges += '<span class="m4-badge">' + escapeHtml(m4.classType) + '</span>';
         if (m4.result === '完走') badges += '<span class="m4-badge finish">完走</span>';
         if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">コースアウト</span>';
+        if (m4.result === '失格') badges += '<span class="m4-badge out">失格</span>';
         var titleParts = [];
         if (m4.motorType) titleParts.push(m4.motorType);
         if (m4.voltage != null && m4.voltage !== '') titleParts.push(m4.voltage + 'V');
@@ -3344,10 +4390,402 @@
       if (localStorage.getItem('schedule_darkMode') === '1') applyTheme(true);
     } catch (e) {}
 
+    var m4EventTypeEl = document.getElementById('m4EventType');
+    if (m4EventTypeEl) {
+      m4EventTypeEl.addEventListener('change', updateRaceModeUI);
+    }
+
+    // ===== RPM Analyzer 連携 =====
+    // 同一フォルダの rpm_analyzer.html があれば優先（http/https 時）
+    var RPM_ANALYZER_URL = (function() {
+      try {
+        if (location.protocol === 'http:' || location.protocol === 'https:') {
+          return location.href.replace(/[^/]*$/, 'rpm_analyzer.html');
+        }
+      } catch (e) {}
+      return 'https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/';
+    })();
+    var RPM_STORAGE_KEYS = [
+      'memory_rpm_result',
+      'mini4wd_last_rpm',
+      'rpm_analyzer_result',
+      'm4_rpm_result'
+    ];
+    var rpmAnalyzerWin = null;
+
+    function setRpmLinkStatus(text, ok) {
+      var el = document.getElementById('rpmLinkStatus');
+      if (!el) return;
+      el.textContent = text;
+      el.style.color = ok ? '#34c759' : '#8e8e93';
+    }
+
+    function applyRpmValue(rpm, meta) {
+      rpm = Number(rpm);
+      if (!rpm || isNaN(rpm) || rpm <= 0) return false;
+      rpm = Math.round(rpm);
+      var el = document.getElementById('m4Rpm');
+      if (el) el.value = rpm;
+      if (meta) {
+        if (meta.speed != null && meta.speed !== '' && !isNaN(Number(meta.speed))) {
+          var sp = document.getElementById('m4Speed');
+          if (sp) {
+            sp.value = Number(meta.speed);
+            if (typeof updateSliderLabel === 'function') updateSliderLabel('m4Speed', 'm4SpeedVal', 1);
+          }
+        }
+        if (meta.voltage != null && meta.voltage !== '' && !isNaN(Number(meta.voltage))) {
+          var vo = document.getElementById('m4Voltage');
+          if (vo) {
+            vo.value = Number(meta.voltage);
+            if (typeof updateSliderLabel === 'function') updateSliderLabel('m4Voltage', 'm4VoltageVal', 1);
+          }
+        }
+        if (meta.tire != null && meta.tire !== '' && !isNaN(Number(meta.tire))) {
+          var ti = document.getElementById('m4Tire');
+          if (ti) {
+            ti.value = Number(meta.tire);
+            if (typeof updateSliderLabel === 'function') updateSliderLabel('m4Tire', 'm4TireVal', 1);
+          }
+        }
+      }
+      var extra = '';
+      if (meta && meta.hz) extra = '（' + Number(meta.hz).toFixed(1) + ' Hz）';
+      setRpmLinkStatus('取り込み済: ' + rpm + ' rpm' + extra, true);
+      return true;
+    }
+
+    function parseRpmPayload(raw) {
+      if (raw == null || raw === '') return null;
+      if (typeof raw === 'number') return { rpm: raw };
+      if (typeof raw === 'object') {
+        var r = raw.rpm != null ? raw.rpm : (raw.RPM != null ? raw.RPM : raw.value);
+        if (r == null && raw.data && raw.data.rpm != null) r = raw.data.rpm;
+        return r != null ? {
+          rpm: r,
+          hz: raw.hz || raw.frequency || null,
+          ts: raw.ts || raw.time || null,
+          speed: raw.speed != null ? raw.speed : null,
+          voltage: raw.voltage != null ? raw.voltage : null,
+          tire: raw.tire != null ? raw.tire : null,
+          gear: raw.gear != null ? raw.gear : null
+        } : null;
+      }
+      var s = String(raw).trim();
+      // JSON
+      if (s.charAt(0) === '{' || s.charAt(0) === '[') {
+        try {
+          return parseRpmPayload(JSON.parse(s));
+        } catch (e) {}
+      }
+      // 数字のみ or "25000 rpm"
+      var m = s.match(/(\d+(?:\.\d+)?)\s*(rpm)?/i);
+      if (m) return { rpm: Number(m[1]) };
+      return null;
+    }
+
+    function readRpmFromStorage() {
+      for (var i = 0; i < RPM_STORAGE_KEYS.length; i++) {
+        try {
+          var raw = localStorage.getItem(RPM_STORAGE_KEYS[i]);
+          var parsed = parseRpmPayload(raw);
+          if (parsed && parsed.rpm) {
+            return { parsed: parsed, key: RPM_STORAGE_KEYS[i], raw: raw };
+          }
+        } catch (e) {}
+      }
+      // sessionStorage も確認
+      for (var j = 0; j < RPM_STORAGE_KEYS.length; j++) {
+        try {
+          var raw2 = sessionStorage.getItem(RPM_STORAGE_KEYS[j]);
+          var parsed2 = parseRpmPayload(raw2);
+          if (parsed2 && parsed2.rpm) {
+            return { parsed: parsed2, key: RPM_STORAGE_KEYS[j], raw: raw2 };
+          }
+        } catch (e2) {}
+      }
+      return null;
+    }
+
+    function openRpmAnalyzer() {
+      var url = RPM_ANALYZER_URL +
+        (RPM_ANALYZER_URL.indexOf('?') >= 0 ? '&' : '?') +
+        'from=memory&callback=1';
+      try {
+        rpmAnalyzerWin = window.open(url, 'memory_rpm_analyzer');
+      } catch (e) {
+        rpmAnalyzerWin = null;
+      }
+      if (!rpmAnalyzerWin) {
+        // ポップアップブロック時は同一タブ遷移を避けるためリンク案内
+        setRpmLinkStatus('ポップアップがブロックされました。下のリンクから開いてください', false);
+        return;
+      }
+      setRpmLinkStatus('計測アプリを開きました。終わったら「結果を取り込む」', false);
+      // opener 経由の postMessage を待つ
+    }
+
+    function importRpmFromAnalyzer() {
+      // 1) postMessage で既に受け取っていれば input に入っている
+      // 2) localStorage / sessionStorage
+      var found = readRpmFromStorage();
+      if (found && applyRpmValue(found.parsed.rpm, found.parsed)) {
+        return;
+      }
+      // 3) クリップボード
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        navigator.clipboard.readText().then(function(text) {
+          var p = parseRpmPayload(text);
+          if (p && applyRpmValue(p.rpm, p)) return;
+          promptRpmManual();
+        }).catch(function() {
+          promptRpmManual();
+        });
+      } else {
+        promptRpmManual();
+      }
+    }
+
+    function promptRpmManual() {
+      var v = prompt('RPM Analyzer の回転数を入力（または貼り付け）', document.getElementById('m4Rpm').value || '');
+      if (v == null || v === '') {
+        setRpmLinkStatus('取り込めませんでした', false);
+        return;
+      }
+      var p = parseRpmPayload(v);
+      if (!p || !applyRpmValue(p.rpm, p)) {
+        setRpmLinkStatus('数値を確認してください', false);
+        alert('回転数として読み取れませんでした');
+      }
+    }
+
+    // Analyzer → memory への postMessage
+    window.addEventListener('message', function(ev) {
+      var data = ev.data;
+      if (!data) return;
+      // いくつかの形式に対応
+      var payload = null;
+      if (data.type === 'memory-rpm' || data.type === 'rpm-result' || data.type === 'mini4wd-rpm') {
+        payload = parseRpmPayload(data);
+      } else if (data.source === 'rpm-analyzer' || data.app === 'rpm-analyzer') {
+        payload = parseRpmPayload(data);
+      } else if (typeof data === 'object' && (data.rpm != null || data.RPM != null)) {
+        payload = parseRpmPayload(data);
+      }
+      if (payload && payload.rpm) {
+        applyRpmValue(payload.rpm, payload);
+        try {
+          localStorage.setItem('memory_rpm_result', JSON.stringify({
+            rpm: Math.round(Number(payload.rpm)),
+            hz: payload.hz || null,
+            ts: Date.now()
+          }));
+        } catch (e) {}
+      }
+    });
+
+    // 別タブの Analyzer が localStorage を更新したとき
+    window.addEventListener('storage', function(ev) {
+      if (!ev || !ev.key) return;
+      if (RPM_STORAGE_KEYS.indexOf(ev.key) === -1) return;
+      var p = parseRpmPayload(ev.newValue);
+      if (p && p.rpm) applyRpmValue(p.rpm, p);
+    });
+
+    // このタブに戻ったとき、保存済み結果を自動チェック
+    window.addEventListener('focus', function() {
+      if (!document.getElementById('modalOverlay').classList.contains('active')) return;
+      var found = readRpmFromStorage();
+      if (!found) return;
+      var el = document.getElementById('m4Rpm');
+      var cur = el && el.value ? Number(el.value) : 0;
+      var next = Math.round(Number(found.parsed.rpm));
+      if (next && next !== cur) {
+        // 上書き確認なしでステータスだけ更新し、ユーザーが「取り込む」で確定する運用も可
+        // ここでは自動反映（計測→戻るの流れを優先）
+        applyRpmValue(next, found.parsed);
+      }
+    });
+
+    // ===== タイム計測（ストップウォッチ） =====
+    var swRunning = false;
+    var swStartTs = 0;
+    var swAccum = 0;
+    var swRaf = null;
+    var swLaps = [];
+    var swFromForm = false;
+    var swLastMs = 0;
+
+    function formatSwTime(ms) {
+      ms = Math.max(0, ms);
+      var totalSec = ms / 1000;
+      if (totalSec >= 60) {
+        var m = Math.floor(totalSec / 60);
+        var s = totalSec - m * 60;
+        return m + ':' + (s < 10 ? '0' : '') + s.toFixed(3);
+      }
+      return totalSec.toFixed(3);
+    }
+
+    function formatSwSeconds(ms) {
+      return (Math.max(0, ms) / 1000).toFixed(3);
+    }
+
+    function swTick() {
+      if (!swRunning) return;
+      var now = performance.now();
+      swLastMs = swAccum + (now - swStartTs);
+      var el = document.getElementById('swDisplay');
+      if (el) el.textContent = formatSwTime(swLastMs);
+      swRaf = requestAnimationFrame(swTick);
+    }
+
+    function openStopwatch(fromForm) {
+      swFromForm = !!fromForm;
+      document.getElementById('stopwatchOverlay').classList.add('active');
+      var applyBtn = document.getElementById('swApplyBtn');
+      if (applyBtn) {
+        applyBtn.style.display = swFromForm || document.getElementById('modalOverlay').classList.contains('active') ? '' : 'none';
+        applyBtn.disabled = swLastMs <= 0 && swLaps.length === 0;
+      }
+      renderSwLaps();
+    }
+
+    function closeStopwatch() {
+      document.getElementById('stopwatchOverlay').classList.remove('active');
+    }
+
+    function swStart() {
+      if (swRunning) return;
+      swRunning = true;
+      swStartTs = performance.now();
+      document.getElementById('swStartBtn').style.display = 'none';
+      document.getElementById('swStopBtn').style.display = '';
+      document.getElementById('swLapBtn').disabled = false;
+      document.getElementById('swSub').textContent = '計測中…';
+      swRaf = requestAnimationFrame(swTick);
+    }
+
+    function swStop() {
+      if (!swRunning) return;
+      swRunning = false;
+      swAccum = swLastMs;
+      if (swRaf) cancelAnimationFrame(swRaf);
+      swRaf = null;
+      document.getElementById('swStartBtn').style.display = '';
+      document.getElementById('swStartBtn').textContent = '再開';
+      document.getElementById('swStopBtn').style.display = 'none';
+      document.getElementById('swLapBtn').disabled = true;
+      document.getElementById('swSub').textContent = '停止 · ' + formatSwSeconds(swLastMs) + ' 秒';
+      var applyBtn = document.getElementById('swApplyBtn');
+      if (applyBtn) {
+        applyBtn.disabled = false;
+        if (document.getElementById('modalOverlay').classList.contains('active')) {
+          applyBtn.style.display = '';
+        }
+      }
+    }
+
+    function swLap() {
+      if (!swRunning) return;
+      var now = performance.now();
+      var total = swAccum + (now - swStartTs);
+      var prev = swLaps.length ? swLaps[swLaps.length - 1].total : 0;
+      var split = total - prev;
+      swLaps.push({ total: total, split: split });
+      renderSwLaps();
+    }
+
+    function swReset() {
+      swRunning = false;
+      if (swRaf) cancelAnimationFrame(swRaf);
+      swRaf = null;
+      swStartTs = 0;
+      swAccum = 0;
+      swLastMs = 0;
+      swLaps = [];
+      document.getElementById('swDisplay').textContent = '0.000';
+      document.getElementById('swSub').textContent = '停止中';
+      document.getElementById('swStartBtn').style.display = '';
+      document.getElementById('swStartBtn').textContent = 'スタート';
+      document.getElementById('swStopBtn').style.display = 'none';
+      document.getElementById('swLapBtn').disabled = true;
+      document.getElementById('swApplyBtn').disabled = true;
+      renderSwLaps();
+    }
+
+    function renderSwLaps() {
+      var box = document.getElementById('swLaps');
+      if (!box) return;
+      if (!swLaps.length) {
+        box.innerHTML = '';
+        return;
+      }
+      var bestSplit = Math.min.apply(null, swLaps.map(function(l) { return l.split; }));
+      var html = '';
+      for (var i = swLaps.length - 1; i >= 0; i--) {
+        var l = swLaps[i];
+        var isBest = l.split === bestSplit && swLaps.length > 1;
+        html += '<div class="stopwatch-lap-row' + (isBest ? ' best' : '') + '">' +
+          '<span>ラップ ' + (i + 1) + (isBest ? ' ★' : '') + '</span>' +
+          '<span>' + formatSwSeconds(l.split) + '  /  通算 ' + formatSwSeconds(l.total) + '</span></div>';
+      }
+      box.innerHTML = html;
+    }
+
+    function swApplyToForm() {
+      // 通算タイムを「タイム」に、ラップ最速を「ベスト」に
+      var totalMs = swLastMs;
+      if (totalMs <= 0 && swLaps.length) totalMs = swLaps[swLaps.length - 1].total;
+      if (totalMs <= 0) return;
+      var sec = formatSwSeconds(totalMs);
+      var best = sec;
+      if (swLaps.length) {
+        var bestMs = Math.min.apply(null, swLaps.map(function(l) { return l.split; }));
+        best = formatSwSeconds(bestMs);
+      }
+      var modalOpen = document.getElementById('modalOverlay').classList.contains('active');
+      var lapEl = document.getElementById('m4LapTime');
+      var bestEl = document.getElementById('m4BestLap');
+      if (modalOpen && lapEl) {
+        lapEl.value = sec;
+        if (bestEl) {
+          var prev = bestEl.value ? parseFloat(bestEl.value) : NaN;
+          var b = parseFloat(best);
+          if (isNaN(prev) || b < prev) bestEl.value = best;
+          else if (!bestEl.value) bestEl.value = best;
+        }
+        closeStopwatch();
+      } else {
+        try { navigator.clipboard.writeText(sec); } catch (e) {}
+        closeStopwatch();
+        alert('タイム ' + sec + ' 秒をクリップボードにコピーしました。\nセッティング画面の「タイム」欄に貼り付けできます。');
+      }
+    }
+
+    // オーバーレイ背景タップで閉じる（計測中は閉じない）
+    document.getElementById('stopwatchOverlay').addEventListener('click', function(e) {
+      if (e.target === this && !swRunning) closeStopwatch();
+    });
+
     initEventsStorage().then(function() {
       bindSearchFilterEvents();
       switchView('month');
     });
+
+    /* ピンチイン・アウト / ダブルタップズーム禁止 */
+    document.addEventListener('touchmove', function(e) {
+      if (e.scale !== undefined && e.scale !== 1) e.preventDefault();
+    }, { passive: false });
+    var lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+      var now = Date.now();
+      if (now - lastTouchEnd <= 300) e.preventDefault();
+      lastTouchEnd = now;
+    }, { passive: false });
+    document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+    document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
+    document.addEventListener('gestureend', function(e) { e.preventDefault(); });
   </script>
 </body>
 </html>
