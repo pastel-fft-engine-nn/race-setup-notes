@@ -4423,12 +4423,35 @@
       }
     }
 
+    function getRpmImportSessionStart() {
+      try {
+        return Number(sessionStorage.getItem('memory_rpm_import_ts') || 0) || 0;
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    function clearRpmStorageKeys() {
+      // 古い固定値（例: 30684）が残り続けないようにクリア
+      for (var i = 0; i < RPM_STORAGE_KEYS.length; i++) {
+        try { localStorage.removeItem(RPM_STORAGE_KEYS[i]); } catch (e) {}
+        try { sessionStorage.removeItem(RPM_STORAGE_KEYS[i]); } catch (e2) {}
+      }
+    }
+
     function beginRpmImportSession() {
-      try { sessionStorage.setItem('memory_rpm_import_session', '1'); } catch (e) {}
+      clearRpmStorageKeys();
+      try {
+        sessionStorage.setItem('memory_rpm_import_session', '1');
+        sessionStorage.setItem('memory_rpm_import_ts', String(Date.now()));
+      } catch (e) {}
     }
 
     function endRpmImportSession() {
-      try { sessionStorage.removeItem('memory_rpm_import_session'); } catch (e) {}
+      try {
+        sessionStorage.removeItem('memory_rpm_import_session');
+        sessionStorage.removeItem('memory_rpm_import_ts');
+      } catch (e) {}
     }
 
     function applyRpmValue(rpm, meta) {
@@ -4482,10 +4505,22 @@
       if (raw == null || raw === '') return null;
       if (typeof raw === 'number') return { rpm: raw };
       if (typeof raw === 'object') {
-        var r = raw.rpm != null ? raw.rpm : (raw.RPM != null ? raw.RPM : raw.value);
-        if (r == null && raw.data && raw.data.rpm != null) r = raw.data.rpm;
+        // 最高RPMを優先（maxRpm / MAX / rpmMax）
+        var r = null;
+        if (raw.maxRpm != null) r = raw.maxRpm;
+        else if (raw.maxRPM != null) r = raw.maxRPM;
+        else if (raw.rpmMax != null) r = raw.rpmMax;
+        else if (raw.MAX != null) r = raw.MAX;
+        else if (raw.max != null && !isNaN(Number(raw.max))) r = raw.max;
+        else if (raw.rpm != null) r = raw.rpm;
+        else if (raw.RPM != null) r = raw.RPM;
+        else if (raw.value != null) r = raw.value;
+        else if (raw.data && raw.data.maxRpm != null) r = raw.data.maxRpm;
+        else if (raw.data && raw.data.rpm != null) r = raw.data.rpm;
         return r != null ? {
           rpm: r,
+          maxRpm: raw.maxRpm != null ? raw.maxRpm : r,
+          currentRpm: raw.currentRpm != null ? raw.currentRpm : (raw.rpm != null ? raw.rpm : null),
           hz: raw.hz || raw.frequency || null,
           ts: raw.ts || raw.time || null,
           speed: raw.speed != null ? raw.speed : null,
@@ -4495,39 +4530,34 @@
         } : null;
       }
       var s = String(raw).trim();
-      // JSON
       if (s.charAt(0) === '{' || s.charAt(0) === '[') {
         try {
           return parseRpmPayload(JSON.parse(s));
         } catch (e) {}
       }
-      // 数字のみ or "25000 rpm"
       var m = s.match(/(\d+(?:\.\d+)?)\s*(rpm)?/i);
       if (m) return { rpm: Number(m[1]) };
       return null;
     }
 
     function readRpmFromStorage() {
-      for (var i = 0; i < RPM_STORAGE_KEYS.length; i++) {
-        try {
-          var raw = localStorage.getItem(RPM_STORAGE_KEYS[i]);
-          var parsed = parseRpmPayload(raw);
-          if (parsed && parsed.rpm) {
+      var sessionStart = getRpmImportSessionStart();
+      function pick(store) {
+        for (var i = 0; i < RPM_STORAGE_KEYS.length; i++) {
+          try {
+            var raw = store.getItem(RPM_STORAGE_KEYS[i]);
+            var parsed = parseRpmPayload(raw);
+            if (!parsed || !parsed.rpm) continue;
+            // セッション開始より古いデータは無視（常に30684問題の防止）
+            if (sessionStart && parsed.ts && Number(parsed.ts) < sessionStart) continue;
+            // ts が無い古い形式はセッション開始後に書いたもの以外は捨てる
+            if (sessionStart && !parsed.ts) continue;
             return { parsed: parsed, key: RPM_STORAGE_KEYS[i], raw: raw };
-          }
-        } catch (e) {}
+          } catch (e) {}
+        }
+        return null;
       }
-      // sessionStorage も確認
-      for (var j = 0; j < RPM_STORAGE_KEYS.length; j++) {
-        try {
-          var raw2 = sessionStorage.getItem(RPM_STORAGE_KEYS[j]);
-          var parsed2 = parseRpmPayload(raw2);
-          if (parsed2 && parsed2.rpm) {
-            return { parsed: parsed2, key: RPM_STORAGE_KEYS[j], raw: raw2 };
-          }
-        } catch (e2) {}
-      }
-      return null;
+      return pick(localStorage) || pick(sessionStorage);
     }
 
     // 新規登録の回転数取り込み用（この経路のときだけ m4Rpm に反映）
@@ -4577,7 +4607,7 @@
         setRpmLinkStatus('「RPM Analyzerを開く」から計測したときだけ取り込めます', false);
         return;
       }
-      // 1) localStorage / sessionStorage → 新規登録の回転数枠 (m4Rpm)
+      // 1) 今回の計測で保存された最高RPM
       var found = readRpmFromStorage();
       if (found && applyRpmValue(found.parsed.rpm, found.parsed)) {
         return;
@@ -4597,7 +4627,10 @@
     }
 
     function promptRpmManual() {
-      var v = prompt('RPM Analyzer の回転数を入力（または貼り付け）', document.getElementById('m4Rpm').value || '');
+      var v = prompt(
+        'Analyzer 画面の MAX（最高RPM）を入力してください\n（公開版は自動連携できない場合があります）',
+        ''
+      );
       if (v == null || v === '') {
         setRpmLinkStatus('取り込めませんでした', false);
         return;
@@ -4605,7 +4638,7 @@
       var p = parseRpmPayload(v);
       if (!p || !applyRpmValue(p.rpm, p)) {
         setRpmLinkStatus('数値を確認してください', false);
-        alert('回転数として読み取れませんでした');
+        alert('最高RPMとして読み取れませんでした');
       }
     }
 
