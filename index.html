@@ -4251,14 +4251,17 @@
 
     var selectedVenuePlace = null;
 
-    // 日本地図上の位置（概略投影: lat 24–46 / lng 123–146）
+    // 日本地図上の位置（シルエット素材向け。北に寄りすぎるのを南へ補正）
     function japanMapPercent(lat, lng) {
-      var minLat = 24.0, maxLat = 46.0, minLng = 123.0, maxLng = 146.0;
-      var x = (Number(lng) - minLng) / (maxLng - minLng) * 100;
-      var y = (maxLat - Number(lat)) / (maxLat - minLat) * 100;
-      x = Math.max(2, Math.min(98, x));
-      y = Math.max(2, Math.min(98, y));
-      return { left: x, top: y };
+      var minLat = 24.2, maxLat = 45.8, minLng = 123.0, maxLng = 146.0;
+      var nx = (Number(lng) - minLng) / (maxLng - minLng);
+      var ny = (maxLat - Number(lat)) / (maxLat - minLat);
+      // 画像余白に合わせ、全体を少し南（下）へシフト
+      var left = 2 + nx * 96;
+      var top = 6 + ny * 90 + 6; // +6% 南方向
+      left = Math.max(3, Math.min(97, left));
+      top = Math.max(4, Math.min(96, top));
+      return { left: left, top: top };
     }
 
     function selectVenueOnMap(place) {
