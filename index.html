@@ -549,6 +549,37 @@
       padding: 14px 20px 4px; letter-spacing: 0.02em;
     }
     .form-row-slider { align-items: center; }
+    /* 選択項目を横2列 */
+    .form-select-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .form-select-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 12px;
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.07);
+      border-right: 0.5px solid rgba(0, 0, 0, 0.07);
+      min-height: 0;
+    }
+    .form-select-cell:nth-child(2n) { border-right: none; }
+    .form-select-cell.full {
+      grid-column: span 2;
+      border-right: none;
+    }
+    .form-select-cell .cell-label {
+      font-size: 12px; color: #8e8e93; font-weight: 500;
+    }
+    .form-select-cell select.form-input,
+    .form-select-cell input.form-input {
+      min-height: 40px;
+      font-size: 15px;
+      width: 100%;
+      padding: 8px 6px;
+      padding-right: 24px;
+    }
+    .form-select-cell input.form-input { padding-right: 6px; }
     .slider-wrap { flex: 1; display: flex; align-items: center; gap: 8px; }
     .slider-wrap input[type=range] { flex: 1; height: 28px; }
     .slider-val {
@@ -571,6 +602,118 @@
       font-size: 13px; color: #3a3a3c; margin-top: 6px; line-height: 1.45;
     }
     .event-media img, .event-media video { cursor: pointer; }
+
+    /* ===== ダークモード ===== */
+    body.dark-mode {
+      background: #0d0d0f;
+      color: #f2f2f7;
+    }
+    body.dark-mode .app-header {
+      background: rgba(28, 28, 30, 0.92);
+      border-bottom-color: rgba(255, 255, 255, 0.12);
+    }
+    body.dark-mode .header-title,
+    body.dark-mode .month-label { color: #f2f2f7; }
+    body.dark-mode .today-btn,
+    body.dark-mode .media-header-btn,
+    body.dark-mode .search-header-btn,
+    body.dark-mode .nav-btn,
+    body.dark-mode .modal-close,
+    body.dark-mode .modal-save,
+    body.dark-mode .rpm-link { color: #0a84ff; }
+    body.dark-mode .view-tabs { background: #2c2c2e; }
+    body.dark-mode .view-tab { color: #aeaeb2; }
+    body.dark-mode .view-tab.active {
+      background: #3a3a3c; color: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    body.dark-mode .weekday-header,
+    body.dark-mode .calendar-grid,
+    body.dark-mode .today-section,
+    body.dark-mode .week-view,
+    body.dark-mode .day-view,
+    body.dark-mode .week-header,
+    body.dark-mode .day-view-date,
+    body.dark-mode .event-card,
+    body.dark-mode .form-group,
+    body.dark-mode .media-btn,
+    body.dark-mode .detail-group,
+    body.dark-mode .search-filter-grid,
+    body.dark-mode .search-result-card,
+    body.dark-mode .modal-header {
+      background: #1c1c1e;
+      color: #f2f2f7;
+    }
+    body.dark-mode .modal { background: #1c1c1e; }
+    body.dark-mode .modal-overlay { background: rgba(0, 0, 0, 0.55); }
+    body.dark-mode .weekday { color: #8e8e93; }
+    body.dark-mode .day-cell.other-month .day-number { color: #48484a; }
+    body.dark-mode .day-number { color: #f2f2f7; }
+    body.dark-mode .day-event-name {
+      color: #0a84ff; background: rgba(10, 132, 255, 0.18);
+    }
+    body.dark-mode .day-event-name.holiday-name {
+      color: #ff453a; background: rgba(255, 69, 58, 0.18);
+    }
+    body.dark-mode .form-label,
+    body.dark-mode .cell-label,
+    body.dark-mode .section-label,
+    body.dark-mode .detail-label,
+    body.dark-mode .detail-section-label,
+    body.dark-mode .search-freeword-label,
+    body.dark-mode .search-filter-item label,
+    body.dark-mode .event-time,
+    body.dark-mode .search-result-date,
+    body.dark-mode .search-results-title { color: #8e8e93; }
+    body.dark-mode .form-input,
+    body.dark-mode select.form-input,
+    body.dark-mode input.form-input,
+    body.dark-mode textarea.form-input {
+      color: #f2f2f7; background: transparent;
+    }
+    body.dark-mode .form-select-cell select.form-input,
+    body.dark-mode .form-select-cell input.form-input,
+    body.dark-mode .search-filter-item select,
+    body.dark-mode .search-freeword-input {
+      background: #2c2c2e; color: #f2f2f7; border-color: #3a3a3c;
+    }
+    body.dark-mode .form-row,
+    body.dark-mode .form-select-cell,
+    body.dark-mode .detail-row {
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+    body.dark-mode .form-select-cell { border-right-color: rgba(255, 255, 255, 0.08); }
+    body.dark-mode .event-title,
+    body.dark-mode .search-result-title,
+    body.dark-mode .detail-value,
+    body.dark-mode .event-content,
+    body.dark-mode .m4-summary,
+    body.dark-mode .detail-memo { color: #f2f2f7; }
+    body.dark-mode .event-address .addr-text,
+    body.dark-mode .detail-value.link { color: #0a84ff; }
+    body.dark-mode .copy-btn,
+    body.dark-mode .dup-btn,
+    body.dark-mode .search-freeword-clear,
+    body.dark-mode .search-action-btn.gray,
+    body.dark-mode .delete-btn {
+      background: #2c2c2e; color: #f2f2f7;
+    }
+    body.dark-mode .delete-btn { color: #ff453a; }
+    body.dark-mode .modal-save-bottom { background: #0a84ff; }
+    body.dark-mode .fab { background: #0a84ff; }
+    body.dark-mode .empty-state { color: #8e8e93; }
+    body.dark-mode .week-col { border-left-color: #2c2c2e; }
+    body.dark-mode .hour-line { background: #2c2c2e; }
+    body.dark-mode .time-label { color: #8e8e93; }
+    body.dark-mode .week-day-header { border-left-color: #2c2c2e; }
+    body.dark-mode .week-header { border-bottom-color: #2c2c2e; background: #1c1c1e; }
+    body.dark-mode .slider-val { color: #0a84ff; }
+    body.dark-mode .media-btn.primary-hq { background: #0a84ff; color: #fff; }
+    body.dark-mode .gallery-tabs { background: #2c2c2e; }
+    body.dark-mode .gallery-tab { color: #aeaeb2; }
+    body.dark-mode .gallery-tab.active { background: #3a3a3c; color: #fff; }
+    body.dark-mode .gallery-caption { background: #1c1c1e; color: #aeaeb2; }
+    body.dark-mode input[type="range"] { accent-color: #0a84ff; }
   </style>
 </head>
 <body>
@@ -578,6 +721,7 @@
     <div class="header-row">
       <div class="header-title">スケジュール / ミニ四駆</div>
       <div class="header-actions">
+        <button class="today-btn" id="themeToggleBtn" onclick="toggleTheme()" title="表示モード切替">🌙</button>
         <button class="today-btn" onclick="goToToday()">今日</button>
         <button class="search-header-btn" onclick="openSearchView()" title="セッティング検索">🔍</button>
         <button class="media-header-btn" onclick="openGallery()" title="すべての写真・動画">📷</button>
@@ -736,51 +880,61 @@
       <!-- ミニ四駆セッティング -->
       <div class="section-label">マシン・走行</div>
       <div class="form-group">
-        <div class="form-row">
-          <div class="form-label">種別</div>
-          <select class="form-input" id="m4EventType">
-            <option value="">-</option>
-            <option value="練習">練習</option>
-            <option value="大会">大会</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-label">レーン</div>
-          <select class="form-input" id="m4Lanes">
-            <option value="">-</option>
-            <option value="3">3レーン</option>
-            <option value="5">5レーン</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-label">クラス</div>
-          <select class="form-input" id="m4Class">
-            <option value="">-</option>
-            <option value="オープン">オープン</option>
-            <option value="ストック">ストック</option>
-            <option value="BMAX">BMAX</option>
-            <option value="トライアル">トライアル</option>
-            <option value="GT">GT</option>
-            <option value="その他">その他</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-label">室内外</div>
-          <select class="form-input" id="m4Indoor">
-            <option value="">-</option>
-            <option value="室内">室内</option>
-            <option value="室外">室外</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-label">天気</div>
-          <select class="form-input" id="m4Weather">
-            <option value="">-</option>
-            <option value="快晴">快晴</option>
-            <option value="晴れ">晴れ</option>
-            <option value="曇">曇</option>
-            <option value="雨">雨</option>
-          </select>
+        <div class="form-select-grid">
+          <div class="form-select-cell">
+            <span class="cell-label">種別</span>
+            <select class="form-input" id="m4EventType">
+              <option value="">-</option>
+              <option value="練習">練習</option>
+              <option value="大会">大会</option>
+            </select>
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">レーン</span>
+            <select class="form-input" id="m4Lanes">
+              <option value="">-</option>
+              <option value="3">3レーン</option>
+              <option value="5">5レーン</option>
+            </select>
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">クラス</span>
+            <select class="form-input" id="m4Class">
+              <option value="">-</option>
+              <option value="オープン">オープン</option>
+              <option value="ストック">ストック</option>
+              <option value="BMAX">BMAX</option>
+              <option value="トライアル">トライアル</option>
+              <option value="GT">GT</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">室内外</span>
+            <select class="form-input" id="m4Indoor">
+              <option value="">-</option>
+              <option value="室内">室内</option>
+              <option value="室外">室外</option>
+            </select>
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">天気</span>
+            <select class="form-input" id="m4Weather">
+              <option value="">-</option>
+              <option value="快晴">快晴</option>
+              <option value="晴れ">晴れ</option>
+              <option value="曇">曇</option>
+              <option value="雨">雨</option>
+            </select>
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">結果</span>
+            <select class="form-input" id="m4Result">
+              <option value="">-</option>
+              <option value="完走">完走</option>
+              <option value="コースアウト">コースアウト</option>
+            </select>
+          </div>
         </div>
         <div class="form-row form-row-slider">
           <div class="form-label">気温℃</div>
@@ -791,44 +945,60 @@
         </div>
       </div>
       <div class="form-group">
-        <div class="form-row">
-          <div class="form-label">モーター</div>
-          <select class="form-input" id="m4Motor">
-            <option value="">選択</option>
-            <option value="ノーマルPRO">ノーマルPRO</option>
-            <option value="レブチューンPRO">レブチューンPRO</option>
-            <option value="トルクチューンPRO">トルクチューンPRO</option>
-            <option value="アトミックチューンPRO">アトミックチューンPRO</option>
-            <option value="ライトダッシュPRO">ライトダッシュPRO</option>
-            <option value="ハイパーダッシュPRO">ハイパーダッシュPRO</option>
-            <option value="マッハダッシュPRO">マッハダッシュPRO</option>
-            <option value="ノーマル">ノーマル</option>
-            <option value="レブチューン">レブチューン</option>
-            <option value="トルクチューン">トルクチューン</option>
-            <option value="アトミックチューン">アトミックチューン</option>
-            <option value="ライトダッシュ">ライトダッシュ</option>
-            <option value="ハイパーダッシュ">ハイパーダッシュ</option>
-            <option value="パワーダッシュ">パワーダッシュ</option>
-            <option value="スプリントダッシュ">スプリントダッシュ</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-label">M.No.</div>
-          <input type="text" class="form-input" id="m4MotorNo" placeholder="モーター番号">
-        </div>
-        <div class="form-row">
-          <div class="form-label">ギヤ比</div>
-          <select class="form-input" id="m4Gear">
-            <option value="">-</option>
-            <option value="3.5:1">3.5:1</option>
-            <option value="3.7:1">3.7:1</option>
-            <option value="4.0:1">4.0:1</option>
-            <option value="4.2:1">4.2:1</option>
-            <option value="5:1">5:1</option>
-            <option value="6.4:1">6.4:1</option>
-            <option value="8.75:1">8.75:1</option>
-            <option value="11.2:1">11.2:1</option>
-          </select>
+        <div class="form-select-grid">
+          <div class="form-select-cell full">
+            <span class="cell-label">モーター</span>
+            <select class="form-input" id="m4Motor">
+              <option value="">選択</option>
+              <option value="ノーマルPRO">ノーマルPRO</option>
+              <option value="レブチューンPRO">レブチューンPRO</option>
+              <option value="トルクチューンPRO">トルクチューンPRO</option>
+              <option value="アトミックチューンPRO">アトミックチューンPRO</option>
+              <option value="ライトダッシュPRO">ライトダッシュPRO</option>
+              <option value="ハイパーダッシュPRO">ハイパーダッシュPRO</option>
+              <option value="マッハダッシュPRO">マッハダッシュPRO</option>
+              <option value="ノーマル">ノーマル</option>
+              <option value="レブチューン">レブチューン</option>
+              <option value="トルクチューン">トルクチューン</option>
+              <option value="アトミックチューン">アトミックチューン</option>
+              <option value="ライトダッシュ">ライトダッシュ</option>
+              <option value="ハイパーダッシュ">ハイパーダッシュ</option>
+              <option value="パワーダッシュ">パワーダッシュ</option>
+              <option value="スプリントダッシュ">スプリントダッシュ</option>
+            </select>
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">M.No.</span>
+            <input type="text" class="form-input" id="m4MotorNo" placeholder="番号">
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">ギヤ比</span>
+            <select class="form-input" id="m4Gear">
+              <option value="">-</option>
+              <option value="3.5:1">3.5:1</option>
+              <option value="3.7:1">3.7:1</option>
+              <option value="4.0:1">4.0:1</option>
+              <option value="4.2:1">4.2:1</option>
+              <option value="5:1">5:1</option>
+              <option value="6.4:1">6.4:1</option>
+              <option value="8.75:1">8.75:1</option>
+              <option value="11.2:1">11.2:1</option>
+            </select>
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">電池</span>
+            <select class="form-input" id="m4Battery">
+              <option value="">-</option>
+              <option value="ニッケル水素">ニッケル水素</option>
+              <option value="リチウムイオン">リチウムイオン</option>
+              <option value="アルカリ">アルカリ</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">回転数</span>
+            <input type="number" class="form-input" id="m4Rpm" placeholder="rpm" step="1">
+          </div>
         </div>
         <div class="form-row form-row-slider">
           <div class="form-label">タイヤmm</div>
@@ -843,18 +1013,6 @@
             <input type="range" id="m4Weight" min="70" max="400" step="0.1" value="150" oninput="updateSliderLabel('m4Weight','m4WeightVal',1)">
             <span class="slider-val" id="m4WeightVal">150.0</span>
           </div>
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="form-row">
-          <div class="form-label">電池</div>
-          <select class="form-input" id="m4Battery">
-            <option value="">-</option>
-            <option value="ニッケル水素">ニッケル水素</option>
-            <option value="リチウムイオン">リチウムイオン</option>
-            <option value="アルカリ">アルカリ</option>
-            <option value="その他">その他</option>
-          </select>
         </div>
         <div class="form-row form-row-slider">
           <div class="form-label">電圧V</div>
@@ -871,20 +1029,8 @@
           </div>
         </div>
         <div class="form-row">
-          <div class="form-label">回転数</div>
-          <input type="number" class="form-input" id="m4Rpm" placeholder="rpm" step="1">
-        </div>
-        <div class="form-row">
           <div class="form-label"></div>
           <a href="https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/" target="_blank" rel="noopener noreferrer" class="rpm-link">回転数を確認する →</a>
-        </div>
-        <div class="form-row">
-          <div class="form-label">結果</div>
-          <select class="form-input" id="m4Result">
-            <option value="">-</option>
-            <option value="完走">完走</option>
-            <option value="コースアウト">コースアウト</option>
-          </select>
         </div>
       </div>
 
@@ -2721,6 +2867,20 @@
     }
 
     // IndexedDB から読み込んでから表示
+    function applyTheme(isDark) {
+      document.body.classList.toggle('dark-mode', !!isDark);
+      var btn = document.getElementById('themeToggleBtn');
+      if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+      try { localStorage.setItem('schedule_darkMode', isDark ? '1' : '0'); } catch (e) {}
+    }
+    function toggleTheme() {
+      applyTheme(!document.body.classList.contains('dark-mode'));
+    }
+    // 初期テーマ
+    try {
+      if (localStorage.getItem('schedule_darkMode') === '1') applyTheme(true);
+    } catch (e) {}
+
     initEventsStorage().then(function() {
       bindSearchFilterEvents();
       switchView('month');
