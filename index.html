@@ -1014,6 +1014,7 @@
       <div class="analysis-subtabs">
         <button type="button" class="analysis-subtab active" data-atab="analysis" onclick="switchAnalysisTab('analysis')">分析</button>
         <button type="button" class="analysis-subtab" data-atab="parts" onclick="switchAnalysisTab('parts')">台帳</button>
+        <button type="button" class="analysis-subtab" data-atab="race" onclick="switchAnalysisTab('race')">大会</button>
         <button type="button" class="analysis-subtab" data-atab="loss" onclick="switchAnalysisTab('loss')">負け</button>
         <button type="button" class="analysis-subtab" data-atab="venues" onclick="switchAnalysisTab('venues')">会場</button>
       </div>
@@ -1052,10 +1053,126 @@
       </div>
 
       <div id="partsTabPanel" style="display:none;">
+        <div class="analysis-card" style="margin-bottom:10px;">
+          <div class="analysis-card-title">台帳を絞り込み</div>
+          <div class="analysis-combo-grid">
+            <div class="analysis-combo-item full">
+              <label>場所</label>
+              <select id="partsPlace" onchange="onPartsFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item full">
+              <label>モーター × 番号</label>
+              <select id="partsMotor" onchange="onPartsFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>電圧</label>
+              <select id="partsVoltage" onchange="onPartsFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>ギヤ比</label>
+              <select id="partsGear" onchange="onPartsFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>タイヤ径</label>
+              <select id="partsTire" onchange="onPartsFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>種別</label>
+              <select id="partsEventType" onchange="onPartsFilterChange()">
+                <option value="">すべて</option>
+                <option value="大会">大会</option>
+                <option value="練習">練習</option>
+              </select>
+            </div>
+            <div class="analysis-combo-item full">
+              <button type="button" class="search-action-btn gray" style="width:100%;padding:9px 8px;" onclick="resetPartsFilters()">条件リセット</button>
+            </div>
+          </div>
+        </div>
         <div id="partsLedgerContent"></div>
       </div>
 
+      <div id="raceTabPanel" style="display:none;">
+
+        <div class="analysis-card" style="margin-bottom:10px;">
+          <div class="analysis-card-title">大会記録を絞り込み</div>
+          <div class="analysis-combo-grid">
+            <div class="analysis-combo-item full">
+              <label>場所</label>
+              <select id="racePlace" onchange="onRaceFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item full">
+              <label>大会名</label>
+              <select id="raceName" onchange="onRaceFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item full">
+              <label>モーター × 番号</label>
+              <select id="raceMotor" onchange="onRaceFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>ラウンド</label>
+              <select id="raceRound" onchange="onRaceFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>電圧</label>
+              <select id="raceVoltage" onchange="onRaceFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>ギヤ比</label>
+              <select id="raceGear" onchange="onRaceFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>タイヤ径</label>
+              <select id="raceTire" onchange="onRaceFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item full">
+              <button type="button" class="search-action-btn gray" style="width:100%;padding:9px 8px;" onclick="resetRaceFilters()">条件リセット</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="raceAnalysisContent"></div>
+      </div>
+
       <div id="lossTabPanel" style="display:none;">
+
+        <div class="analysis-card" style="margin-bottom:10px;">
+          <div class="analysis-card-title">負けパターンを絞り込み</div>
+          <div class="analysis-combo-grid">
+            <div class="analysis-combo-item full">
+              <label>場所</label>
+              <select id="lossPlace" onchange="onLossFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item full">
+              <label>モーター × 番号</label>
+              <select id="lossMotor" onchange="onLossFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>電圧</label>
+              <select id="lossVoltage" onchange="onLossFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>ギヤ比</label>
+              <select id="lossGear" onchange="onLossFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>タイヤ径</label>
+              <select id="lossTire" onchange="onLossFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>種別</label>
+              <select id="lossEventType" onchange="onLossFilterChange()">
+                <option value="">すべて</option>
+                <option value="大会">大会</option>
+                <option value="練習">練習</option>
+              </select>
+            </div>
+            <div class="analysis-combo-item full">
+              <button type="button" class="search-action-btn gray" style="width:100%;padding:9px 8px;" onclick="resetLossFilters()">条件リセット</button>
+            </div>
+          </div>
+        </div>
+
         <div id="lossPatternContent"></div>
       </div>
 
@@ -1782,6 +1899,7 @@
         runSearch();
       } else if (view === 'analysis') {
         if (analysisSubTab === 'parts') renderPartsLedger();
+        else if (analysisSubTab === 'race') renderRaceAnalysis();
         else if (analysisSubTab === 'loss') renderLossPatterns();
         else if (analysisSubTab === 'venues') renderVenuesMap();
         else renderAnalysis();
@@ -2368,6 +2486,17 @@
       });
     }
 
+    function scrollModalToTop() {
+      var overlay = document.getElementById('modalOverlay');
+      if (!overlay) return;
+      var modal = overlay.querySelector('.modal');
+      if (modal) {
+        modal.scrollTop = 0;
+        try { modal.scrollTo({ top: 0, behavior: 'auto' }); } catch (e) {}
+      }
+      try { overlay.scrollTop = 0; } catch (e2) {}
+    }
+
     function openAddModal() {
       editingEventId = null;
       isCopying = false;
@@ -2396,6 +2525,8 @@
       renderMediaPreview();
       updateRaceModeUI();
       document.getElementById('modalOverlay').classList.add('active');
+      setTimeout(scrollModalToTop, 0);
+      setTimeout(scrollModalToTop, 50);
     }
     function openEditModal(id) {
       var ev = getEvents().find(function(e) { return e.id === id; });
@@ -2416,6 +2547,8 @@
       renderMediaPreview();
       updateRaceModeUI();
       document.getElementById('modalOverlay').classList.add('active');
+      setTimeout(scrollModalToTop, 0);
+      setTimeout(scrollModalToTop, 50);
     }
     function openCopyModal(id) {
       var ev = getEvents().find(function(e) { return e.id === id; });
@@ -2451,6 +2584,8 @@
       renderMediaPreview();
       updateRaceModeUI();
       document.getElementById('modalOverlay').classList.add('active');
+      setTimeout(scrollModalToTop, 0);
+      setTimeout(scrollModalToTop, 50);
     }
     function closeModal() {
       document.getElementById('modalOverlay').classList.remove('active');
@@ -2777,6 +2912,8 @@
           }
           renderMediaPreview();
           updateRaceModeUI();
+          setTimeout(scrollModalToTop, 0);
+          setTimeout(scrollModalToTop, 50);
           // 背景のリストだけ更新
           if (currentView === 'month') renderMonth();
           else if (currentView === 'week') renderWeek();
@@ -3333,6 +3470,7 @@
 
     function switchAnalysisTab(tab) {
       if (tab === 'parts') analysisSubTab = 'parts';
+      else if (tab === 'race') analysisSubTab = 'race';
       else if (tab === 'loss') analysisSubTab = 'loss';
       else if (tab === 'venues') analysisSubTab = 'venues';
       else analysisSubTab = 'analysis';
@@ -3341,13 +3479,16 @@
       });
       var ap = document.getElementById('analysisTabPanel');
       var pp = document.getElementById('partsTabPanel');
+      var rp = document.getElementById('raceTabPanel');
       var lp = document.getElementById('lossTabPanel');
       var vp = document.getElementById('venuesTabPanel');
       if (ap) ap.style.display = analysisSubTab === 'analysis' ? '' : 'none';
       if (pp) pp.style.display = analysisSubTab === 'parts' ? '' : 'none';
+      if (rp) rp.style.display = analysisSubTab === 'race' ? '' : 'none';
       if (lp) lp.style.display = analysisSubTab === 'loss' ? '' : 'none';
       if (vp) vp.style.display = analysisSubTab === 'venues' ? '' : 'none';
       if (analysisSubTab === 'parts') renderPartsLedger();
+      else if (analysisSubTab === 'race') renderRaceAnalysis();
       else if (analysisSubTab === 'loss') renderLossPatterns();
       else if (analysisSubTab === 'venues') renderVenuesMap();
       else renderAnalysis();
@@ -3366,9 +3507,9 @@
       try { localStorage.setItem('memory_partsNotes', JSON.stringify(notes)); } catch (e) {}
     }
 
-    function buildPartsLedgerData() {
+    function buildPartsLedgerData(eventList) {
       var map = {};
-      getEvents().forEach(function(ev) {
+      (eventList || getEvents()).forEach(function(ev) {
         var m4 = ev.m4 || {};
         if (!m4.motorType) return;
         var key = motorKey(ev);
@@ -3410,10 +3551,88 @@
       });
     }
 
+    function getPartsFilterValues() {
+      return {
+        place: (document.getElementById('partsPlace') || {}).value || '',
+        motor: (document.getElementById('partsMotor') || {}).value || '',
+        voltage: (document.getElementById('partsVoltage') || {}).value || '',
+        gear: (document.getElementById('partsGear') || {}).value || '',
+        tire: (document.getElementById('partsTire') || {}).value || '',
+        eventType: (document.getElementById('partsEventType') || {}).value || ''
+      };
+    }
+
+    function filterEventsByPartsCombo(list) {
+      var c = getPartsFilterValues();
+      return list.filter(function(ev) {
+        if (c.place && eventPlace(ev) !== c.place) return false;
+        if (c.motor && motorKey(ev) !== c.motor) return false;
+        if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
+        if (c.gear && eventGear(ev) !== c.gear) return false;
+        if (c.tire && eventTire(ev) !== c.tire) return false;
+        if (c.eventType) {
+          var et = (ev.m4 && ev.m4.eventType) || '';
+          if (et !== c.eventType) return false;
+        }
+        return true;
+      });
+    }
+
+    function populatePartsFilters() {
+      var base = getEvents().filter(function(ev) {
+        return ev.m4 && ev.m4.motorType;
+      });
+      var c = getPartsFilterValues();
+      function pool(except) {
+        return base.filter(function(ev) {
+          if (except !== 'place' && c.place && eventPlace(ev) !== c.place) return false;
+          if (except !== 'motor' && c.motor && motorKey(ev) !== c.motor) return false;
+          if (except !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
+          if (except !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
+          if (except !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
+          if (except !== 'eventType' && c.eventType) {
+            var et = (ev.m4 && ev.m4.eventType) || '';
+            if (et !== c.eventType) return false;
+          }
+          return true;
+        });
+      }
+      function uniq(list, fn) {
+        var m = {};
+        list.forEach(function(ev) {
+          var v = fn(ev);
+          if (v) m[v] = true;
+        });
+        return Object.keys(m);
+      }
+      fillAnalysisSelect(document.getElementById('partsPlace'), uniq(pool('place'), eventPlace), 'すべての場所', c.place);
+      fillAnalysisSelect(document.getElementById('partsMotor'), uniq(pool('motor'), motorKey), 'すべてのモーター', c.motor);
+      fillAnalysisSelect(document.getElementById('partsVoltage'), uniq(pool('voltage'), eventVoltage), 'すべて', c.voltage);
+      fillAnalysisSelect(document.getElementById('partsGear'), uniq(pool('gear'), eventGear), 'すべて', c.gear);
+      fillAnalysisSelect(document.getElementById('partsTire'), uniq(pool('tire'), eventTire), 'すべて', c.tire);
+      var etSel = document.getElementById('partsEventType');
+      if (etSel && c.eventType) etSel.value = c.eventType;
+    }
+
+    function onPartsFilterChange() {
+      populatePartsFilters();
+      renderPartsLedger();
+    }
+    function resetPartsFilters() {
+      ['partsPlace','partsMotor','partsVoltage','partsGear','partsTire','partsEventType'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      populatePartsFilters();
+      renderPartsLedger();
+    }
+
     function renderPartsLedger() {
       var body = document.getElementById('partsLedgerContent');
       if (!body) return;
-      var rows = buildPartsLedgerData();
+      populatePartsFilters();
+      var filtered = filterEventsByPartsCombo(getEvents());
+      var rows = buildPartsLedgerData(filtered);
       var notes = loadPartsNotes();
       if (!rows.length) {
         body.innerHTML = '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:20px 0;font-size:14px;">モーターが記録されたセッティングがありません。<br>セッティングにモーター名を入れて保存すると台帳に表示されます。</p></div>';
@@ -3470,11 +3689,207 @@
       });
     }
 
+
+    function getLossFilterValues() {
+      return {
+        place: (document.getElementById('lossPlace') || {}).value || '',
+        motor: (document.getElementById('lossMotor') || {}).value || '',
+        voltage: (document.getElementById('lossVoltage') || {}).value || '',
+        gear: (document.getElementById('lossGear') || {}).value || '',
+        tire: (document.getElementById('lossTire') || {}).value || '',
+        eventType: (document.getElementById('lossEventType') || {}).value || ''
+      };
+    }
+
+    function filterEventsByLossCombo(list) {
+      var c = getLossFilterValues();
+      return list.filter(function(ev) {
+        if (c.place && eventPlace(ev) !== c.place) return false;
+        if (c.motor && motorKey(ev) !== c.motor) return false;
+        if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
+        if (c.gear && eventGear(ev) !== c.gear) return false;
+        if (c.tire && eventTire(ev) !== c.tire) return false;
+        if (c.eventType) {
+          var et = (ev.m4 && ev.m4.eventType) || '';
+          if (et !== c.eventType) return false;
+        }
+        return true;
+      });
+    }
+
+    function populateLossFilters() {
+      var base = getResultedEvents();
+      var c = getLossFilterValues();
+      function pool(except) {
+        return base.filter(function(ev) {
+          if (except !== 'place' && c.place && eventPlace(ev) !== c.place) return false;
+          if (except !== 'motor' && c.motor && motorKey(ev) !== c.motor) return false;
+          if (except !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
+          if (except !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
+          if (except !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
+          if (except !== 'eventType' && c.eventType) {
+            var et = (ev.m4 && ev.m4.eventType) || '';
+            if (et !== c.eventType) return false;
+          }
+          return true;
+        });
+      }
+      function uniq(list, fn) {
+        var m = {};
+        list.forEach(function(ev) {
+          var v = fn(ev);
+          if (v) m[v] = true;
+        });
+        return Object.keys(m);
+      }
+      fillAnalysisSelect(document.getElementById('lossPlace'), uniq(pool('place'), eventPlace), 'すべての場所', c.place);
+      fillAnalysisSelect(document.getElementById('lossMotor'), uniq(pool('motor'), motorKey), 'すべてのモーター', c.motor);
+      fillAnalysisSelect(document.getElementById('lossVoltage'), uniq(pool('voltage'), eventVoltage), 'すべて', c.voltage);
+      fillAnalysisSelect(document.getElementById('lossGear'), uniq(pool('gear'), eventGear), 'すべて', c.gear);
+      fillAnalysisSelect(document.getElementById('lossTire'), uniq(pool('tire'), eventTire), 'すべて', c.tire);
+      var etSel = document.getElementById('lossEventType');
+      if (etSel && c.eventType) etSel.value = c.eventType;
+    }
+
+    function onLossFilterChange() {
+      populateLossFilters();
+      renderLossPatterns();
+    }
+    function resetLossFilters() {
+      ['lossPlace','lossMotor','lossVoltage','lossGear','lossTire','lossEventType'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      populateLossFilters();
+      renderLossPatterns();
+    }
+
+    function getRaceFilterValues() {
+      return {
+        place: (document.getElementById('racePlace') || {}).value || '',
+        name: (document.getElementById('raceName') || {}).value || '',
+        motor: (document.getElementById('raceMotor') || {}).value || '',
+        round: (document.getElementById('raceRound') || {}).value || '',
+        voltage: (document.getElementById('raceVoltage') || {}).value || '',
+        gear: (document.getElementById('raceGear') || {}).value || '',
+        tire: (document.getElementById('raceTire') || {}).value || ''
+      };
+    }
+
+    function getRaceEvents() {
+      return getResultedEvents().filter(function(ev) {
+        return (ev.m4 && ev.m4.eventType) === '大会';
+      });
+    }
+
+    function filterEventsByRaceCombo(list) {
+      var c = getRaceFilterValues();
+      return list.filter(function(ev) {
+        if (c.place && eventPlace(ev) !== c.place) return false;
+        if (c.name && ((ev.m4 && ev.m4.raceName) || '') !== c.name) return false;
+        if (c.motor && motorKey(ev) !== c.motor) return false;
+        if (c.round && ((ev.m4 && ev.m4.round) || '') !== c.round) return false;
+        if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
+        if (c.gear && eventGear(ev) !== c.gear) return false;
+        if (c.tire && eventTire(ev) !== c.tire) return false;
+        return true;
+      });
+    }
+
+    function populateRaceFilters() {
+      var base = getRaceEvents();
+      var c = getRaceFilterValues();
+      function pool(except) {
+        return base.filter(function(ev) {
+          if (except !== 'place' && c.place && eventPlace(ev) !== c.place) return false;
+          if (except !== 'name' && c.name && ((ev.m4 && ev.m4.raceName) || '') !== c.name) return false;
+          if (except !== 'motor' && c.motor && motorKey(ev) !== c.motor) return false;
+          if (except !== 'round' && c.round && ((ev.m4 && ev.m4.round) || '') !== c.round) return false;
+          if (except !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
+          if (except !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
+          if (except !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
+          return true;
+        });
+      }
+      function uniq(list, fn) {
+        var m = {};
+        list.forEach(function(ev) {
+          var v = fn(ev);
+          if (v) m[v] = true;
+        });
+        return Object.keys(m);
+      }
+      fillAnalysisSelect(document.getElementById('racePlace'), uniq(pool('place'), eventPlace), 'すべての場所', c.place);
+      fillAnalysisSelect(document.getElementById('raceName'), uniq(pool('name'), function(ev) { return (ev.m4 && ev.m4.raceName) || ''; }), 'すべての大会名', c.name);
+      fillAnalysisSelect(document.getElementById('raceMotor'), uniq(pool('motor'), motorKey), 'すべてのモーター', c.motor);
+      fillAnalysisSelect(document.getElementById('raceRound'), uniq(pool('round'), function(ev) { return (ev.m4 && ev.m4.round) || ''; }), 'すべてのラウンド', c.round);
+      fillAnalysisSelect(document.getElementById('raceVoltage'), uniq(pool('voltage'), eventVoltage), 'すべて', c.voltage);
+      fillAnalysisSelect(document.getElementById('raceGear'), uniq(pool('gear'), eventGear), 'すべて', c.gear);
+      fillAnalysisSelect(document.getElementById('raceTire'), uniq(pool('tire'), eventTire), 'すべて', c.tire);
+    }
+
+    function onRaceFilterChange() {
+      populateRaceFilters();
+      renderRaceAnalysis();
+    }
+    function resetRaceFilters() {
+      ['racePlace','raceName','raceMotor','raceRound','raceVoltage','raceGear','raceTire'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      populateRaceFilters();
+      renderRaceAnalysis();
+    }
+
+    function renderRaceAnalysis() {
+      var body = document.getElementById('raceAnalysisContent');
+      if (!body) return;
+      populateRaceFilters();
+      var allRace = getRaceEvents();
+      var list = filterEventsByRaceCombo(allRace);
+      var stats = calcStats(list);
+      var html = '';
+      html += '<div class="analysis-card"><div class="analysis-card-title">大会 条件分析</div>';
+      html += '<div class="analysis-summary">';
+      html += '<div class="analysis-stat"><div class="num">' + stats.total + '</div><div class="lbl">該当数</div></div>';
+      html += '<div class="analysis-stat finish"><div class="num">' + stats.finish + '</div><div class="lbl">完走</div></div>';
+      html += '<div class="analysis-stat out"><div class="num">' + stats.out + '</div><div class="lbl">コースアウト</div></div>';
+      html += '<div class="analysis-stat"><div class="num">' + (stats.total ? stats.rate.toFixed(1) + '%' : '—') + '</div><div class="lbl">完走率</div></div>';
+      html += '</div></div>';
+      if (!allRace.length) {
+        html += '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:24px 0;font-size:14px;">大会の記録がありません。<br>種別を「大会」にして結果を保存すると分析できます。</p></div>';
+        body.innerHTML = html;
+        return;
+      }
+      if (!list.length) {
+        html += '<div class="analysis-card"><p style="color:#ff3b30;font-size:13px;">この条件に一致する大会記録がありません。</p></div>';
+        body.innerHTML = html;
+        return;
+      }
+      html += '<div class="analysis-card"><div class="analysis-card-title">ラウンド別 完走率</div>';
+      html += statsTableHtml(groupBy(list, function(ev) { return (ev.m4 && ev.m4.round) || '（未設定）'; }));
+      html += '</div>';
+      html += '<div class="analysis-card"><div class="analysis-card-title">大会名別 完走率</div>';
+      html += statsTableHtml(groupBy(list, function(ev) { return (ev.m4 && ev.m4.raceName) || '（未設定）'; }));
+      html += '</div>';
+      html += '<div class="analysis-card"><div class="analysis-card-title">場所別 完走率</div>';
+      html += statsTableHtml(groupBy(list, function(ev) { return eventPlace(ev) || '（場所未設定）'; }));
+      html += '</div>';
+      html += '<div class="analysis-card"><div class="analysis-card-title">モーター別 完走率</div>';
+      html += statsTableHtml(groupBy(list, motorKey));
+      html += '</div>';
+      html += '<div class="analysis-card"><div class="analysis-card-title">ギヤ比別 完走率</div>';
+      html += statsTableHtml(groupBy(list, function(ev) { return eventGear(ev) || '（未設定）'; }));
+      html += '</div>';
+      body.innerHTML = html;
+    }
+
     /** コースアウトの共通条件を抽出 */
     function renderLossPatterns() {
       var body = document.getElementById('lossPatternContent');
       if (!body) return;
-      var all = getResultedEvents();
+      populateLossFilters();
+      var all = filterEventsByLossCombo(getResultedEvents());
       var losses = all.filter(function(ev) {
         return (ev.m4 && ev.m4.result) === 'コースアウト';
       });
