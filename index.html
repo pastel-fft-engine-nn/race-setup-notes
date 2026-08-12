@@ -4397,9 +4397,12 @@
     }
 
     // ===== RPM Analyzer 連携 =====
-    // 公開版（モーターチェック単独起動・memory には戻らない）
-    var RPM_ANALYZER_PUBLIC = 'https://pastel-fft-engine-nn.github.io/mini4wd-rpm/';
-    var RPM_ANALYZER_URL = RPM_ANALYZER_PUBLIC;
+    // 連携用（RPM Analyzerを開く）
+    var RPM_ANALYZER_IMPORT_URL = 'https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/';
+    // 単独用（モーターチェック単独）
+    var RPM_ANALYZER_SOLO_URL = 'https://pastel-fft-engine-nn.github.io/mini4wd-rpm/';
+    var RPM_ANALYZER_PUBLIC = RPM_ANALYZER_SOLO_URL;
+    var RPM_ANALYZER_URL = RPM_ANALYZER_IMPORT_URL;
     var RPM_STORAGE_KEYS = [
       'memory_rpm_result',
       'mini4wd_last_rpm',
@@ -4563,14 +4566,19 @@
     // 新規登録の回転数取り込み用（この経路のときだけ m4Rpm に反映）
     function openRpmAnalyzerForImport() {
       beginRpmImportSession();
-      var url = RPM_ANALYZER_PUBLIC;
+      var returnUrl = location.href.split('#')[0];
+      // 連携版: mini-4wd-rperm（from=memory で「memoryへ戻る」表示）
+      var base = RPM_ANALYZER_IMPORT_URL;
+      var url = base +
+        (base.indexOf('?') >= 0 ? '&' : '?') +
+        'from=memory&callback=1&return=' + encodeURIComponent(returnUrl);
       try {
         rpmAnalyzerWin = window.open(url, 'memory_rpm_analyzer');
       } catch (e) {
         rpmAnalyzerWin = null;
       }
       if (!rpmAnalyzerWin) {
-        if (confirm('RPM Analyzer をこのタブで開きますか？\n計測後、戻って「結果を取り込む」を押してください。')) {
+        if (confirm('RPM Analyzer をこのタブで開きますか？\n計測後「memoryへ」で戻れます（連携版の場合）。')) {
           location.href = url;
         } else {
           endRpmImportSession();
@@ -4578,13 +4586,13 @@
         }
         return;
       }
-      setRpmLinkStatus('計測後、戻って「結果を取り込む」', false);
+      setRpmLinkStatus('計測後、Analyzerの「memoryへ」で戻る', false);
     }
 
     // モーターチェック単独（memory には一切作用しない）
     function openMotorCheckSolo() {
       endRpmImportSession();
-      var url = RPM_ANALYZER_PUBLIC;
+      var url = RPM_ANALYZER_SOLO_URL;
       try {
         window.open(url, '_blank');
       } catch (e) {
@@ -4601,6 +4609,36 @@
     // 単独起動をグローバルにも公開
     window.openMotorCheckSolo = openMotorCheckSolo;
     window.openRpmAnalyzerForImport = openRpmAnalyzerForImport;
+
+    // Analyzer から return URL 経由で戻ってきた最高RPMを取り込む
+    function consumeImportRpmFromUrl() {
+      try {
+        var params = new URLSearchParams(location.search);
+        var rpm = params.get('import_max_rpm') || params.get('import_rpm');
+        if (!rpm) return false;
+        if (!isRpmImportSession()) beginRpmImportSession();
+        var ok = applyRpmValue(rpm, {
+          rpm: Number(rpm),
+          maxRpm: Number(rpm),
+          ts: Number(params.get('import_ts') || Date.now())
+        });
+        // URL からパラメータを消してリロードループ防止
+        if (ok) {
+          params.delete('import_rpm');
+          params.delete('import_max_rpm');
+          params.delete('import_ts');
+          var clean = location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash;
+          try { history.replaceState(null, '', clean); } catch (e) {}
+        }
+        return ok;
+      } catch (e) {
+        return false;
+      }
+    }
+    // 起動時・表示時にチェック
+    try { consumeImportRpmFromUrl(); } catch (e) {}
+    window.addEventListener('pageshow', function() { try { consumeImportRpmFromUrl(); } catch (e) {} });
+
 
     function importRpmFromAnalyzer() {
       if (!isRpmImportSession()) {
