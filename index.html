@@ -1047,6 +1047,84 @@
     body.dark-mode .gallery-tab.active { background: #3a3a3c; color: #fff; }
     body.dark-mode .gallery-caption { background: #1c1c1e; color: #aeaeb2; }
     body.dark-mode input[type="range"] { accent-color: #0a84ff; }
+
+    /* データ管理・テンプレート・グラフ・大会パッケージ */
+    .data-tools-overlay {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.4); align-items: flex-end; justify-content: center;
+    }
+    .data-tools-overlay.active { display: flex; }
+    .data-tools-sheet {
+      width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto;
+      background: #fff; border-radius: 16px 16px 0 0; padding: 16px 16px 28px;
+      -webkit-overflow-scrolling: touch;
+    }
+    body.dark-mode .data-tools-sheet { background: #1c1c1e; color: #f2f2f7; }
+    .data-tools-title { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
+    .data-tools-actions { display: flex; flex-direction: column; gap: 8px; }
+    .data-tools-actions button {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #1c1c1e;
+    }
+    .data-tools-actions button.primary { background: #007aff; color: #fff; }
+    .data-tools-actions button.danger { background: #ff3b30; color: #fff; }
+    body.dark-mode .data-tools-actions button { background: #2c2c2e; color: #f2f2f7; }
+    body.dark-mode .data-tools-actions button.primary { background: #0a84ff; color: #fff; }
+    .data-tools-note { font-size: 12px; color: #8e8e93; margin-top: 10px; line-height: 1.5; }
+    .tpl-bar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      margin-bottom: 10px; padding: 10px; background: #f2f2f7; border-radius: 12px;
+    }
+    body.dark-mode .tpl-bar { background: #2c2c2e; }
+    .tpl-bar select { flex: 1; min-width: 140px; padding: 8px; border-radius: 8px; border: 1px solid #c7c7cc; font-size: 13px; }
+    body.dark-mode .tpl-bar select { background: #1c1c1e; color: #f2f2f7; border-color: #3a3a3c; }
+    .tpl-bar button {
+      padding: 8px 10px; border: none; border-radius: 8px; font-size: 12px; font-weight: 600;
+      background: #e5e5ea; color: #1c1c1e; cursor: pointer;
+    }
+    .tpl-bar button.primary { background: #007aff; color: #fff; }
+    body.dark-mode .tpl-bar button { background: #3a3a3c; color: #f2f2f7; }
+    body.dark-mode .tpl-bar button.primary { background: #0a84ff; }
+    .chart-block { margin-top: 8px; }
+    .chart-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px;
+    }
+    .chart-label {
+      width: 88px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      color: #3a3a3c;
+    }
+    body.dark-mode .chart-label { color: #aeaeb2; }
+    .chart-track {
+      flex: 1; height: 14px; background: #e5e5ea; border-radius: 7px; overflow: hidden;
+    }
+    body.dark-mode .chart-track { background: #2c2c2e; }
+    .chart-fill {
+      height: 100%; background: linear-gradient(90deg, #34c759, #30d158); border-radius: 7px;
+      min-width: 0;
+    }
+    .chart-fill.low { background: linear-gradient(90deg, #ff9f0a, #ff3b30); }
+    .chart-meta { width: 72px; text-align: right; flex-shrink: 0; color: #8e8e93; font-size: 11px; }
+    .race-pkg {
+      border: 1px solid #e5e5ea; border-radius: 12px; padding: 12px; margin-bottom: 10px;
+      background: #fafafa;
+    }
+    body.dark-mode .race-pkg { border-color: #3a3a3c; background: #2c2c2e; }
+    .race-pkg-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .race-pkg-sub { font-size: 12px; color: #8e8e93; margin-bottom: 8px; }
+    .race-pkg-timeline { display: flex; flex-direction: column; gap: 6px; }
+    .race-pkg-round {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+      background: #fff; border-radius: 8px; font-size: 12px; cursor: pointer;
+      border-left: 3px solid #c7c7cc;
+    }
+    body.dark-mode .race-pkg-round { background: #1c1c1e; }
+    .race-pkg-round.finish { border-left-color: #34c759; }
+    .race-pkg-round.out { border-left-color: #ff3b30; }
+    .race-pkg-round .rk { font-weight: 700; min-width: 64px; }
+    .race-pkg-round .rm { flex: 1; color: #3a3a3c; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    body.dark-mode .race-pkg-round .rm { color: #aeaeb2; }
+    .race-pkg-round .rt { color: #8e8e93; flex-shrink: 0; }
+
     /* タイム計測 */
     .stopwatch-overlay {
       position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.55);
@@ -1101,6 +1179,7 @@
       <div class="header-actions">
         <button class="today-btn" id="themeToggleBtn" onclick="toggleTheme()" title="表示モード切替">🌙</button>
         <button class="today-btn" onclick="goHome()" title="ホーム（月ビュー）">🏠</button>
+        <button class="search-header-btn" onclick="openDataTools()" title="データ管理">💾</button>
         <button class="search-header-btn" onclick="openAnalysisView()" title="分析">📊</button>
         <button class="search-header-btn" onclick="openVenuesView()" title="会場マップ">🗺️</button>
         <button class="search-header-btn" onclick="openStopwatch()" title="タイム計測">⏱️</button>
@@ -1423,6 +1502,24 @@
     </div>
   </div>
 
+  
+  <!-- データ管理 -->
+  <div class="data-tools-overlay" id="dataToolsOverlay" onclick="if(event.target===this)closeDataTools()">
+    <div class="data-tools-sheet">
+      <div class="data-tools-title">データ管理</div>
+      <div class="data-tools-actions">
+        <button type="button" class="primary" onclick="exportBackup()">バックアップを書き出す</button>
+        <button type="button" onclick="document.getElementById('backupFileInput').click()">バックアップから復元</button>
+        <input type="file" id="backupFileInput" accept="application/json,.json" style="display:none" onchange="importBackupFromFile(event)">
+        <button type="button" class="danger" onclick="closeDataTools()">閉じる</button>
+      </div>
+      <p class="data-tools-note">
+        セッティング・会場メモ・テンプレートをJSONで保存します。<br>
+        復元時は「置き換え」または「マージ」を選べます。写真・動画も含みます（ファイルが大きくなります）。
+      </p>
+    </div>
+  </div>
+
   <button class="fab" onclick="openAddModal()">＋</button>
 
   <div class="modal-overlay" id="modalOverlay">
@@ -1431,6 +1528,15 @@
         <button class="modal-close" onclick="closeModal()">キャンセル</button>
         <div class="modal-title" id="modalTitle">新規セッティング</div>
         <button class="modal-save" onclick="saveEvent()">保存</button>
+      </div>
+      
+      <div class="tpl-bar" id="templateBar">
+        <select id="templateSelect" aria-label="テンプレート">
+          <option value="">テンプレートを選ぶ</option>
+        </select>
+        <button type="button" class="primary" onclick="applySelectedTemplate()">適用</button>
+        <button type="button" onclick="saveCurrentAsTemplate()">現在を保存</button>
+        <button type="button" onclick="deleteSelectedTemplate()">削除</button>
       </div>
       <div class="section-label">日時・場所</div>
       <div class="form-group">
@@ -4074,6 +4180,7 @@
       html += '<div class="analysis-card"><div class="analysis-card-title">ギヤ比別 完走率</div>';
       html += statsTableHtml(groupBy(list, function(ev) { return eventGear(ev) || '（未設定）'; }));
       html += '</div>';
+      html += racePackagesHtml(list);
       body.innerHTML = html;
     }
 
@@ -4940,6 +5047,14 @@
       html += '<div class="analysis-stat"><div class="num">' + (overall.total ? overall.rate.toFixed(1) + '%' : '—') + '</div><div class="lbl">完走率</div></div>';
       html += '</div></div>';
 
+      // グラフ（条件があればその範囲、なければ全体）
+      var chartSource = (hasAnyComboFilter() && comboList.length) ? comboList : baseList;
+      html += buildRateChartHtml('完走率グラフ・場所別', groupBy(chartSource, function(ev) { return eventPlace(ev) || '（場所未設定）'; }));
+      html += buildRateChartHtml('完走率グラフ・モーター別', groupBy(chartSource, motorKey));
+      html += buildRateChartHtml('完走率グラフ・電圧別', groupBy(chartSource, function(ev) { return eventVoltage(ev) || '（未設定）'; }));
+      html += buildRateChartHtml('完走率グラフ・ギヤ別', groupBy(chartSource, function(ev) { return eventGear(ev) || '（未設定）'; }));
+      html += buildRateChartHtml('完走率グラフ・タイヤ別', groupBy(chartSource, function(ev) { return eventTire(ev) || '（未設定）'; }));
+
       if (!overall.total) {
         html += '<div class="analysis-card"><p style="color:#8e8e93;font-size:14px;text-align:center;padding:16px 0;">結果が記録されたセッティングがありません。<br>「完走」「コースアウト」を付けて保存すると分析できます。</p></div>';
         document.getElementById('analysisContent').innerHTML = html;
@@ -5776,8 +5891,299 @@
       if (e.target === this && !swRunning) closeStopwatch();
     });
 
+
+    // ===== 5. バックアップ / 復元 =====
+    function openDataTools() {
+      document.getElementById('dataToolsOverlay').classList.add('active');
+    }
+    function closeDataTools() {
+      document.getElementById('dataToolsOverlay').classList.remove('active');
+    }
+    function buildBackupPayload() {
+      var notes = {};
+      try { notes.parts = JSON.parse(localStorage.getItem('memory_partsNotes') || '{}'); } catch (e) { notes.parts = {}; }
+      try { notes.venues = JSON.parse(localStorage.getItem('memory_venueNotes') || '{}'); } catch (e) { notes.venues = {}; }
+      var templates = loadTemplates();
+      return {
+        app: 'memory-mini4wd',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        events: getEvents(),
+        partsNotes: notes.parts || {},
+        venueNotes: notes.venues || {},
+        templates: templates,
+        darkMode: localStorage.getItem('schedule_darkMode') || '0'
+      };
+    }
+    function exportBackup() {
+      try {
+        var payload = buildBackupPayload();
+        var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        var a = document.createElement('a');
+        var stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'memory-backup-' + stamp + '.json';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+          URL.revokeObjectURL(a.href);
+          a.remove();
+        }, 500);
+        closeDataTools();
+        alert('バックアップを書き出しました（' + payload.events.length + '件）');
+      } catch (e) {
+        alert('書き出しに失敗しました: ' + (e && e.message ? e.message : e));
+      }
+    }
+    function importBackupFromFile(ev) {
+      var file = ev.target.files && ev.target.files[0];
+      ev.target.value = '';
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function() {
+        try {
+          var data = JSON.parse(reader.result);
+          if (!data || !Array.isArray(data.events)) {
+            alert('このファイルはバックアップ形式ではありません');
+            return;
+          }
+          var mode = confirm(
+            '復元方法を選んでください。\n\nOK = すべて置き換え（現在のデータは消えます）\nキャンセル = マージ（同じIDは上書き、他は追加）'
+          );
+          applyBackup(data, mode ? 'replace' : 'merge');
+        } catch (err) {
+          alert('読み込みに失敗しました');
+        }
+      };
+      reader.readAsText(file);
+    }
+    function applyBackup(data, mode) {
+      var incoming = data.events || [];
+      var next;
+      if (mode === 'replace') {
+        next = incoming.slice();
+      } else {
+        var map = {};
+        getEvents().forEach(function(e) { map[e.id] = e; });
+        incoming.forEach(function(e) {
+          if (e && e.id) map[e.id] = e;
+        });
+        next = Object.keys(map).map(function(k) { return map[k]; });
+      }
+      saveEventsAsync(next).then(function() {
+        try {
+          if (data.partsNotes) localStorage.setItem('memory_partsNotes', JSON.stringify(data.partsNotes));
+          if (data.venueNotes) localStorage.setItem('memory_venueNotes', JSON.stringify(data.venueNotes));
+          if (Array.isArray(data.templates)) localStorage.setItem('memory_setting_templates', JSON.stringify(data.templates));
+          if (data.darkMode != null) localStorage.setItem('schedule_darkMode', data.darkMode);
+        } catch (e) {}
+        try { populateTemplateSelect(); } catch (e) {}
+        try { renderCalendar(); } catch (e) {}
+        try { if (typeof renderAnalysis === 'function') renderAnalysis(); } catch (e) {}
+        closeDataTools();
+        alert('復元しました（' + next.length + '件・' + (mode === 'replace' ? '置き換え' : 'マージ') + '）');
+      }).catch(function(err) {
+        alert('保存に失敗しました');
+      });
+    }
+
+    // ===== 1. セッティングテンプレート =====
+    var TEMPLATE_KEY = 'memory_setting_templates';
+    function loadTemplates() {
+      try {
+        var list = JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '[]');
+        return Array.isArray(list) ? list : [];
+      } catch (e) { return []; }
+    }
+    function saveTemplates(list) {
+      try { localStorage.setItem(TEMPLATE_KEY, JSON.stringify(list)); } catch (e) {}
+    }
+    function populateTemplateSelect() {
+      var sel = document.getElementById('templateSelect');
+      if (!sel) return;
+      var cur = sel.value;
+      var list = loadTemplates();
+      sel.innerHTML = '<option value="">テンプレートを選ぶ</option>';
+      list.forEach(function(t) {
+        var o = document.createElement('option');
+        o.value = t.id;
+        o.textContent = t.name || '無名';
+        sel.appendChild(o);
+      });
+      if (cur && list.some(function(t) { return t.id === cur; })) sel.value = cur;
+    }
+    function collectTemplateFromForm() {
+      // m4 本体 + マシン名（日付・場所・写真は含めない）
+      var m4 = {};
+      try {
+        // saveEvent と同じフィールドを拾う
+        m4 = {
+          eventType: (document.getElementById('m4EventType') || {}).value || '',
+          classType: (document.getElementById('m4Class') || {}).value || '',
+          indoorOutdoor: (document.getElementById('m4Indoor') || {}).value || '',
+          weather: (document.getElementById('m4Weather') || {}).value || '',
+          result: (document.getElementById('m4Result') || {}).value || '',
+          lanes: (document.getElementById('m4Lanes') || {}).value || '',
+          raceLane: (document.getElementById('m4RaceLane') || {}).value || '',
+          round: (document.getElementById('m4Round') || {}).value || '',
+          rank: (document.getElementById('m4Rank') || {}).value || '',
+          raceName: (document.getElementById('m4RaceName') || {}).value || '',
+          temperature: document.getElementById('m4Temp') ? Number(document.getElementById('m4Temp').value) : null,
+          motorType: (document.getElementById('m4Motor') || {}).value || '',
+          motorNumber: (document.getElementById('m4MotorNo') || {}).value || '',
+          gearRatio: (document.getElementById('m4Gear') || {}).value || '',
+          batteryType: (document.getElementById('m4Battery') || {}).value || '',
+          rpm: document.getElementById('m4Rpm') && document.getElementById('m4Rpm').value !== '' ? Number(document.getElementById('m4Rpm').value) : null,
+          tireDiameter: document.getElementById('m4Tire') ? Number(document.getElementById('m4Tire').value) : null,
+          weight: document.getElementById('m4Weight') ? Number(document.getElementById('m4Weight').value) : null,
+          voltage: document.getElementById('m4Voltage') ? Number(document.getElementById('m4Voltage').value) : null,
+          speed: document.getElementById('m4Speed') ? Number(document.getElementById('m4Speed').value) : null,
+          lapTime: (document.getElementById('m4LapTime') || {}).value || '',
+          bestLap: (document.getElementById('m4BestLap') || {}).value || ''
+        };
+      } catch (e) {}
+      return {
+        machineName: (document.getElementById('eventMachineName') || {}).value || '',
+        content: (document.getElementById('eventContent') || {}).value || '',
+        m4: m4
+      };
+    }
+    function saveCurrentAsTemplate() {
+      var name = prompt('テンプレート名を入力', 'いつものセット');
+      if (name == null) return;
+      name = String(name).trim();
+      if (!name) { alert('名前を入力してください'); return; }
+      var list = loadTemplates();
+      list.push({
+        id: 'tpl_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        name: name,
+        createdAt: Date.now(),
+        data: collectTemplateFromForm()
+      });
+      saveTemplates(list);
+      populateTemplateSelect();
+      alert('テンプレート「' + name + '」を保存しました');
+    }
+    function applySelectedTemplate() {
+      var sel = document.getElementById('templateSelect');
+      if (!sel || !sel.value) { alert('テンプレートを選んでください'); return; }
+      var t = loadTemplates().find(function(x) { return x.id === sel.value; });
+      if (!t || !t.data) return;
+      var d = t.data;
+      if (d.machineName != null) document.getElementById('eventMachineName').value = d.machineName;
+      if (d.content != null) document.getElementById('eventContent').value = d.content;
+      if (d.m4) fillM4Form(d.m4);
+      try { updateRaceModeUI(); } catch (e) {}
+      alert('テンプレートを適用しました（日付・場所・写真は変わりません）');
+    }
+    function deleteSelectedTemplate() {
+      var sel = document.getElementById('templateSelect');
+      if (!sel || !sel.value) { alert('削除するテンプレートを選んでください'); return; }
+      if (!confirm('このテンプレートを削除しますか？')) return;
+      var list = loadTemplates().filter(function(t) { return t.id !== sel.value; });
+      saveTemplates(list);
+      populateTemplateSelect();
+    }
+    // モーダルを開いたときに候補更新
+    var _openAddModalOrig = openAddModal;
+    openAddModal = function() {
+      _openAddModalOrig();
+      populateTemplateSelect();
+    };
+    var _openEditModalOrig = openEditModal;
+    openEditModal = function(id) {
+      _openEditModalOrig(id);
+      populateTemplateSelect();
+    };
+
+    // ===== 11. グラフ表示（完走率バー） =====
+    function buildRateChartHtml(title, grouped) {
+      var keys = Object.keys(grouped || {});
+      if (!keys.length) return '';
+      var rows = keys.map(function(k) {
+        var s = calcStats(grouped[k]);
+        return { key: k, stats: s };
+      }).filter(function(r) { return r.stats.total > 0; });
+      rows.sort(function(a, b) { return b.stats.rate - a.stats.rate; });
+      if (!rows.length) return '';
+      var html = '<div class="analysis-card"><div class="analysis-card-title">' + escapeHtml(title) + '</div><div class="chart-block">';
+      rows.slice(0, 12).forEach(function(r) {
+        var pct = Math.max(0, Math.min(100, r.stats.rate));
+        var low = pct < 50;
+        html += '<div class="chart-row">' +
+          '<div class="chart-label" title="' + escapeAttr(r.key) + '">' + escapeHtml(r.key) + '</div>' +
+          '<div class="chart-track"><div class="chart-fill' + (low ? ' low' : '') + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
+          '<div class="chart-meta">' + r.stats.rate.toFixed(0) + '% (' + r.stats.total + ')</div>' +
+          '</div>';
+      });
+      html += '</div></div>';
+      return html;
+    }
+
+    // ===== 7. 大会パッケージ =====
+    function buildRacePackages(list) {
+      var map = {};
+      list.forEach(function(ev) {
+        var name = (ev.m4 && ev.m4.raceName) || '（大会名なし）';
+        var place = eventPlace(ev) || '（場所なし）';
+        var key = name + '|||' + place;
+        if (!map[key]) map[key] = { name: name, place: place, events: [] };
+        map[key].events.push(ev);
+      });
+      return Object.keys(map).map(function(k) {
+        var pkg = map[k];
+        pkg.events.sort(function(a, b) {
+          if ((a.date || '') !== (b.date || '')) return (a.date || '').localeCompare(b.date || '');
+          var ra = (a.m4 && a.m4.round) || '';
+          var rb = (b.m4 && b.m4.round) || '';
+          return String(ra).localeCompare(String(rb), 'ja');
+        });
+        pkg.stats = calcStats(pkg.events);
+        var dates = pkg.events.map(function(e) { return e.date; }).filter(Boolean).sort();
+        pkg.dateRange = dates.length ? (dates[0] + (dates[dates.length - 1] !== dates[0] ? ' 〜 ' + dates[dates.length - 1] : '')) : '';
+        return pkg;
+      }).sort(function(a, b) {
+        return (b.dateRange || '').localeCompare(a.dateRange || '');
+      });
+    }
+    function racePackagesHtml(list) {
+      var pkgs = buildRacePackages(list);
+      if (!pkgs.length) return '';
+      var html = '<div class="analysis-card"><div class="analysis-card-title">大会パッケージ</div>';
+      html += '<p style="font-size:12px;color:#8e8e93;margin-bottom:8px;">大会名×場所ごとにラウンドを時系列表示します。行をタップで詳細。</p>';
+      pkgs.forEach(function(pkg) {
+        html += '<div class="race-pkg">';
+        html += '<div class="race-pkg-title">' + escapeHtml(pkg.name) + '</div>';
+        html += '<div class="race-pkg-sub">' + escapeHtml(pkg.place) +
+          (pkg.dateRange ? ' · ' + escapeHtml(pkg.dateRange) : '') +
+          ' · 完走率 ' + (pkg.stats.total ? pkg.stats.rate.toFixed(0) + '%' : '—') +
+          '（' + pkg.stats.finish + '/' + pkg.stats.total + '）</div>';
+        html += '<div class="race-pkg-timeline">';
+        pkg.events.forEach(function(ev) {
+          var m4 = ev.m4 || {};
+          var res = m4.result || '';
+          var cls = res === '完走' ? 'finish' : (res === 'コースアウト' || res === '失格' ? 'out' : '');
+          var round = m4.round || '—';
+          var meta = [];
+          if (m4.raceLane) meta.push(m4.raceLane + 'L');
+          if (m4.rank) meta.push(m4.rank + '位');
+          if (m4.lapTime) meta.push(m4.lapTime + '秒');
+          if (m4.motorType) meta.push(m4.motorType);
+          html += '<div class="race-pkg-round ' + cls + '" onclick="openDetailModal(\'' + escapeAttr(ev.id) + '\')">' +
+            '<span class="rk">' + escapeHtml(round) + '</span>' +
+            '<span class="rm">' + escapeHtml(meta.join(' · ') || (ev.machineName || '記録')) + '</span>' +
+            '<span class="rt">' + escapeHtml(res || (ev.date || '')) + '</span></div>';
+        });
+        html += '</div></div>';
+      });
+      html += '</div>';
+      return html;
+    }
+
+
     initEventsStorage().then(function() {
       bindSearchFilterEvents();
+      populateTemplateSelect();
       switchView('month');
     });
 
