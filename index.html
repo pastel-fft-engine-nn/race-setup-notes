@@ -4500,7 +4500,7 @@
       }
       var extra = '';
       if (meta && meta.hz) extra = '（' + Number(meta.hz).toFixed(1) + ' Hz）';
-      setRpmLinkStatus('取り込み済: ' + rpm + ' rpm' + extra, true);
+      setRpmLinkStatus('取り込み済 MAX: ' + rpm + ' rpm' + extra, true);
       return true;
     }
 
@@ -4693,8 +4693,9 @@
       } else if (typeof data === 'object' && (data.rpm != null || data.RPM != null)) {
         payload = parseRpmPayload(data);
       }
-      if (payload && payload.rpm && isRpmImportSession()) {
-        if (applyRpmValue(payload.rpm, payload)) {
+      if (payload && (payload.rpm || payload.maxRpm) && isRpmImportSession()) {
+        var rpmIn = payload.maxRpm != null ? payload.maxRpm : payload.rpm;
+        if (applyRpmValue(rpmIn, payload)) {
           try {
             localStorage.setItem('memory_rpm_result', JSON.stringify({
               rpm: Math.round(Number(payload.rpm)),
