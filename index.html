@@ -411,8 +411,65 @@
     }
     .month-view { display: none; }
     .month-view.active { display: block; }
-    .search-view { display: none; background: #f2f2f7; min-height: calc(100vh - 120px); padding-bottom: 80px; }
-    .search-view.active { display: block; }
+    .search-view, .analysis-view {
+      display: none; background: #f2f2f7; min-height: calc(100vh - 120px); padding-bottom: 80px;
+    }
+    .search-view.active, .analysis-view.active { display: block; }
+    .analysis-body { padding: 10px 12px 24px; }
+    .analysis-card {
+      background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .analysis-card-title {
+      font-size: 14px; font-weight: 700; margin-bottom: 8px; color: #1c1c1e;
+    }
+    .analysis-summary {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .analysis-stat {
+      flex: 1; min-width: 72px; background: #f2f2f7; border-radius: 10px; padding: 10px 8px; text-align: center;
+    }
+    .analysis-stat .num { font-size: 18px; font-weight: 700; color: #007aff; }
+    .analysis-stat .lbl { font-size: 11px; color: #8e8e93; margin-top: 2px; }
+    .analysis-stat.finish .num { color: #34c759; }
+    .analysis-stat.out .num { color: #ff3b30; }
+    .analysis-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .analysis-table th {
+      text-align: left; font-weight: 600; color: #8e8e93; padding: 6px 4px;
+      border-bottom: 1px solid #e5e5ea; font-size: 11px;
+    }
+    .analysis-table td {
+      padding: 8px 4px; border-bottom: 1px solid #f2f2f7; vertical-align: middle;
+    }
+    .analysis-table tr:last-child td { border-bottom: none; }
+    .analysis-bar-wrap {
+      height: 8px; background: #e5e5ea; border-radius: 4px; overflow: hidden; margin-top: 4px;
+    }
+    .analysis-bar {
+      height: 100%; background: linear-gradient(90deg, #34c759, #30d158); border-radius: 4px;
+    }
+    .analysis-bar.low { background: linear-gradient(90deg, #ff9f0a, #ff453a); }
+    .analysis-rate { font-weight: 700; color: #1c1c1e; white-space: nowrap; }
+    .analysis-filter-row {
+      display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center;
+    }
+    .analysis-filter-row select {
+      flex: 1; min-width: 120px; padding: 8px 10px; border-radius: 8px;
+      border: 1px solid #e5e5ea; font-size: 13px; background: #fff;
+    }
+    .analysis-hint { font-size: 12px; color: #8e8e93; margin-bottom: 10px; line-height: 1.4; }
+    .analysis-close-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+    body.dark-mode .analysis-view { background: #0d0d0f; }
+    body.dark-mode .analysis-card { background: #1c1c1e; }
+    body.dark-mode .analysis-card-title,
+    body.dark-mode .analysis-rate { color: #f2f2f7; }
+    body.dark-mode .analysis-stat { background: #2c2c2e; }
+    body.dark-mode .analysis-table th { border-bottom-color: #2c2c2e; }
+    body.dark-mode .analysis-table td { border-bottom-color: #2c2c2e; }
+    body.dark-mode .analysis-bar-wrap { background: #3a3a3c; }
+    body.dark-mode .analysis-filter-row select {
+      background: #2c2c2e; color: #f2f2f7; border-color: #3a3a3c;
+    }
     .search-freeword-label {
       font-size: 11px; color: #8e8e93; font-weight: 600; margin-bottom: 6px; display: block;
     }
@@ -723,6 +780,7 @@
       <div class="header-actions">
         <button class="today-btn" id="themeToggleBtn" onclick="toggleTheme()" title="表示モード切替">🌙</button>
         <button class="today-btn" onclick="goToToday()">今日</button>
+        <button class="search-header-btn" onclick="openAnalysisView()" title="分析">📊</button>
         <button class="search-header-btn" onclick="openSearchView()" title="セッティング検索">🔍</button>
         <button class="media-header-btn" onclick="openGallery()" title="すべての写真・動画">📷</button>
       </div>
@@ -769,6 +827,22 @@
   <div class="day-view" id="dayView">
     <div class="day-view-date" id="dayViewDate"></div>
     <div class="events-list" id="dayEventsList"></div>
+  </div>
+
+  <!-- 分析ビュー -->
+  <div class="analysis-view" id="analysisView">
+    <div class="analysis-body">
+      <div class="analysis-close-row">
+        <button type="button" class="search-action-btn gray" onclick="closeAnalysisView()">閉じる</button>
+      </div>
+      <p class="analysis-hint">結果（完走／コースアウト）が記録されたセッティングを集計します。モーター＋番号ごとの完走率を軸に、場所・電圧・タイヤ・ギヤ比の傾向を表示します。</p>
+      <div class="analysis-filter-row">
+        <select id="anMotorFilter" onchange="renderAnalysis()">
+          <option value="">すべてのモーター</option>
+        </select>
+      </div>
+      <div id="analysisContent"></div>
+    </div>
   </div>
 
   <!-- セッティング検索ビュー -->
@@ -1344,24 +1418,29 @@
       document.getElementById('dayView').classList.toggle('active', view === 'day');
       var searchEl = document.getElementById('searchView');
       if (searchEl) searchEl.classList.toggle('active', view === 'search');
-      // 検索ビュー時はタブ・月ナビ・FABを隠す
+      var analysisEl = document.getElementById('analysisView');
+      if (analysisEl) analysisEl.classList.toggle('active', view === 'analysis');
+      // 検索・分析ビュー時はタブ・月ナビ・FABを隠す
+      var hideChrome = (view === 'search' || view === 'analysis');
       var tabs = document.querySelector('.view-tabs');
       var monthNav = document.querySelector('.month-nav');
       var fab = document.querySelector('.fab');
-      if (tabs) tabs.style.display = (view === 'search') ? 'none' : '';
-      if (monthNav) monthNav.style.display = (view === 'search') ? 'none' : '';
-      if (fab) fab.style.display = (view === 'search') ? 'none' : '';
+      if (tabs) tabs.style.display = hideChrome ? 'none' : '';
+      if (monthNav) monthNav.style.display = hideChrome ? 'none' : '';
+      if (fab) fab.style.display = hideChrome ? 'none' : '';
       if (view === 'month') renderMonth();
       else if (view === 'week') renderWeek();
       else if (view === 'day') renderDay();
       else if (view === 'search') {
         populateSearchFilters();
         runSearch();
+      } else if (view === 'analysis') {
+        renderAnalysis();
       }
       updatePeriodLabel();
     }
     function navigate(delta) {
-      if (currentView === 'search') return;
+      if (currentView === 'search' || currentView === 'analysis') return;
       if (currentView === 'month') {
         currentDate.setMonth(currentDate.getMonth() + delta);
         renderMonth();
@@ -1393,6 +1472,8 @@
         label.textContent = (start.getMonth() + 1) + '/' + start.getDate() + ' – ' + (end.getMonth() + 1) + '/' + end.getDate();
       } else if (currentView === 'search') {
         label.textContent = 'セッティング検索';
+      } else if (currentView === 'analysis') {
+        label.textContent = 'セッティング分析';
       } else label.textContent = formatDisplayDate(selectedDate);
     }
 
@@ -2611,6 +2692,176 @@
         openMaps(addr.getAttribute('data-address'));
       }
     });
+
+    // ===== 分析 =====
+    function openAnalysisView() {
+      switchView('analysis');
+    }
+    function closeAnalysisView() {
+      switchView('month');
+    }
+
+    function getResultedEvents() {
+      return getEvents().filter(function(ev) {
+        var r = (ev.m4 && ev.m4.result) || '';
+        return r === '完走' || r === 'コースアウト';
+      });
+    }
+
+    function motorKey(ev) {
+      var m4 = ev.m4 || {};
+      var motor = m4.motorType || '未設定';
+      var no = (m4.motorNumber && String(m4.motorNumber).trim()) ? String(m4.motorNumber).trim() : '-';
+      return motor + ' / No.' + no;
+    }
+
+    function calcStats(list) {
+      var finish = 0, out = 0;
+      list.forEach(function(ev) {
+        var r = (ev.m4 && ev.m4.result) || '';
+        if (r === '完走') finish++;
+        else if (r === 'コースアウト') out++;
+      });
+      var total = finish + out;
+      var rate = total ? (finish / total * 100) : 0;
+      return { finish: finish, out: out, total: total, rate: rate };
+    }
+
+    function groupBy(list, keyFn) {
+      var map = {};
+      list.forEach(function(ev) {
+        var k = keyFn(ev);
+        if (!k) k = '（未設定）';
+        if (!map[k]) map[k] = [];
+        map[k].push(ev);
+      });
+      return map;
+    }
+
+    function statsTableHtml(map, emptyMsg) {
+      var keys = Object.keys(map);
+      if (!keys.length) {
+        return '<p style="font-size:13px;color:#8e8e93;padding:8px 0;">' + (emptyMsg || 'データがありません') + '</p>';
+      }
+      var rows = keys.map(function(k) {
+        return { key: k, stats: calcStats(map[k]) };
+      }).filter(function(r) {
+        return r.stats.total > 0;
+      }).sort(function(a, b) {
+        if (b.stats.rate !== a.stats.rate) return b.stats.rate - a.stats.rate;
+        return b.stats.total - a.stats.total;
+      });
+      if (!rows.length) {
+        return '<p style="font-size:13px;color:#8e8e93;padding:8px 0;">' + (emptyMsg || 'データがありません') + '</p>';
+      }
+      var html = '<table class="analysis-table"><thead><tr>' +
+        '<th>項目</th><th>完走率</th><th>完走</th><th>アウト</th><th>合計</th></tr></thead><tbody>';
+      rows.forEach(function(r) {
+        var barClass = r.stats.rate < 50 ? ' low' : '';
+        html += '<tr><td>' + escapeHtml(r.key) +
+          '<div class="analysis-bar-wrap"><div class="analysis-bar' + barClass + '" style="width:' + r.stats.rate.toFixed(0) + '%"></div></div></td>' +
+          '<td class="analysis-rate">' + r.stats.rate.toFixed(0) + '%</td>' +
+          '<td>' + r.stats.finish + '</td><td>' + r.stats.out + '</td><td>' + r.stats.total + '</td></tr>';
+      });
+      html += '</tbody></table>';
+      return html;
+    }
+
+    function renderAnalysis() {
+      var all = getResultedEvents();
+      var motorSel = document.getElementById('anMotorFilter');
+      // モーター選択肢を更新
+      if (motorSel) {
+        var cur = motorSel.value;
+        var motors = {};
+        all.forEach(function(ev) {
+          motors[motorKey(ev)] = true;
+        });
+        var opts = Object.keys(motors).sort();
+        motorSel.innerHTML = '<option value="">すべてのモーター</option>';
+        opts.forEach(function(m) {
+          var o = document.createElement('option');
+          o.value = m;
+          o.textContent = m;
+          motorSel.appendChild(o);
+        });
+        if (cur && opts.indexOf(cur) !== -1) motorSel.value = cur;
+      }
+
+      var filterMotor = motorSel ? motorSel.value : '';
+      var list = filterMotor
+        ? all.filter(function(ev) { return motorKey(ev) === filterMotor; })
+        : all;
+
+      var overall = calcStats(list);
+      var html = '';
+
+      // 全体サマリー
+      html += '<div class="analysis-card"><div class="analysis-card-title">全体サマリー' +
+        (filterMotor ? '（' + escapeHtml(filterMotor) + '）' : '') + '</div>';
+      html += '<div class="analysis-summary">';
+      html += '<div class="analysis-stat"><div class="num">' + overall.total + '</div><div class="lbl">記録数</div></div>';
+      html += '<div class="analysis-stat finish"><div class="num">' + overall.finish + '</div><div class="lbl">完走</div></div>';
+      html += '<div class="analysis-stat out"><div class="num">' + overall.out + '</div><div class="lbl">コースアウト</div></div>';
+      html += '<div class="analysis-stat"><div class="num">' + (overall.total ? overall.rate.toFixed(0) + '%' : '—') + '</div><div class="lbl">完走率</div></div>';
+      html += '</div></div>';
+
+      if (!overall.total) {
+        html += '<div class="analysis-card"><p style="color:#8e8e93;font-size:14px;text-align:center;padding:16px 0;">結果が記録されたセッティングがありません。<br>「完走」「コースアウト」を付けて保存すると分析できます。</p></div>';
+        document.getElementById('analysisContent').innerHTML = html;
+        return;
+      }
+
+      // モーター＋番号別（フィルタなし時のみ全体表示）
+      if (!filterMotor) {
+        html += '<div class="analysis-card"><div class="analysis-card-title">モーター × 番号別 完走率</div>';
+        html += statsTableHtml(groupBy(list, motorKey));
+        html += '</div>';
+      }
+
+      // 場所別
+      html += '<div class="analysis-card"><div class="analysis-card-title">場所別 完走率</div>';
+      html += statsTableHtml(groupBy(list, function(ev) {
+        return (ev.address && String(ev.address).trim()) || '（場所未設定）';
+      }));
+      html += '</div>';
+
+      // 電圧別
+      html += '<div class="analysis-card"><div class="analysis-card-title">電圧別 完走率</div>';
+      html += statsTableHtml(groupBy(list, function(ev) {
+        var v = ev.m4 && ev.m4.voltage;
+        return (v != null && v !== '') ? (v + ' V') : '';
+      }));
+      html += '</div>';
+
+      // タイヤ径別
+      html += '<div class="analysis-card"><div class="analysis-card-title">タイヤ径別 完走率</div>';
+      html += statsTableHtml(groupBy(list, function(ev) {
+        var t = ev.m4 && ev.m4.tireDiameter;
+        return (t != null && t !== '') ? (t + ' mm') : '';
+      }));
+      html += '</div>';
+
+      // ギヤ比別
+      html += '<div class="analysis-card"><div class="analysis-card-title">ギヤ比別 完走率</div>';
+      html += statsTableHtml(groupBy(list, function(ev) {
+        return (ev.m4 && ev.m4.gearRatio) || '';
+      }));
+      html += '</div>';
+
+      // クロス：選択モーター時、場所×電圧など追加傾向
+      if (filterMotor) {
+        html += '<div class="analysis-card"><div class="analysis-card-title">このモーターでの場所 × ギヤ比</div>';
+        html += statsTableHtml(groupBy(list, function(ev) {
+          var place = (ev.address && String(ev.address).trim()) || '場所未設定';
+          var gear = (ev.m4 && ev.m4.gearRatio) || 'ギヤ未設定';
+          return place + ' / ' + gear;
+        }));
+        html += '</div>';
+      }
+
+      document.getElementById('analysisContent').innerHTML = html;
+    }
 
     // ===== セッティング検索（フリーワード + プルダウン） =====
     function openSearchView() {
