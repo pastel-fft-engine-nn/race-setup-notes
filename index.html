@@ -116,11 +116,11 @@
     }
     .today-btn, .media-header-btn, .search-header-btn {
       background: none; border: none; color: #007aff;
-      font-size: 16px; cursor: pointer;
+      font-size: 22px; cursor: pointer;
       padding: 2px 3px; line-height: 1.2;
       flex-shrink: 0;
     }
-    .media-header-btn, .search-header-btn { font-size: 16px; }
+    .media-header-btn, .search-header-btn { font-size: 22px; }
     .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .month-label { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
     .nav-arrows { display: flex; gap: 12px; margin-right: 14px; }
@@ -506,15 +506,22 @@
       width: 100%;
       max-width: 480px;
       margin: 0 auto 12px;
-      background: linear-gradient(180deg, #d6eaff 0%, #b8d4f0 55%, #9ec5e8 100%);
-      border-radius: 14px;
-      border: 1px solid #c5d8ef;
+      background:
+        radial-gradient(ellipse 40% 20% at 20% 15%, rgba(255,255,255,0.55), transparent 70%),
+        radial-gradient(ellipse 35% 18% at 80% 20%, rgba(255,255,255,0.4), transparent 70%),
+        linear-gradient(180deg, #9ad0ff 0%, #6eb6f0 40%, #5aa8e8 70%, #4a9ad9 100%);
+      border-radius: 18px;
+      border: 2px solid #7eb8e8;
       overflow: hidden;
       aspect-ratio: 3 / 3.4;
+      box-shadow: inset 0 -20px 40px rgba(255,255,255,0.15), 0 8px 20px rgba(74, 154, 217, 0.2);
     }
     body.dark-mode .japan-map-wrap {
-      background: linear-gradient(180deg, #1a2332 0%, #15202b 100%);
-      border-color: #2c2c2e;
+      background:
+        radial-gradient(ellipse 40% 20% at 20% 15%, rgba(255,255,255,0.08), transparent 70%),
+        linear-gradient(180deg, #1a2a3c 0%, #152030 100%);
+      border-color: #2c3a4a;
+      box-shadow: none;
     }
     .japan-map-svg {
       width: 100%;
@@ -1651,11 +1658,12 @@
   <div class="modal-overlay" id="compareOverlay">
     <div class="modal">
       <div class="modal-header">
-        <button class="modal-close" onclick="closeCompareModal()">閉じる</button>
+        <button class="modal-close" onclick="closeCompareModal()">← 戻る</button>
         <div class="modal-title">セッティング比較</div>
         <div style="width:48px"></div>
       </div>
-      <div id="compareBody" style="padding:12px 14px 24px;"></div>
+      <div id="compareBody" style="padding:12px 14px 8px;"></div>
+      <button class="modal-save-bottom" onclick="closeCompareModal()" style="background:#8e8e93;">戻る</button>
     </div>
   </div>
 
@@ -4266,16 +4274,49 @@
       var notes = loadVenueNotes();
       var html = '';
 
-      // 日本地図
+      // 日本地図（イラスト風）
       html += '<div class="japan-map-wrap" id="japanMapWrap">';
       html += '<svg class="japan-map-svg" viewBox="0 0 300 340" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">';
-      // 簡易シルエット（北海道〜九州の概形）
-      html += '<path fill="#7cb342" opacity="0.85" d="M210 28 L245 22 L268 48 L255 78 L230 95 L205 88 L198 60 Z"/>';
-      html += '<path fill="#8bc34a" opacity="0.9" d="M175 95 L210 100 L225 130 L210 175 L185 195 L155 185 L145 150 L155 115 Z"/>';
-      html += '<path fill="#9ccc65" opacity="0.9" d="M130 175 L175 185 L185 220 L165 255 L130 270 L105 250 L100 210 L115 185 Z"/>';
-      html += '<path fill="#aed581" opacity="0.9" d="M95 250 L130 265 L125 300 L95 315 L70 300 L65 270 Z"/>';
-      html += '<path fill="#c5e1a5" opacity="0.85" d="M55 285 L75 300 L70 325 L45 330 L35 305 Z"/>';
-      html += '<text x="150" y="18" text-anchor="middle" font-size="11" fill="#37474f">日本地図（GPSピン）</text>';
+      // 海の波模様
+      html += '<defs>';
+      html += '<linearGradient id="landGrad" x1="0" y1="0" x2="0" y2="1">';
+      html += '<stop offset="0%" stop-color="#a8e063"/><stop offset="55%" stop-color="#7cb342"/><stop offset="100%" stop-color="#558b2f"/>';
+      html += '</linearGradient>';
+      html += '<linearGradient id="landGrad2" x1="0" y1="0" x2="1" y2="1">';
+      html += '<stop offset="0%" stop-color="#c5e1a5"/><stop offset="100%" stop-color="#8bc34a"/>';
+      html += '</linearGradient>';
+      html += '<filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">';
+      html += '<feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#2e7d32" flood-opacity="0.35"/>';
+      html += '</filter>';
+      html += '</defs>';
+      // 波（装飾）
+      html += '<path d="M0 300 Q40 290 80 305 T160 300 T240 310 T300 300 L300 340 L0 340 Z" fill="rgba(255,255,255,0.18)"/>';
+      html += '<path d="M0 50 Q50 40 100 55 T200 48 T300 60" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round"/>';
+      html += '<path d="M10 75 Q60 65 110 80 T220 72" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="2" stroke-linecap="round"/>';
+      // 雲
+      html += '<ellipse cx="48" cy="42" rx="22" ry="10" fill="rgba(255,255,255,0.55)"/>';
+      html += '<ellipse cx="62" cy="38" rx="14" ry="8" fill="rgba(255,255,255,0.5)"/>';
+      html += '<ellipse cx="240" cy="55" rx="20" ry="9" fill="rgba(255,255,255,0.45)"/>';
+      html += '<ellipse cx="252" cy="52" rx="12" ry="7" fill="rgba(255,255,255,0.4)"/>';
+      // 島シルエット（線あり・角丸っぽい）
+      html += '<g filter="url(#softShadow)" stroke="#558b2f" stroke-width="1.2" stroke-linejoin="round">';
+      // 北海道
+      html += '<path fill="url(#landGrad)" d="M205 30 C220 22 245 20 262 32 C275 45 272 62 258 75 C245 88 228 92 212 88 C198 84 192 70 195 55 C197 42 200 35 205 30 Z"/>';
+      // 本州
+      html += '<path fill="url(#landGrad)" d="M168 98 C190 95 215 102 228 125 C235 145 228 170 210 188 C195 200 175 205 158 198 C142 190 138 168 142 148 C145 125 152 105 168 98 Z"/>';
+      // 四国
+      html += '<path fill="url(#landGrad2)" d="M125 200 C140 195 155 200 160 215 C158 228 145 235 130 232 C115 228 112 212 125 200 Z"/>';
+      // 九州
+      html += '<path fill="url(#landGrad2)" d="M95 235 C115 230 135 240 138 265 C135 290 115 305 90 300 C70 295 68 265 80 248 C85 240 90 236 95 235 Z"/>';
+      // 沖縄
+      html += '<path fill="url(#landGrad2)" d="M48 290 C58 286 68 292 70 305 C68 318 55 322 45 316 C38 310 38 296 48 290 Z"/>';
+      html += '</g>';
+      // 都市ドット（装飾）
+      html += '<circle cx="200" cy="140" r="2.2" fill="#fff" opacity="0.85"/><text x="205" y="143" font-size="7" fill="#fff" opacity="0.8">東京</text>';
+      html += '<circle cx="155" cy="175" r="2" fill="#fff" opacity="0.75"/><text x="160" y="178" font-size="6.5" fill="#fff" opacity="0.75">大阪</text>';
+      html += '<circle cx="110" cy="268" r="1.8" fill="#fff" opacity="0.7"/><text x="115" y="271" font-size="6" fill="#fff" opacity="0.7">福岡</text>';
+      html += '<circle cx="230" cy="55" r="1.8" fill="#fff" opacity="0.7"/><text x="235" y="58" font-size="6" fill="#fff" opacity="0.7">札幌</text>';
+      html += '<text x="150" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" style="text-shadow:0 1px 2px rgba(0,0,0,0.2)">🗾 日本地図</text>';
       html += '</svg>';
       // ピン
       rows.forEach(function(row, idx) {
