@@ -4252,14 +4252,14 @@
     var selectedVenuePlace = null;
 
     // 日本地図上の位置
-    // 基準: 東京（都庁 35.6894N, 139.6917E）→ left:65% / top:60%
-    // 大阪・福岡・函館は相対位置を維持
+    // 基準: 武蔵野市（約 35.7177N, 139.5660E）→ left:65% / top:65%
+    // 他地点は相対位置を維持
     function japanMapPercent(lat, lng) {
-      var TOKYO_LAT = 35.6894; // 東京都庁
-      var TOKYO_LNG = 139.6917;
+      var REF_LAT = 35.7177; // 武蔵野市
+      var REF_LNG = 139.5660;
       var SCALE = 4.17; // % / 度
-      var left = 65 + (Number(lng) - TOKYO_LNG) * SCALE;
-      var top = 60 + (TOKYO_LAT - Number(lat)) * SCALE;
+      var left = 65 + (Number(lng) - REF_LNG) * SCALE;
+      var top = 65 + (REF_LAT - Number(lat)) * SCALE;
       left = Math.max(3, Math.min(97, left));
       top = Math.max(4, Math.min(96, top));
       return { left: left, top: top };
