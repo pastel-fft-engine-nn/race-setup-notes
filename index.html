@@ -1085,25 +1085,6 @@
     .tpl-bar button.primary { background: #007aff; color: #fff; }
     body.dark-mode .tpl-bar button { background: #3a3a3c; color: #f2f2f7; }
     body.dark-mode .tpl-bar button.primary { background: #0a84ff; }
-    .chart-block { margin-top: 8px; }
-    .chart-row {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px;
-    }
-    .chart-label {
-      width: 88px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      color: #3a3a3c;
-    }
-    body.dark-mode .chart-label { color: #aeaeb2; }
-    .chart-track {
-      flex: 1; height: 14px; background: #e5e5ea; border-radius: 7px; overflow: hidden;
-    }
-    body.dark-mode .chart-track { background: #2c2c2e; }
-    .chart-fill {
-      height: 100%; background: linear-gradient(90deg, #34c759, #30d158); border-radius: 7px;
-      min-width: 0;
-    }
-    .chart-fill.low { background: linear-gradient(90deg, #ff9f0a, #ff3b30); }
-    .chart-meta { width: 72px; text-align: right; flex-shrink: 0; color: #8e8e93; font-size: 11px; }
     .race-pkg {
       border: 1px solid #e5e5ea; border-radius: 12px; padding: 12px; margin-bottom: 10px;
       background: #fafafa;
@@ -5047,14 +5028,6 @@
       html += '<div class="analysis-stat"><div class="num">' + (overall.total ? overall.rate.toFixed(1) + '%' : '—') + '</div><div class="lbl">完走率</div></div>';
       html += '</div></div>';
 
-      // グラフ（条件があればその範囲、なければ全体）
-      var chartSource = (hasAnyComboFilter() && comboList.length) ? comboList : baseList;
-      html += buildRateChartHtml('完走率グラフ・場所別', groupBy(chartSource, function(ev) { return eventPlace(ev) || '（場所未設定）'; }));
-      html += buildRateChartHtml('完走率グラフ・モーター別', groupBy(chartSource, motorKey));
-      html += buildRateChartHtml('完走率グラフ・電圧別', groupBy(chartSource, function(ev) { return eventVoltage(ev) || '（未設定）'; }));
-      html += buildRateChartHtml('完走率グラフ・ギヤ別', groupBy(chartSource, function(ev) { return eventGear(ev) || '（未設定）'; }));
-      html += buildRateChartHtml('完走率グラフ・タイヤ別', groupBy(chartSource, function(ev) { return eventTire(ev) || '（未設定）'; }));
-
       if (!overall.total) {
         html += '<div class="analysis-card"><p style="color:#8e8e93;font-size:14px;text-align:center;padding:16px 0;">結果が記録されたセッティングがありません。<br>「完走」「コースアウト」を付けて保存すると分析できます。</p></div>';
         document.getElementById('analysisContent').innerHTML = html;
@@ -6095,30 +6068,6 @@
       _openEditModalOrig(id);
       populateTemplateSelect();
     };
-
-    // ===== 11. グラフ表示（完走率バー） =====
-    function buildRateChartHtml(title, grouped) {
-      var keys = Object.keys(grouped || {});
-      if (!keys.length) return '';
-      var rows = keys.map(function(k) {
-        var s = calcStats(grouped[k]);
-        return { key: k, stats: s };
-      }).filter(function(r) { return r.stats.total > 0; });
-      rows.sort(function(a, b) { return b.stats.rate - a.stats.rate; });
-      if (!rows.length) return '';
-      var html = '<div class="analysis-card"><div class="analysis-card-title">' + escapeHtml(title) + '</div><div class="chart-block">';
-      rows.slice(0, 12).forEach(function(r) {
-        var pct = Math.max(0, Math.min(100, r.stats.rate));
-        var low = pct < 50;
-        html += '<div class="chart-row">' +
-          '<div class="chart-label" title="' + escapeAttr(r.key) + '">' + escapeHtml(r.key) + '</div>' +
-          '<div class="chart-track"><div class="chart-fill' + (low ? ' low' : '') + '" style="width:' + pct.toFixed(1) + '%"></div></div>' +
-          '<div class="chart-meta">' + r.stats.rate.toFixed(0) + '% (' + r.stats.total + ')</div>' +
-          '</div>';
-      });
-      html += '</div></div>';
-      return html;
-    }
 
     // ===== 7. 大会パッケージ =====
     function buildRacePackages(list) {
