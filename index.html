@@ -1383,7 +1383,7 @@
         <div class="form-row" style="flex-wrap:wrap;gap:8px;">
           <div class="form-label">RPM連携</div>
           <div style="flex:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;">
-            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzer()">計測を開く</button>
+            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzer()">RPM Analyzerを開く</button>
             <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="importRpmFromAnalyzer()">結果を取り込む</button>
           </div>
         </div>
@@ -1393,7 +1393,7 @@
         </div>
         <div class="form-row">
           <div class="form-label"></div>
-          <a href="https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/" target="_blank" rel="noopener noreferrer" class="rpm-link">RPM Analyzer をブラウザで開く →</a>
+          <a href="https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/" target="_blank" rel="noopener noreferrer" class="rpm-link">公開版 Analyzer（https）を開く →</a>
         </div>
       </div>
 
@@ -4396,14 +4396,19 @@
     }
 
     // ===== RPM Analyzer 連携 =====
-    // 同一フォルダの rpm_analyzer.html があれば優先（http/https 時）
+    // スマホのマイクは https 必須。file:// では公開版を使う
+    var RPM_ANALYZER_PUBLIC = 'https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/';
     var RPM_ANALYZER_URL = (function() {
       try {
-        if (location.protocol === 'http:' || location.protocol === 'https:') {
+        if (location.protocol === 'https:') {
+          return location.href.replace(/[^/]*$/, 'rpm_analyzer.html');
+        }
+        // http の localhost のみローカル可
+        if (location.protocol === 'http:' && /^(localhost|127\.0\.0\.1)$/i.test(location.hostname)) {
           return location.href.replace(/[^/]*$/, 'rpm_analyzer.html');
         }
       } catch (e) {}
-      return 'https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/';
+      return RPM_ANALYZER_PUBLIC;
     })();
     var RPM_STORAGE_KEYS = [
       'memory_rpm_result',
@@ -4508,21 +4513,28 @@
     }
 
     function openRpmAnalyzer() {
-      var url = RPM_ANALYZER_URL +
-        (RPM_ANALYZER_URL.indexOf('?') >= 0 ? '&' : '?') +
-        'from=memory&callback=1';
+      var base = RPM_ANALYZER_URL;
+      // ローカル file:// から開いている場合はマイク不可なので公開版へ
+      if (location.protocol === 'file:') {
+        base = RPM_ANALYZER_PUBLIC;
+        setRpmLinkStatus('スマホ集音には https の Analyzer を使います', false);
+      }
+      var url = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'from=memory&callback=1';
       try {
         rpmAnalyzerWin = window.open(url, 'memory_rpm_analyzer');
       } catch (e) {
         rpmAnalyzerWin = null;
       }
       if (!rpmAnalyzerWin) {
-        // ポップアップブロック時は同一タブ遷移を避けるためリンク案内
-        setRpmLinkStatus('ポップアップがブロックされました。下のリンクから開いてください', false);
+        // ポップアップブロック時は同じタブで開く（戻るで memory に復帰）
+        if (confirm('Analyzer をこのタブで開きますか？\n（計測後、ブラウザの「戻る」で memory に戻れます）')) {
+          location.href = url;
+        } else {
+          setRpmLinkStatus('ポップアップがブロックされました', false);
+        }
         return;
       }
-      setRpmLinkStatus('計測アプリを開きました。終わったら「結果を取り込む」', false);
-      // opener 経由の postMessage を待つ
+      setRpmLinkStatus('Analyzer を開きました。計測後「memoryへ」→ ここに戻る', false);
     }
 
     function importRpmFromAnalyzer() {
