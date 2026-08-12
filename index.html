@@ -583,32 +583,38 @@
     }
     .japan-map-pin {
       position: absolute;
-      width: 22px;
-      height: 22px;
-      margin-left: -11px;
-      margin-top: -22px;
+      width: 11px;
+      height: 11px;
+      margin-left: -5.5px;
+      margin-top: -11px;
       border: none;
       background: transparent;
       padding: 0;
       cursor: pointer;
       z-index: 2;
       transform-origin: bottom center;
+      opacity: 0.72;
+    }
+    .japan-map-pin:hover,
+    .japan-map-pin.selected {
+      opacity: 1;
+      z-index: 3;
     }
     .japan-map-pin span {
       display: block;
-      width: 18px;
-      height: 18px;
+      width: 9px;
+      height: 9px;
       margin: 0 auto;
       border-radius: 50% 50% 50% 0;
       background: #ff3b30;
       transform: rotate(-45deg);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-      border: 2px solid #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+      border: 1px solid #fff;
     }
     .japan-map-pin.selected span {
       background: #007aff;
-      width: 22px;
-      height: 22px;
+      width: 11px;
+      height: 11px;
     }
     .japan-map-pin.no-gps span { background: #8e8e93; opacity: 0.5; }
     .japan-map-hint {
