@@ -492,6 +492,82 @@
       flex: 1; border: none; background: transparent; padding: 8px 4px; border-radius: 8px;
       font-size: 12px; font-weight: 600; color: #8e8e93; cursor: pointer;
     }
+
+    .venues-view { display: none; padding: 8px 12px 28px; }
+    .venues-view.active { display: block; }
+    .japan-map-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto 12px;
+      background: linear-gradient(180deg, #d6eaff 0%, #b8d4f0 55%, #9ec5e8 100%);
+      border-radius: 14px;
+      border: 1px solid #c5d8ef;
+      overflow: hidden;
+      aspect-ratio: 3 / 3.4;
+    }
+    body.dark-mode .japan-map-wrap {
+      background: linear-gradient(180deg, #1a2332 0%, #15202b 100%);
+      border-color: #2c2c2e;
+    }
+    .japan-map-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .japan-map-pin {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      margin-left: -11px;
+      margin-top: -22px;
+      border: none;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      z-index: 2;
+      transform-origin: bottom center;
+    }
+    .japan-map-pin span {
+      display: block;
+      width: 18px;
+      height: 18px;
+      margin: 0 auto;
+      border-radius: 50% 50% 50% 0;
+      background: #ff3b30;
+      transform: rotate(-45deg);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      border: 2px solid #fff;
+    }
+    .japan-map-pin.selected span {
+      background: #007aff;
+      width: 22px;
+      height: 22px;
+    }
+    .japan-map-pin.no-gps span { background: #8e8e93; opacity: 0.5; }
+    .japan-map-hint {
+      font-size: 12px;
+      color: #3a3a3c;
+      line-height: 1.55;
+      background: #fff8e6;
+      border: 1px solid #ffe0a3;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 12px 0 8px;
+    }
+    body.dark-mode .japan-map-hint {
+      background: #3a2e14;
+      border-color: #5c4a1e;
+      color: #f2f2f7;
+    }
+    .venue-selected-banner {
+      font-size: 13px;
+      font-weight: 600;
+      color: #007aff;
+      margin-bottom: 8px;
+      min-height: 1.2em;
+    }
+
     .venue-card {
       background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
@@ -954,6 +1030,7 @@
         <button class="today-btn" id="themeToggleBtn" onclick="toggleTheme()" title="表示モード切替">🌙</button>
         <button class="today-btn" onclick="goHome()" title="ホーム（月ビュー）">🏠</button>
         <button class="search-header-btn" onclick="openAnalysisView()" title="分析">📊</button>
+        <button class="search-header-btn" onclick="openVenuesView()" title="会場マップ">🗺️</button>
         <button class="search-header-btn" onclick="openStopwatch()" title="タイム計測">⏱️</button>
         <button class="search-header-btn" onclick="openMotorCheckSolo()" title="モーターチェック単独">🏎️</button>
         <button class="search-header-btn" onclick="openSearchView()" title="セッティング検索">🔍</button>
@@ -1016,7 +1093,6 @@
         <button type="button" class="analysis-subtab" data-atab="parts" onclick="switchAnalysisTab('parts')">台帳</button>
         <button type="button" class="analysis-subtab" data-atab="race" onclick="switchAnalysisTab('race')">大会</button>
         <button type="button" class="analysis-subtab" data-atab="loss" onclick="switchAnalysisTab('loss')">負け</button>
-        <button type="button" class="analysis-subtab" data-atab="venues" onclick="switchAnalysisTab('venues')">会場</button>
       </div>
 
       <div id="analysisTabPanel">
@@ -1176,10 +1252,15 @@
         <div id="lossPatternContent"></div>
       </div>
 
-      <div id="venuesTabPanel" style="display:none;">
-        <div id="venuesMapContent"></div>
-      </div>
     </div>
+  </div>
+
+  <!-- 会場マップ（独立ビュー） -->
+  <div class="venues-view" id="venuesView">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button type="button" class="search-action-btn gray" onclick="closeVenuesView()">閉じる</button>
+    </div>
+    <div id="venuesMapContent"></div>
   </div>
 
   <!-- セッティング検索ビュー -->
@@ -1883,8 +1964,10 @@
       if (searchEl) searchEl.classList.toggle('active', view === 'search');
       var analysisEl = document.getElementById('analysisView');
       if (analysisEl) analysisEl.classList.toggle('active', view === 'analysis');
-      // 検索・分析ビュー時はタブ・月ナビ・FABを隠す
-      var hideChrome = (view === 'search' || view === 'analysis');
+      var venuesEl = document.getElementById('venuesView');
+      if (venuesEl) venuesEl.classList.toggle('active', view === 'venues');
+      // 検索・分析・会場ビュー時はタブ・月ナビ・FABを隠す
+      var hideChrome = (view === 'search' || view === 'analysis' || view === 'venues');
       var tabs = document.querySelector('.view-tabs');
       var monthNav = document.querySelector('.month-nav');
       var fab = document.querySelector('.fab');
@@ -1901,13 +1984,14 @@
         if (analysisSubTab === 'parts') renderPartsLedger();
         else if (analysisSubTab === 'race') renderRaceAnalysis();
         else if (analysisSubTab === 'loss') renderLossPatterns();
-        else if (analysisSubTab === 'venues') renderVenuesMap();
         else renderAnalysis();
+      } else if (view === 'venues') {
+        renderVenuesMap();
       }
       updatePeriodLabel();
     }
     function navigate(delta) {
-      if (currentView === 'search' || currentView === 'analysis') return;
+      if (currentView === 'search' || currentView === 'analysis' || currentView === 'venues') return;
       if (currentView === 'month') {
         currentDate.setMonth(currentDate.getMonth() + delta);
         renderMonth();
@@ -1948,7 +2032,9 @@
       } else if (currentView === 'analysis') {
         label.textContent = analysisSubTab === 'parts' ? 'パーツ台帳'
           : (analysisSubTab === 'loss' ? '負けパターン'
-          : (analysisSubTab === 'venues' ? '会場マップ' : 'セッティング分析'));
+          : (analysisSubTab === 'race' ? '大会分析' : 'セッティング分析'));
+      } else if (currentView === 'venues') {
+        label.textContent = '会場マップ';
       } else label.textContent = formatDisplayDate(selectedDate);
     }
 
@@ -3467,12 +3553,17 @@
     function closeAnalysisView() {
       switchView('month');
     }
+    function openVenuesView() {
+      switchView('venues');
+    }
+    function closeVenuesView() {
+      switchView('month');
+    }
 
     function switchAnalysisTab(tab) {
       if (tab === 'parts') analysisSubTab = 'parts';
       else if (tab === 'race') analysisSubTab = 'race';
       else if (tab === 'loss') analysisSubTab = 'loss';
-      else if (tab === 'venues') analysisSubTab = 'venues';
       else analysisSubTab = 'analysis';
       document.querySelectorAll('.analysis-subtab').forEach(function(b) {
         b.classList.toggle('active', b.getAttribute('data-atab') === analysisSubTab);
@@ -3481,16 +3572,13 @@
       var pp = document.getElementById('partsTabPanel');
       var rp = document.getElementById('raceTabPanel');
       var lp = document.getElementById('lossTabPanel');
-      var vp = document.getElementById('venuesTabPanel');
       if (ap) ap.style.display = analysisSubTab === 'analysis' ? '' : 'none';
       if (pp) pp.style.display = analysisSubTab === 'parts' ? '' : 'none';
       if (rp) rp.style.display = analysisSubTab === 'race' ? '' : 'none';
       if (lp) lp.style.display = analysisSubTab === 'loss' ? '' : 'none';
-      if (vp) vp.style.display = analysisSubTab === 'venues' ? '' : 'none';
       if (analysisSubTab === 'parts') renderPartsLedger();
       else if (analysisSubTab === 'race') renderRaceAnalysis();
       else if (analysisSubTab === 'loss') renderLossPatterns();
-      else if (analysisSubTab === 'venues') renderVenuesMap();
       else renderAnalysis();
       updatePeriodLabel();
     }
@@ -4131,57 +4219,144 @@
       openMaps(place);
     }
 
+    var selectedVenuePlace = null;
+
+    // 日本地図上の位置（概略投影: lat 24–46 / lng 123–146）
+    function japanMapPercent(lat, lng) {
+      var minLat = 24.0, maxLat = 46.0, minLng = 123.0, maxLng = 146.0;
+      var x = (Number(lng) - minLng) / (maxLng - minLng) * 100;
+      var y = (maxLat - Number(lat)) / (maxLat - minLat) * 100;
+      x = Math.max(2, Math.min(98, x));
+      y = Math.max(2, Math.min(98, y));
+      return { left: x, top: y };
+    }
+
+    function selectVenueOnMap(place) {
+      selectedVenuePlace = place || null;
+      document.querySelectorAll('.japan-map-pin').forEach(function(pin) {
+        pin.classList.toggle('selected', pin.getAttribute('data-place') === selectedVenuePlace);
+      });
+      document.querySelectorAll('.venue-card').forEach(function(card) {
+        var on = card.getAttribute('data-place') === selectedVenuePlace;
+        card.style.outline = on ? '2px solid #007aff' : '';
+        card.style.background = on ? 'rgba(0,122,255,0.06)' : '';
+      });
+      var ban = document.getElementById('venueSelectedBanner');
+      if (ban) {
+        ban.textContent = selectedVenuePlace ? ('選択中: ' + selectedVenuePlace) : '';
+      }
+      if (selectedVenuePlace) {
+        var el = document.querySelector('.venue-card[data-place="' + selectedVenuePlace.replace(/"/g, '\\"') + '"]');
+        if (el) {
+          try { el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+        }
+      }
+    }
+
     function renderVenuesMap() {
       var body = document.getElementById('venuesMapContent');
       if (!body) return;
       var rows = buildVenuesData();
       var notes = loadVenueNotes();
-      if (!rows.length) {
-        body.innerHTML = '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:24px 0;font-size:14px;">場所が記録されたセッティングがありません。<br>場所名やGPSを保存すると会場一覧に表示されます。</p></div>';
-        return;
-      }
-      var html = '<p style="font-size:12px;color:#8e8e93;margin-bottom:10px;">よく行く会場の一覧です。マップで開けます。メモは端末に保存されます。</p>';
-      rows.forEach(function(row) {
-        var judged = row.finish + row.out;
-        var rate = judged ? (row.finish / judged * 100) : null;
-        var rateText = rate != null ? rate.toFixed(0) + '%' : '—';
-        var lastLabel = row.lastDate || '';
-        if (/^\d{4}-\d{2}-\d{2}$/.test(lastLabel)) {
-          var p = lastLabel.split('-');
-          lastLabel = p[0] + '/' + parseInt(p[1], 10) + '/' + parseInt(p[2], 10);
-        }
-        var motorList = Object.keys(row.motors).sort(function(a, b) {
-          return row.motors[b] - row.motors[a];
-        }).slice(0, 3);
-        var motorStr = motorList.length
-          ? motorList.map(function(m) { return m + '(' + row.motors[m] + ')'; }).join(' · ')
-          : '—';
-        var gpsLabel = (row.lat != null && row.lng != null)
-          ? (row.lat.toFixed(4) + ', ' + row.lng.toFixed(4))
-          : 'GPSなし';
-        var noteVal = notes[row.place] || '';
-        html += '<div class="venue-card">';
-        html += '<div class="venue-name">📍 ' + escapeHtml(row.place) + '</div>';
-        html += '<div class="parts-meta">';
-        html += '<div class="parts-meta-item"><div class="n">' + row.total + '</div><div class="l">訪問</div></div>';
-        html += '<div class="parts-meta-item"><div class="n" style="color:#34c759">' + row.finish + '</div><div class="l">完走</div></div>';
-        html += '<div class="parts-meta-item"><div class="n" style="color:#ff3b30">' + row.out + '</div><div class="l">アウト</div></div>';
-        html += '<div class="parts-meta-item"><div class="n">' + rateText + '</div><div class="l">完走率</div></div>';
-        html += '</div>';
-        html += '<div class="parts-places">よく使う: ' + escapeHtml(motorStr) + '</div>';
-        html += '<div class="parts-last">最終: ' + escapeHtml(lastLabel || '—') + ' · ' + escapeHtml(gpsLabel) + '</div>';
-        html += '<div class="venue-actions">';
-        html += '<button type="button" class="venue-btn-map" data-place="' + escapeAttr(row.place) + '" data-lat="' +
-          (row.lat != null ? row.lat : '') + '" data-lng="' + (row.lng != null ? row.lng : '') +
-          '">Googleマップで開く</button>';
-        html += '</div>';
-        html += '<textarea class="venue-note" placeholder="会場メモ（レーン・注意点など）" data-venue-key="' +
-          escapeAttr(row.place) + '">' + escapeHtml(noteVal) + '</textarea>';
-        html += '</div>';
+      var html = '';
+
+      // 日本地図
+      html += '<div class="japan-map-wrap" id="japanMapWrap">';
+      html += '<svg class="japan-map-svg" viewBox="0 0 300 340" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">';
+      // 簡易シルエット（北海道〜九州の概形）
+      html += '<path fill="#7cb342" opacity="0.85" d="M210 28 L245 22 L268 48 L255 78 L230 95 L205 88 L198 60 Z"/>';
+      html += '<path fill="#8bc34a" opacity="0.9" d="M175 95 L210 100 L225 130 L210 175 L185 195 L155 185 L145 150 L155 115 Z"/>';
+      html += '<path fill="#9ccc65" opacity="0.9" d="M130 175 L175 185 L185 220 L165 255 L130 270 L105 250 L100 210 L115 185 Z"/>';
+      html += '<path fill="#aed581" opacity="0.9" d="M95 250 L130 265 L125 300 L95 315 L70 300 L65 270 Z"/>';
+      html += '<path fill="#c5e1a5" opacity="0.85" d="M55 285 L75 300 L70 325 L45 330 L35 305 Z"/>';
+      html += '<text x="150" y="18" text-anchor="middle" font-size="11" fill="#37474f">日本地図（GPSピン）</text>';
+      html += '</svg>';
+      // ピン
+      rows.forEach(function(row, idx) {
+        if (row.lat == null || row.lng == null || isNaN(row.lat) || isNaN(row.lng)) return;
+        var pos = japanMapPercent(row.lat, row.lng);
+        var sel = selectedVenuePlace === row.place ? ' selected' : '';
+        html += '<button type="button" class="japan-map-pin' + sel + '" style="left:' + pos.left.toFixed(2) + '%;top:' + pos.top.toFixed(2) + '%;"';
+        html += ' data-place="' + escapeAttr(row.place) + '" title="' + escapeAttr(row.place) + '"><span></span></button>';
       });
+      html += '</div>';
+      html += '<div class="venue-selected-banner" id="venueSelectedBanner">' +
+        (selectedVenuePlace ? ('選択中: ' + escapeHtml(selectedVenuePlace)) : '') + '</div>';
+
+      if (!rows.length) {
+        html += '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:24px 0;font-size:14px;">場所が記録されたセッティングがありません。<br>場所名やGPSを保存すると会場一覧・地図に表示されます。</p></div>';
+      } else {
+        html += '<p style="font-size:12px;color:#8e8e93;margin-bottom:10px;">地図のピンをタップして会場を選択できます。GPS付きの会場のみ地図に表示されます。</p>';
+        rows.forEach(function(row) {
+          var judged = row.finish + row.out;
+          var rate = judged ? (row.finish / judged * 100) : null;
+          var rateText = rate != null ? rate.toFixed(0) + '%' : '—';
+          var lastLabel = row.lastDate || '';
+          if (/^\d{4}-\d{2}-\d{2}$/.test(lastLabel)) {
+            var p = lastLabel.split('-');
+            lastLabel = p[0] + '/' + parseInt(p[1], 10) + '/' + parseInt(p[2], 10);
+          }
+          var motorList = Object.keys(row.motors).sort(function(a, b) {
+            return row.motors[b] - row.motors[a];
+          }).slice(0, 3);
+          var motorStr = motorList.length
+            ? motorList.map(function(m) { return m + '(' + row.motors[m] + ')'; }).join(' · ')
+            : '—';
+          var gpsLabel = (row.lat != null && row.lng != null)
+            ? (row.lat.toFixed(4) + ', ' + row.lng.toFixed(4))
+            : 'GPSなし';
+          var noteVal = notes[row.place] || '';
+          html += '<div class="venue-card" data-place="' + escapeAttr(row.place) + '">';
+          html += '<div class="venue-name">📍 ' + escapeHtml(row.place) + '</div>';
+          html += '<div class="parts-meta">';
+          html += '<div class="parts-meta-item"><div class="n">' + row.total + '</div><div class="l">訪問</div></div>';
+          html += '<div class="parts-meta-item"><div class="n" style="color:#34c759">' + row.finish + '</div><div class="l">完走</div></div>';
+          html += '<div class="parts-meta-item"><div class="n" style="color:#ff3b30">' + row.out + '</div><div class="l">アウト</div></div>';
+          html += '<div class="parts-meta-item"><div class="n">' + rateText + '</div><div class="l">完走率</div></div>';
+          html += '</div>';
+          html += '<div class="parts-places">よく使う: ' + escapeHtml(motorStr) + '</div>';
+          html += '<div class="parts-last">最終: ' + escapeHtml(lastLabel || '—') + ' · ' + escapeHtml(gpsLabel) + '</div>';
+          html += '<div class="venue-actions">';
+          html += '<button type="button" class="venue-btn-map" data-place="' + escapeAttr(row.place) + '" data-lat="' +
+            (row.lat != null ? row.lat : '') + '" data-lng="' + (row.lng != null ? row.lng : '') +
+            '">Googleマップで開く</button>';
+          if (row.lat != null && row.lng != null) {
+            html += '<button type="button" class="venue-btn-filter" data-select-place="' + escapeAttr(row.place) + '">地図で選択</button>';
+          }
+          html += '</div>';
+          html += '<textarea class="venue-note" placeholder="会場メモ（レーン・注意点など）" data-venue-key="' +
+            escapeAttr(row.place) + '">' + escapeHtml(noteVal) + '</textarea>';
+          html += '</div>';
+        });
+      }
+
+      // 下部の説明
+      html += '<div class="japan-map-hint">';
+      html += '<strong>GPSを取得すると地図に反映できます。</strong><br>';
+      html += '新規登録・編集画面の「GPS」で位置を取得して保存すると、この日本地図上にピンとして表示されます。ピンをタップすると会場を選択できます。';
+      html += '</div>';
+
       body.innerHTML = html;
-      body.querySelectorAll('.venue-btn-map').forEach(function(btn) {
+
+      body.querySelectorAll('.japan-map-pin').forEach(function(pin) {
+        pin.onclick = function() {
+          selectVenueOnMap(pin.getAttribute('data-place') || '');
+        };
+      });
+      body.querySelectorAll('[data-select-place]').forEach(function(btn) {
         btn.onclick = function() {
+          selectVenueOnMap(btn.getAttribute('data-select-place') || '');
+        };
+      });
+      body.querySelectorAll('.venue-card').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+          if (e.target.closest('button') || e.target.closest('textarea')) return;
+          selectVenueOnMap(card.getAttribute('data-place') || '');
+        });
+      });
+      body.querySelectorAll('.venue-btn-map').forEach(function(btn) {
+        btn.onclick = function(e) {
+          e.stopPropagation();
           var place = btn.getAttribute('data-place') || '';
           var lat = btn.getAttribute('data-lat');
           var lng = btn.getAttribute('data-lng');
@@ -4200,6 +4375,7 @@
           saveVenueNote(ta.getAttribute('data-venue-key'), ta.value);
         });
       });
+      if (selectedVenuePlace) selectVenueOnMap(selectedVenuePlace);
     }
 
     function getResultedEvents() {
