@@ -457,6 +457,23 @@
       flex: 1; min-width: 120px; padding: 8px 10px; border-radius: 8px;
       border: 1px solid #e5e5ea; font-size: 13px; background: #fff;
     }
+    .analysis-combo-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;
+    }
+    .analysis-combo-grid .full { grid-column: span 2; }
+    .analysis-combo-item label {
+      display: block; font-size: 11px; color: #8e8e93; font-weight: 600; margin-bottom: 4px;
+    }
+    .analysis-combo-item select {
+      width: 100%; padding: 8px 10px; border-radius: 8px;
+      border: 1px solid #e5e5ea; font-size: 13px; background: #fff;
+    }
+    .analysis-combo-actions {
+      display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 10px; flex-wrap: wrap;
+    }
+    body.dark-mode .analysis-combo-item select {
+      background: #2c2c2e; color: #f2f2f7; border-color: #3a3a3c;
+    }
     .analysis-hint { font-size: 12px; color: #8e8e93; margin-bottom: 10px; line-height: 1.4; }
     .analysis-close-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
     body.dark-mode .analysis-view { background: #0d0d0f; }
@@ -835,11 +852,37 @@
       <div class="analysis-close-row">
         <button type="button" class="search-action-btn gray" onclick="closeAnalysisView()">閉じる</button>
       </div>
-      <p class="analysis-hint">結果（完走／コースアウト）が記録されたセッティングを集計します。モーター＋番号ごとの完走率を軸に、場所・電圧・タイヤ・ギヤ比の傾向を表示します。</p>
-      <div class="analysis-filter-row">
-        <select id="anMotorFilter" onchange="renderAnalysis()">
-          <option value="">すべてのモーター</option>
-        </select>
+      <p class="analysis-hint">結果（完走／コースアウト）付きの記録を集計します。<br>
+        <b>条件分析</b>：場所・モーター番号・電圧・ギヤ・タイヤを指定したときの完走率。<br>
+        <b>総合比率</b>：従来どおり項目ごとの傾向も下に表示します。</p>
+      <div class="analysis-card" style="margin-bottom:10px;">
+        <div class="analysis-card-title">条件を指定して分析</div>
+        <div class="analysis-combo-grid">
+          <div class="analysis-combo-item full">
+            <label>場所</label>
+            <select id="anPlace" onchange="onAnalysisComboChange()"></select>
+          </div>
+          <div class="analysis-combo-item full">
+            <label>モーター × 番号</label>
+            <select id="anMotorFilter" onchange="onAnalysisComboChange()"></select>
+          </div>
+          <div class="analysis-combo-item">
+            <label>電圧</label>
+            <select id="anVoltage" onchange="onAnalysisComboChange()"></select>
+          </div>
+          <div class="analysis-combo-item">
+            <label>ギヤ比</label>
+            <select id="anGear" onchange="onAnalysisComboChange()"></select>
+          </div>
+          <div class="analysis-combo-item">
+            <label>タイヤ径</label>
+            <select id="anTire" onchange="onAnalysisComboChange()"></select>
+          </div>
+          <div class="analysis-combo-item">
+            <label>　</label>
+            <button type="button" class="search-action-btn gray" style="width:100%;padding:9px 8px;" onclick="resetAnalysisCombo()">条件リセット</button>
+          </div>
+        </div>
       </div>
       <div id="analysisContent"></div>
     </div>
@@ -2767,43 +2810,213 @@
       return html;
     }
 
+    function getAnalysisComboValues() {
+      return {
+        place: (document.getElementById('anPlace') || {}).value || '',
+        motor: (document.getElementById('anMotorFilter') || {}).value || '',
+        voltage: (document.getElementById('anVoltage') || {}).value || '',
+        gear: (document.getElementById('anGear') || {}).value || '',
+        tire: (document.getElementById('anTire') || {}).value || ''
+      };
+    }
+
+    function eventPlace(ev) {
+      return (ev.address && String(ev.address).trim()) || '';
+    }
+    function eventVoltage(ev) {
+      var v = ev.m4 && ev.m4.voltage;
+      return (v != null && v !== '') ? String(v) : '';
+    }
+    function eventTire(ev) {
+      var t = ev.m4 && ev.m4.tireDiameter;
+      return (t != null && t !== '') ? String(t) : '';
+    }
+    function eventGear(ev) {
+      return (ev.m4 && ev.m4.gearRatio) || '';
+    }
+
+    function fillAnalysisSelect(sel, values, allLabel, current, sortFn) {
+      if (!sel) return;
+      var keys = values.slice();
+      if (sortFn) keys.sort(sortFn);
+      else keys.sort(function(a, b) { return String(a).localeCompare(String(b), 'ja'); });
+      sel.innerHTML = '<option value="">' + allLabel + '</option>';
+      keys.forEach(function(k) {
+        var o = document.createElement('option');
+        o.value = k;
+        o.textContent = k;
+        sel.appendChild(o);
+      });
+      if (current && keys.indexOf(current) !== -1) sel.value = current;
+      else sel.value = '';
+    }
+
+    /** 他条件に合う候補だけ出す（連動） */
+    function eventsForComboExcept(exceptKey) {
+      var c = getAnalysisComboValues();
+      return getResultedEvents().filter(function(ev) {
+        if (exceptKey !== 'place' && c.place && eventPlace(ev) !== c.place) return false;
+        if (exceptKey !== 'motor' && c.motor && motorKey(ev) !== c.motor) return false;
+        if (exceptKey !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
+        if (exceptKey !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
+        if (exceptKey !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
+        return true;
+      });
+    }
+
+    function populateAnalysisComboFilters() {
+      var all = getResultedEvents();
+      var c = getAnalysisComboValues();
+      function uniq(list, fn) {
+        var m = {};
+        list.forEach(function(ev) {
+          var v = fn(ev);
+          if (v) m[v] = true;
+        });
+        return Object.keys(m);
+      }
+      fillAnalysisSelect(
+        document.getElementById('anPlace'),
+        uniq(eventsForComboExcept('place'), eventPlace),
+        'すべての場所', c.place
+      );
+      fillAnalysisSelect(
+        document.getElementById('anMotorFilter'),
+        uniq(eventsForComboExcept('motor'), motorKey),
+        'すべてのモーター', c.motor
+      );
+      fillAnalysisSelect(
+        document.getElementById('anVoltage'),
+        uniq(eventsForComboExcept('voltage'), eventVoltage),
+        'すべての電圧', c.voltage,
+        function(a, b) { return Number(a) - Number(b); }
+      );
+      fillAnalysisSelect(
+        document.getElementById('anGear'),
+        uniq(eventsForComboExcept('gear'), eventGear),
+        'すべてのギヤ比', c.gear
+      );
+      fillAnalysisSelect(
+        document.getElementById('anTire'),
+        uniq(eventsForComboExcept('tire'), eventTire),
+        'すべてのタイヤ径', c.tire,
+        function(a, b) { return Number(a) - Number(b); }
+      );
+    }
+
+    function filterByCombo(list) {
+      var c = getAnalysisComboValues();
+      return list.filter(function(ev) {
+        if (c.place && eventPlace(ev) !== c.place) return false;
+        if (c.motor && motorKey(ev) !== c.motor) return false;
+        if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
+        if (c.gear && eventGear(ev) !== c.gear) return false;
+        if (c.tire && eventTire(ev) !== c.tire) return false;
+        return true;
+      });
+    }
+
+    function describeCombo() {
+      var c = getAnalysisComboValues();
+      var parts = [];
+      if (c.place) parts.push('場所: ' + c.place);
+      if (c.motor) parts.push(c.motor);
+      if (c.voltage) parts.push(c.voltage + 'V');
+      if (c.gear) parts.push('ギヤ ' + c.gear);
+      if (c.tire) parts.push('タイヤ ' + c.tire + 'mm');
+      return parts.length ? parts.join(' · ') : '条件未指定（全データ）';
+    }
+
+    function hasAnyComboFilter() {
+      var c = getAnalysisComboValues();
+      return !!(c.place || c.motor || c.voltage || c.gear || c.tire);
+    }
+
+    function onAnalysisComboChange() {
+      populateAnalysisComboFilters();
+      renderAnalysis();
+    }
+
+    function resetAnalysisCombo() {
+      ['anPlace', 'anMotorFilter', 'anVoltage', 'anGear', 'anTire'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      populateAnalysisComboFilters();
+      renderAnalysis();
+    }
+
     function renderAnalysis() {
       var all = getResultedEvents();
-      var motorSel = document.getElementById('anMotorFilter');
-      // モーター選択肢を更新
-      if (motorSel) {
-        var cur = motorSel.value;
-        var motors = {};
-        all.forEach(function(ev) {
-          motors[motorKey(ev)] = true;
-        });
-        var opts = Object.keys(motors).sort();
-        motorSel.innerHTML = '<option value="">すべてのモーター</option>';
-        opts.forEach(function(m) {
-          var o = document.createElement('option');
-          o.value = m;
-          o.textContent = m;
-          motorSel.appendChild(o);
-        });
-        if (cur && opts.indexOf(cur) !== -1) motorSel.value = cur;
+      populateAnalysisComboFilters();
+
+      var comboList = filterByCombo(all);
+      var comboStats = calcStats(comboList);
+      var overallAll = calcStats(all);
+      var html = '';
+
+      // ===== 条件分析（組み合わせ） =====
+      html += '<div class="analysis-card"><div class="analysis-card-title">条件分析（組み合わせ）</div>';
+      html += '<p style="font-size:12px;color:#8e8e93;margin-bottom:8px;">' + escapeHtml(describeCombo()) + '</p>';
+      html += '<div class="analysis-summary">';
+      html += '<div class="analysis-stat"><div class="num">' + comboStats.total + '</div><div class="lbl">該当数</div></div>';
+      html += '<div class="analysis-stat finish"><div class="num">' + comboStats.finish + '</div><div class="lbl">完走</div></div>';
+      html += '<div class="analysis-stat out"><div class="num">' + comboStats.out + '</div><div class="lbl">コースアウト</div></div>';
+      html += '<div class="analysis-stat"><div class="num">' + (comboStats.total ? comboStats.rate.toFixed(1) + '%' : '—') + '</div><div class="lbl">完走率</div></div>';
+      html += '</div>';
+
+      // 全体との比較
+      if (hasAnyComboFilter() && overallAll.total) {
+        var diff = comboStats.total ? (comboStats.rate - overallAll.rate) : 0;
+        var diffText = comboStats.total
+          ? ('全体完走率 ' + overallAll.rate.toFixed(1) + '% との差: ' + (diff >= 0 ? '+' : '') + diff.toFixed(1) + 'pt')
+          : 'この条件に一致する記録がありません';
+        html += '<p style="font-size:12px;color:#8e8e93;margin-top:6px;">' + escapeHtml(diffText) + '</p>';
+      }
+      if (hasAnyComboFilter() && !comboStats.total) {
+        html += '<p style="font-size:13px;color:#ff3b30;margin-top:6px;">この条件の組み合わせでは記録がありません。条件を緩めてください。</p>';
+      }
+      html += '</div>';
+
+      // 条件付きのとき、緩めた比率も参考表示
+      if (hasAnyComboFilter() && comboStats.total) {
+        var c = getAnalysisComboValues();
+        // 同じ場所のみ / 同じモーターのみ など
+        html += '<div class="analysis-card"><div class="analysis-card-title">条件を緩めた比較</div>';
+        html += '<table class="analysis-table"><thead><tr><th>範囲</th><th>完走率</th><th>完走</th><th>アウト</th><th>合計</th></tr></thead><tbody>';
+        function addCmpRow(label, list) {
+          var s = calcStats(list);
+          if (!s.total) return;
+          html += '<tr><td>' + escapeHtml(label) + '</td><td class="analysis-rate">' + s.rate.toFixed(1) + '%</td>' +
+            '<td>' + s.finish + '</td><td>' + s.out + '</td><td>' + s.total + '</td></tr>';
+        }
+        addCmpRow('指定条件どおり', comboList);
+        if (c.motor) addCmpRow('モーターのみ一致', all.filter(function(ev) { return motorKey(ev) === c.motor; }));
+        if (c.place) addCmpRow('場所のみ一致', all.filter(function(ev) { return eventPlace(ev) === c.place; }));
+        if (c.voltage) addCmpRow('電圧のみ一致', all.filter(function(ev) { return eventVoltage(ev) === c.voltage; }));
+        if (c.gear) addCmpRow('ギヤのみ一致', all.filter(function(ev) { return eventGear(ev) === c.gear; }));
+        if (c.tire) addCmpRow('タイヤのみ一致', all.filter(function(ev) { return eventTire(ev) === c.tire; }));
+        addCmpRow('全体', all);
+        html += '</tbody></table></div>';
       }
 
-      var filterMotor = motorSel ? motorSel.value : '';
+      // ===== 総合比率（既存） =====
+      // 総合側はモーターフィルタがあればそれで、なければ全件
+      var filterMotor = (document.getElementById('anMotorFilter') || {}).value || '';
       var list = filterMotor
         ? all.filter(function(ev) { return motorKey(ev) === filterMotor; })
         : all;
+      // 総合は「条件の一部」ではなく、従来どおりモーター絞り込み＋全項目比率
+      // 条件分析とは別に、全データベースの総合も見せる
+      var baseList = all;
+      var overall = calcStats(baseList);
 
-      var overall = calcStats(list);
-      var html = '';
-
-      // 全体サマリー
-      html += '<div class="analysis-card"><div class="analysis-card-title">全体サマリー' +
-        (filterMotor ? '（' + escapeHtml(filterMotor) + '）' : '') + '</div>';
+      html += '<div class="analysis-card"><div class="analysis-card-title">総合比率（全体）</div>';
       html += '<div class="analysis-summary">';
       html += '<div class="analysis-stat"><div class="num">' + overall.total + '</div><div class="lbl">記録数</div></div>';
       html += '<div class="analysis-stat finish"><div class="num">' + overall.finish + '</div><div class="lbl">完走</div></div>';
       html += '<div class="analysis-stat out"><div class="num">' + overall.out + '</div><div class="lbl">コースアウト</div></div>';
-      html += '<div class="analysis-stat"><div class="num">' + (overall.total ? overall.rate.toFixed(0) + '%' : '—') + '</div><div class="lbl">完走率</div></div>';
+      html += '<div class="analysis-stat"><div class="num">' + (overall.total ? overall.rate.toFixed(1) + '%' : '—') + '</div><div class="lbl">完走率</div></div>';
       html += '</div></div>';
 
       if (!overall.total) {
@@ -2812,49 +3025,48 @@
         return;
       }
 
-      // モーター＋番号別（フィルタなし時のみ全体表示）
-      if (!filterMotor) {
-        html += '<div class="analysis-card"><div class="analysis-card-title">モーター × 番号別 完走率</div>';
-        html += statsTableHtml(groupBy(list, motorKey));
-        html += '</div>';
-      }
+      // 総合側のドリルダウン：条件で選んだモーターがあればその範囲、なければ全体
+      var trendList = filterMotor ? list : all;
 
-      // 場所別
-      html += '<div class="analysis-card"><div class="analysis-card-title">場所別 完走率</div>';
-      html += statsTableHtml(groupBy(list, function(ev) {
-        return (ev.address && String(ev.address).trim()) || '（場所未設定）';
+      html += '<div class="analysis-card"><div class="analysis-card-title">モーター × 番号別 完走率</div>';
+      html += statsTableHtml(groupBy(all, motorKey));
+      html += '</div>';
+
+      html += '<div class="analysis-card"><div class="analysis-card-title">場所別 完走率' +
+        (filterMotor ? '（選択モーター）' : '') + '</div>';
+      html += statsTableHtml(groupBy(trendList, function(ev) {
+        return eventPlace(ev) || '（場所未設定）';
       }));
       html += '</div>';
 
-      // 電圧別
-      html += '<div class="analysis-card"><div class="analysis-card-title">電圧別 完走率</div>';
-      html += statsTableHtml(groupBy(list, function(ev) {
-        var v = ev.m4 && ev.m4.voltage;
-        return (v != null && v !== '') ? (v + ' V') : '';
+      html += '<div class="analysis-card"><div class="analysis-card-title">電圧別 完走率' +
+        (filterMotor ? '（選択モーター）' : '') + '</div>';
+      html += statsTableHtml(groupBy(trendList, function(ev) {
+        var v = eventVoltage(ev);
+        return v ? (v + ' V') : '';
       }));
       html += '</div>';
 
-      // タイヤ径別
-      html += '<div class="analysis-card"><div class="analysis-card-title">タイヤ径別 完走率</div>';
-      html += statsTableHtml(groupBy(list, function(ev) {
-        var t = ev.m4 && ev.m4.tireDiameter;
-        return (t != null && t !== '') ? (t + ' mm') : '';
+      html += '<div class="analysis-card"><div class="analysis-card-title">タイヤ径別 完走率' +
+        (filterMotor ? '（選択モーター）' : '') + '</div>';
+      html += statsTableHtml(groupBy(trendList, function(ev) {
+        var t = eventTire(ev);
+        return t ? (t + ' mm') : '';
       }));
       html += '</div>';
 
-      // ギヤ比別
-      html += '<div class="analysis-card"><div class="analysis-card-title">ギヤ比別 完走率</div>';
-      html += statsTableHtml(groupBy(list, function(ev) {
-        return (ev.m4 && ev.m4.gearRatio) || '';
+      html += '<div class="analysis-card"><div class="analysis-card-title">ギヤ比別 完走率' +
+        (filterMotor ? '（選択モーター）' : '') + '</div>';
+      html += statsTableHtml(groupBy(trendList, function(ev) {
+        return eventGear(ev) || '';
       }));
       html += '</div>';
 
-      // クロス：選択モーター時、場所×電圧など追加傾向
       if (filterMotor) {
-        html += '<div class="analysis-card"><div class="analysis-card-title">このモーターでの場所 × ギヤ比</div>';
-        html += statsTableHtml(groupBy(list, function(ev) {
-          var place = (ev.address && String(ev.address).trim()) || '場所未設定';
-          var gear = (ev.m4 && ev.m4.gearRatio) || 'ギヤ未設定';
+        html += '<div class="analysis-card"><div class="analysis-card-title">選択モーターの場所 × ギヤ比</div>';
+        html += statsTableHtml(groupBy(trendList, function(ev) {
+          var place = eventPlace(ev) || '場所未設定';
+          var gear = eventGear(ev) || 'ギヤ未設定';
           return place + ' / ' + gear;
         }));
         html += '</div>';
