@@ -4251,14 +4251,14 @@
 
     var selectedVenuePlace = null;
 
-    // 日本地図上の位置（シルエット素材向け。北に寄りすぎるのを南へ補正）
+    // 日本地図上の位置
+    // 東京(35.68N, 139.77E) が left:72% / top:48% になるようキャリブレーション
     function japanMapPercent(lat, lng) {
       var minLat = 24.2, maxLat = 45.8, minLng = 123.0, maxLng = 146.0;
       var nx = (Number(lng) - minLng) / (maxLng - minLng);
       var ny = (maxLat - Number(lat)) / (maxLat - minLat);
-      // 画像余白に合わせ、全体を少し南（下）へシフト
-      var left = 2 + nx * 96;
-      var top = 6 + ny * 90 + 6; // +6% 南方向
+      var left = 2 + nx * 96; // 東京 ≈ 72
+      var top = 6 + ny * 90;  // 東京 ≈ 48
       left = Math.max(3, Math.min(97, left));
       top = Math.max(4, Math.min(96, top));
       return { left: left, top: top };
