@@ -955,6 +955,7 @@
         <button class="today-btn" onclick="goHome()" title="ホーム（月ビュー）">🏠</button>
         <button class="search-header-btn" onclick="openAnalysisView()" title="分析">📊</button>
         <button class="search-header-btn" onclick="openStopwatch()" title="タイム計測">⏱️</button>
+        <button class="search-header-btn" onclick="openMotorCheckSolo()" title="モーターチェック単独">🏎️</button>
         <button class="search-header-btn" onclick="openSearchView()" title="セッティング検索">🔍</button>
         <button class="media-header-btn" onclick="openGallery()" title="すべての写真・動画">📷</button>
       </div>
@@ -1383,7 +1384,7 @@
         <div class="form-row" style="flex-wrap:wrap;gap:8px;">
           <div class="form-label">RPM連携</div>
           <div style="flex:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;">
-            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzer()">RPM Analyzerを開く</button>
+            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzerForImport()">RPM Analyzerを開く</button>
             <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="importRpmFromAnalyzer()">結果を取り込む</button>
           </div>
         </div>
@@ -1393,7 +1394,7 @@
         </div>
         <div class="form-row">
           <div class="form-label"></div>
-          <a href="https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/" target="_blank" rel="noopener noreferrer" class="rpm-link">公開版 Analyzer（https）を開く →</a>
+          <button type="button" class="rpm-link" style="background:none;border:none;cursor:pointer;padding:0;" onclick="openMotorCheckSolo()">モーターチェック単独で開く →</button>
         </div>
       </div>
 
@@ -4396,8 +4397,8 @@
     }
 
     // ===== RPM Analyzer 連携 =====
-    // 常に公開版 Analyzer を使用
-    var RPM_ANALYZER_PUBLIC = 'https://pastel-fft-engine-nn.github.io/mini-4wd-rperm/';
+    // 公開版（モーターチェック単独起動・memory には戻らない）
+    var RPM_ANALYZER_PUBLIC = 'https://pastel-fft-engine-nn.github.io/mini4wd-rpm/';
     var RPM_ANALYZER_URL = RPM_ANALYZER_PUBLIC;
     var RPM_STORAGE_KEYS = [
       'memory_rpm_result',
@@ -4414,12 +4415,40 @@
       el.style.color = ok ? '#34c759' : '#8e8e93';
     }
 
+    function isRpmImportSession() {
+      try {
+        return sessionStorage.getItem('memory_rpm_import_session') === '1';
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function beginRpmImportSession() {
+      try { sessionStorage.setItem('memory_rpm_import_session', '1'); } catch (e) {}
+    }
+
+    function endRpmImportSession() {
+      try { sessionStorage.removeItem('memory_rpm_import_session'); } catch (e) {}
+    }
+
     function applyRpmValue(rpm, meta) {
+      // 「RPM Analyzerを開く」から始めたときだけ、新規登録の回転数枠へ反映
+      if (!isRpmImportSession()) {
+        setRpmLinkStatus('取り込みは「RPM Analyzerを開く」経由のみです', false);
+        return false;
+      }
       rpm = Number(rpm);
       if (!rpm || isNaN(rpm) || rpm <= 0) return false;
       rpm = Math.round(rpm);
       var el = document.getElementById('m4Rpm');
-      if (el) el.value = rpm;
+      if (el) {
+        el.value = rpm;
+        try {
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        } catch (e) {}
+        try { el.focus(); } catch (e2) {}
+      }
       if (meta) {
         if (meta.speed != null && meta.speed !== '' && !isNaN(Number(meta.speed))) {
           var sp = document.getElementById('m4Speed');
@@ -4501,37 +4530,59 @@
       return null;
     }
 
-    function openRpmAnalyzer() {
-      var base = RPM_ANALYZER_PUBLIC;
-      // 戻る先（memory）のURLを渡す
-      var returnUrl = location.href.split('#')[0];
-      var url = base +
-        (base.indexOf('?') >= 0 ? '&' : '?') +
-        'from=memory&callback=1&return=' + encodeURIComponent(returnUrl);
+    // 新規登録の回転数取り込み用（この経路のときだけ m4Rpm に反映）
+    function openRpmAnalyzerForImport() {
+      beginRpmImportSession();
+      var url = RPM_ANALYZER_PUBLIC;
       try {
         rpmAnalyzerWin = window.open(url, 'memory_rpm_analyzer');
       } catch (e) {
         rpmAnalyzerWin = null;
       }
       if (!rpmAnalyzerWin) {
-        if (confirm('公開版 RPM Analyzer をこのタブで開きますか？\n計測後「memoryへ」またはブラウザの「戻る」で復帰できます。')) {
+        if (confirm('RPM Analyzer をこのタブで開きますか？\n計測後、戻って「結果を取り込む」を押してください。')) {
           location.href = url;
         } else {
-          setRpmLinkStatus('ポップアップがブロックされました', false);
+          endRpmImportSession();
+          setRpmLinkStatus('キャンセルしました', false);
         }
         return;
       }
-      setRpmLinkStatus('公開版 Analyzer を開きました', false);
+      setRpmLinkStatus('計測後、戻って「結果を取り込む」', false);
     }
 
+    // モーターチェック単独（memory には一切作用しない）
+    function openMotorCheckSolo() {
+      endRpmImportSession();
+      var url = RPM_ANALYZER_PUBLIC;
+      try {
+        window.open(url, '_blank');
+      } catch (e) {
+        location.href = url;
+      }
+      setRpmLinkStatus('モーターチェック単独（memory未連携）', false);
+    }
+
+    // 互換用（旧呼び出しは取り込み用）
+    function openRpmAnalyzer() {
+      openRpmAnalyzerForImport();
+    }
+
+    // 単独起動をグローバルにも公開
+    window.openMotorCheckSolo = openMotorCheckSolo;
+    window.openRpmAnalyzerForImport = openRpmAnalyzerForImport;
+
     function importRpmFromAnalyzer() {
-      // 1) postMessage で既に受け取っていれば input に入っている
-      // 2) localStorage / sessionStorage
+      if (!isRpmImportSession()) {
+        setRpmLinkStatus('「RPM Analyzerを開く」から計測したときだけ取り込めます', false);
+        return;
+      }
+      // 1) localStorage / sessionStorage → 新規登録の回転数枠 (m4Rpm)
       var found = readRpmFromStorage();
       if (found && applyRpmValue(found.parsed.rpm, found.parsed)) {
         return;
       }
-      // 3) クリップボード
+      // 2) クリップボード
       if (navigator.clipboard && navigator.clipboard.readText) {
         navigator.clipboard.readText().then(function(text) {
           var p = parseRpmPayload(text);
@@ -4571,28 +4622,31 @@
       } else if (typeof data === 'object' && (data.rpm != null || data.RPM != null)) {
         payload = parseRpmPayload(data);
       }
-      if (payload && payload.rpm) {
-        applyRpmValue(payload.rpm, payload);
-        try {
-          localStorage.setItem('memory_rpm_result', JSON.stringify({
-            rpm: Math.round(Number(payload.rpm)),
-            hz: payload.hz || null,
-            ts: Date.now()
-          }));
-        } catch (e) {}
+      if (payload && payload.rpm && isRpmImportSession()) {
+        if (applyRpmValue(payload.rpm, payload)) {
+          try {
+            localStorage.setItem('memory_rpm_result', JSON.stringify({
+              rpm: Math.round(Number(payload.rpm)),
+              hz: payload.hz || null,
+              ts: Date.now()
+            }));
+          } catch (e) {}
+        }
       }
     });
 
-    // 別タブの Analyzer が localStorage を更新したとき
+    // 別タブの Analyzer が localStorage を更新したとき（取り込みセッション中のみ反映）
     window.addEventListener('storage', function(ev) {
       if (!ev || !ev.key) return;
+      if (!isRpmImportSession()) return;
       if (RPM_STORAGE_KEYS.indexOf(ev.key) === -1) return;
       var p = parseRpmPayload(ev.newValue);
       if (p && p.rpm) applyRpmValue(p.rpm, p);
     });
 
-    // このタブに戻ったとき、保存済み結果を自動チェック
+    // このタブに戻ったとき（取り込みセッション中のみ）
     window.addEventListener('focus', function() {
+      if (!isRpmImportSession()) return;
       if (!document.getElementById('modalOverlay').classList.contains('active')) return;
       var found = readRpmFromStorage();
       if (!found) return;
@@ -4600,8 +4654,7 @@
       var cur = el && el.value ? Number(el.value) : 0;
       var next = Math.round(Number(found.parsed.rpm));
       if (next && next !== cur) {
-        // 上書き確認なしでステータスだけ更新し、ユーザーが「取り込む」で確定する運用も可
-        // ここでは自動反映（計測→戻るの流れを優先）
+        // 自動反映（RPM Analyzerを開く → 計測 → 戻る）
         applyRpmValue(next, found.parsed);
       }
     });
