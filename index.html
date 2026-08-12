@@ -108,13 +108,19 @@
       border-bottom: 0.5px solid rgba(0, 0, 0, 0.12);
       position: sticky; top: 0; z-index: 100; padding: 6px 12px 0;
     }
-    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-    .header-title { font-size: 16px; font-weight: 600; }
-    .header-actions { display: flex; align-items: center; gap: 4px; }
-    .today-btn, .media-header-btn, .search-header-btn {
-      background: none; border: none; color: #007aff; font-size: 20px; cursor: pointer; padding: 4px 8px;
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 4px; }
+    .header-title { font-size: 15px; font-weight: 600; flex-shrink: 0; }
+    .header-actions {
+      display: flex; align-items: center; gap: 0;
+      flex-wrap: nowrap; min-width: 0; justify-content: flex-end;
     }
-    .media-header-btn, .search-header-btn { font-size: 20px; }
+    .today-btn, .media-header-btn, .search-header-btn {
+      background: none; border: none; color: #007aff;
+      font-size: 16px; cursor: pointer;
+      padding: 2px 3px; line-height: 1.2;
+      flex-shrink: 0;
+    }
+    .media-header-btn, .search-header-btn { font-size: 16px; }
     .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .month-label { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
     .nav-arrows { display: flex; gap: 12px; margin-right: 14px; }
