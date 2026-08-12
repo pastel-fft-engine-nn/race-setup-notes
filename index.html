@@ -1071,6 +1071,25 @@
     body.dark-mode .data-tools-actions button { background: #2c2c2e; color: #f2f2f7; }
     body.dark-mode .data-tools-actions button.primary { background: #0a84ff; color: #fff; }
     .data-tools-note { font-size: 12px; color: #8e8e93; margin-top: 10px; line-height: 1.5; }
+
+    .data-select-list { max-height: 40vh; overflow-y: auto; margin: 8px 0; border: 1px solid #e5e5ea; border-radius: 10px; }
+    body.dark-mode .data-select-list { border-color: #3a3a3c; }
+    .data-select-item {
+      display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px;
+      border-bottom: 1px solid #e5e5ea; font-size: 13px; cursor: pointer;
+    }
+    body.dark-mode .data-select-item { border-bottom-color: #3a3a3c; }
+    .data-select-item:last-child { border-bottom: none; }
+    .data-select-item input { margin-top: 3px; width: 18px; height: 18px; flex-shrink: 0; }
+    .data-select-item .dsi-body { flex: 1; min-width: 0; }
+    .data-select-item .dsi-title { font-weight: 600; margin-bottom: 2px; }
+    .data-select-item .dsi-meta { font-size: 11px; color: #8e8e93; }
+    .data-select-thumb {
+      width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: #e5e5ea;
+    }
+    .data-select-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .data-select-actions button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
+
     .tpl-bar {
       display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
       margin-bottom: 10px; padding: 10px; background: #f2f2f7; border-radius: 12px;
@@ -1492,12 +1511,26 @@
         <button type="button" class="primary" onclick="exportBackup()">バックアップを書き出す</button>
         <button type="button" onclick="document.getElementById('backupFileInput').click()">バックアップから復元</button>
         <input type="file" id="backupFileInput" accept="application/json,.json" style="display:none" onchange="importBackupFromFile(event)">
-        <button type="button" class="danger" onclick="closeDataTools()">閉じる</button>
+      </div>
+      <p class="data-tools-note" style="margin-bottom:14px;">
+        セッティング・会場メモ・テンプレートをJSONで保存します。復元は置き換え／マージを選択できます。
+      </p>
+      <div class="data-tools-title" style="font-size:15px;margin-top:8px;">セッティング削除</div>
+      <div class="data-tools-actions">
+        <button type="button" onclick="openSelectDeleteEvents()">選択して削除</button>
+        <button type="button" onclick="deleteDataKeepPhotos()">写真は残してデータのみ全削除</button>
+        <button type="button" class="danger" onclick="deleteAllSettingsData()">セッティングをすべて削除</button>
+      </div>
+      <div class="data-tools-title" style="font-size:15px;margin-top:16px;">写真・動画削除</div>
+      <div class="data-tools-actions">
+        <button type="button" onclick="openSelectDeletePhotos()">写真を選択して削除</button>
+        <button type="button" class="danger" onclick="deleteAllPhotos()">写真・動画をすべて削除</button>
+        <button type="button" onclick="closeDataTools()">閉じる</button>
       </div>
       <p class="data-tools-note">
-        セッティング・会場メモ・テンプレートをJSONで保存します。<br>
-        復元時は「置き換え」または「マージ」を選べます。写真・動画も含みます（ファイルが大きくなります）。
+        削除前にバックアップ推奨です。「写真は残してデータのみ」はメモ・セッティング情報を消し、写真付きの記録だけ残します。
       </p>
+      <div id="dataSelectPanel" style="display:none;margin-top:14px;"></div>
     </div>
   </div>
 
@@ -3552,7 +3585,7 @@
     function collectAllMedia() {
       var items = [];
       getEvents().forEach(function(ev) {
-        (ev.media || []).forEach(function(m) {
+        (ev.media || []).forEach(function(m, mediaIndex) {
           if (!m || !m.dataUrl) return;
           items.push({
             type: m.type,
@@ -3561,6 +3594,7 @@
             title: ev.title || 'セッティング',
             place: ev.address || '',
             eventId: ev.id,
+            mediaIndex: mediaIndex,
             sortKey: ev.createdAt || 0
           });
         });
@@ -5870,7 +5904,204 @@
       document.getElementById('dataToolsOverlay').classList.add('active');
     }
     function closeDataTools() {
+      var panel = document.getElementById('dataSelectPanel');
+      if (panel) { panel.style.display = 'none'; panel.innerHTML = ''; }
       document.getElementById('dataToolsOverlay').classList.remove('active');
+    }
+
+    function refreshAfterDataChange() {
+      try {
+        if (currentView === 'month') renderMonth();
+        else if (currentView === 'week') renderWeek();
+        else if (currentView === 'day') renderDay();
+        else if (currentView === 'search') { populateSearchFilters(); runSearch(); }
+        else if (currentView === 'analysis') {
+          if (analysisSubTab === 'parts') renderPartsLedger();
+          else if (analysisSubTab === 'race') renderRaceAnalysis();
+          else if (analysisSubTab === 'loss') renderLossPatterns();
+          else renderAnalysis();
+        } else if (currentView === 'venues') renderVenuesMap();
+      } catch (e) {}
+      try {
+        if (document.getElementById('galleryOverlay').classList.contains('active')) renderGallery();
+      } catch (e2) {}
+    }
+
+    function eventSelectLabel(ev) {
+      var m4 = ev.m4 || {};
+      var parts = [];
+      if (ev.date) parts.push(ev.date);
+      if (ev.address) parts.push(ev.address);
+      if (m4.motorType) parts.push(m4.motorType);
+      if (ev.machineName) parts.push(ev.machineName);
+      if (m4.eventType) parts.push(m4.eventType);
+      var mediaN = (ev.media || []).length;
+      if (mediaN) parts.push('📷' + mediaN);
+      return parts.join(' · ') || (ev.title || '無題');
+    }
+
+    function openSelectDeleteEvents() {
+      var panel = document.getElementById('dataSelectPanel');
+      if (!panel) return;
+      var events = getEvents().slice().sort(function(a, b) {
+        return (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0);
+      });
+      if (!events.length) {
+        alert('削除できるセッティングがありません');
+        return;
+      }
+      var html = '<div style="font-weight:700;margin-bottom:6px;">セッティングを選択削除</div>';
+      html += '<div class="data-select-list">';
+      events.forEach(function(ev) {
+        html += '<label class="data-select-item">' +
+          '<input type="checkbox" class="del-ev-cb" value="' + escapeAttr(ev.id) + '">' +
+          '<div class="dsi-body"><div class="dsi-title">' + escapeHtml(eventSelectLabel(ev)) + '</div>' +
+          '<div class="dsi-meta">' + escapeHtml((ev.content || '').slice(0, 40)) + '</div></div></label>';
+      });
+      html += '</div><div class="data-select-actions">' +
+        '<button type="button" onclick="document.querySelectorAll(\'.del-ev-cb\').forEach(function(c){c.checked=true})">全選択</button>' +
+        '<button type="button" style="background:#ff3b30;color:#fff;" onclick="confirmDeleteSelectedEvents()">削除する</button>' +
+        '</div>';
+      panel.innerHTML = html;
+      panel.style.display = 'block';
+      try { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+    }
+
+    function confirmDeleteSelectedEvents() {
+      var ids = [];
+      document.querySelectorAll('.del-ev-cb:checked').forEach(function(cb) { ids.push(cb.value); });
+      if (!ids.length) { alert('削除する項目を選んでください'); return; }
+      if (!confirm(ids.length + '件のセッティングを削除しますか？\n（写真も一緒に消えます）')) return;
+      var idSet = {};
+      ids.forEach(function(id) { idSet[id] = true; });
+      var next = getEvents().filter(function(e) { return !idSet[e.id]; });
+      saveEventsAsync(next).then(function() {
+        refreshAfterDataChange();
+        openSelectDeleteEvents();
+        alert(ids.length + '件を削除しました');
+      });
+    }
+
+    function deleteAllSettingsData() {
+      if (!confirm('すべてのセッティングを削除しますか？\n写真・動画も消えます。\n（バックアップ推奨）')) return;
+      if (!confirm('本当にすべて削除しますか？この操作は取り消せません。')) return;
+      saveEventsAsync([]).then(function() {
+        try {
+          localStorage.removeItem('memory_partsNotes');
+          localStorage.removeItem('memory_venueNotes');
+        } catch (e) {}
+        refreshAfterDataChange();
+        closeDataTools();
+        alert('すべてのセッティングを削除しました');
+      });
+    }
+
+    function deleteDataKeepPhotos() {
+      if (!confirm('セッティング情報（メモ・モーター等）をすべて消し、\n写真・動画だけ残しますか？')) return;
+      var kept = [];
+      getEvents().forEach(function(ev) {
+        var media = (ev.media || []).filter(function(m) { return m && m.dataUrl; });
+        if (!media.length) return;
+        kept.push({
+          id: ev.id,
+          date: ev.date || formatDateKey(new Date()),
+          start: ev.start || '',
+          end: ev.end || '',
+          title: '写真のみ',
+          address: ev.address || '',
+          machineName: '',
+          content: '',
+          media: media,
+          m4: {},
+          createdAt: ev.createdAt || Date.now()
+        });
+      });
+      saveEventsAsync(kept).then(function() {
+        try {
+          localStorage.removeItem('memory_partsNotes');
+        } catch (e) {}
+        refreshAfterDataChange();
+        closeDataTools();
+        alert('データを削除し、写真付きの記録を ' + kept.length + ' 件残しました');
+      });
+    }
+
+    function deleteAllPhotos() {
+      if (!confirm('すべての写真・動画を削除しますか？\nセッティング情報はそのまま残ります。')) return;
+      if (!confirm('本当に写真・動画をすべて削除しますか？')) return;
+      var next = getEvents().map(function(ev) {
+        var copy = {};
+        for (var k in ev) if (Object.prototype.hasOwnProperty.call(ev, k)) copy[k] = ev[k];
+        copy.media = [];
+        return copy;
+      });
+      saveEventsAsync(next).then(function() {
+        refreshAfterDataChange();
+        closeDataTools();
+        alert('すべての写真・動画を削除しました');
+      });
+    }
+
+    function openSelectDeletePhotos() {
+      var panel = document.getElementById('dataSelectPanel');
+      if (!panel) return;
+      var items = collectAllMedia();
+      if (!items.length) {
+        alert('削除できる写真・動画がありません');
+        return;
+      }
+      var html = '<div style="font-weight:700;margin-bottom:6px;">写真・動画を選択削除（' + items.length + '）</div>';
+      html += '<div class="data-select-list">';
+      items.forEach(function(it, idx) {
+        var label = (it.date || '') + (it.place ? ' · ' + it.place : '') + (it.type === 'video' ? ' · 動画' : ' · 写真');
+        html += '<label class="data-select-item">' +
+          '<input type="checkbox" class="del-ph-cb" data-idx="' + idx + '">' +
+          (it.type === 'image'
+            ? '<img class="data-select-thumb" src="' + it.dataUrl + '" alt="">'
+            : '<div class="data-select-thumb" style="display:flex;align-items:center;justify-content:center;font-size:11px;">動画</div>') +
+          '<div class="dsi-body"><div class="dsi-title">' + escapeHtml(label) + '</div>' +
+          '<div class="dsi-meta">' + escapeHtml(it.title || '') + '</div></div></label>';
+      });
+      html += '</div><div class="data-select-actions">' +
+        '<button type="button" onclick="document.querySelectorAll(\'.del-ph-cb\').forEach(function(c){c.checked=true})">全選択</button>' +
+        '<button type="button" style="background:#ff3b30;color:#fff;" onclick="confirmDeleteSelectedPhotos()">削除する</button>' +
+        '</div>';
+      panel.innerHTML = html;
+      panel.style.display = 'block';
+      panel._photoItems = items;
+      try { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
+    }
+
+    function confirmDeleteSelectedPhotos() {
+      var panel = document.getElementById('dataSelectPanel');
+      var items = panel && panel._photoItems;
+      if (!items) return;
+      var selected = [];
+      document.querySelectorAll('.del-ph-cb:checked').forEach(function(cb) {
+        var it = items[parseInt(cb.getAttribute('data-idx'), 10)];
+        if (it) selected.push(it);
+      });
+      if (!selected.length) { alert('削除する写真を選んでください'); return; }
+      if (!confirm(selected.length + '件の写真・動画を削除しますか？')) return;
+      // eventId -> set of mediaIndex to remove
+      var removeMap = {};
+      selected.forEach(function(it) {
+        if (!removeMap[it.eventId]) removeMap[it.eventId] = {};
+        removeMap[it.eventId][it.mediaIndex] = true;
+      });
+      var next = getEvents().map(function(ev) {
+        var copy = {};
+        for (var k in ev) if (Object.prototype.hasOwnProperty.call(ev, k)) copy[k] = ev[k];
+        if (removeMap[ev.id]) {
+          copy.media = (ev.media || []).filter(function(_m, i) { return !removeMap[ev.id][i]; });
+        }
+        return copy;
+      });
+      saveEventsAsync(next).then(function() {
+        refreshAfterDataChange();
+        openSelectDeletePhotos();
+        alert(selected.length + '件の写真・動画を削除しました');
+      });
     }
     function buildBackupPayload() {
       var notes = {};
