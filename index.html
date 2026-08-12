@@ -1192,6 +1192,10 @@
               <select id="anTire" onchange="onAnalysisComboChange()"></select>
             </div>
             <div class="analysis-combo-item">
+              <label>タイム</label>
+              <select id="anLapTime" onchange="onAnalysisComboChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
               <label>　</label>
               <button type="button" class="search-action-btn gray" style="width:100%;padding:9px 8px;" onclick="resetAnalysisCombo()">条件リセット</button>
             </div>
@@ -1223,6 +1227,10 @@
             <div class="analysis-combo-item">
               <label>タイヤ径</label>
               <select id="partsTire" onchange="onPartsFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>タイム</label>
+              <select id="partsLapTime" onchange="onPartsFilterChange()"></select>
             </div>
             <div class="analysis-combo-item">
               <label>種別</label>
@@ -1273,6 +1281,10 @@
               <label>タイヤ径</label>
               <select id="raceTire" onchange="onRaceFilterChange()"></select>
             </div>
+            <div class="analysis-combo-item">
+              <label>タイム</label>
+              <select id="raceLapTime" onchange="onRaceFilterChange()"></select>
+            </div>
             <div class="analysis-combo-item full">
               <button type="button" class="search-action-btn gray" style="width:100%;padding:9px 8px;" onclick="resetRaceFilters()">条件リセット</button>
             </div>
@@ -1306,6 +1318,10 @@
             <div class="analysis-combo-item">
               <label>タイヤ径</label>
               <select id="lossTire" onchange="onLossFilterChange()"></select>
+            </div>
+            <div class="analysis-combo-item">
+              <label>タイム</label>
+              <select id="lossLapTime" onchange="onLossFilterChange()"></select>
             </div>
             <div class="analysis-combo-item">
               <label>種別</label>
@@ -1390,6 +1406,10 @@
       <div class="search-filter-item">
         <label>マシン名</label>
         <select id="sfMachine"><option value="">すべて</option></select>
+      </div>
+      <div class="search-filter-item">
+        <label>タイム</label>
+        <select id="sfLapTime"><option value="">すべて</option></select>
       </div>
       <div class="search-btn-row">
         <button type="button" class="search-action-btn gray" onclick="resetSearchFilters()">リセット</button>
@@ -1556,6 +1576,34 @@
         </div>
       </div>
       <div class="form-group">
+        <div class="form-row form-row-slider">
+          <div class="form-label">タイヤmm</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Tire" min="22" max="40" step="0.1" value="23" oninput="updateSliderLabel('m4Tire','m4TireVal',1)">
+            <span class="slider-val" id="m4TireVal">23.0</span>
+          </div>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">車重g</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Weight" min="70" max="400" step="0.1" value="150" oninput="updateSliderLabel('m4Weight','m4WeightVal',1)">
+            <span class="slider-val" id="m4WeightVal">150.0</span>
+          </div>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">電圧V</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Voltage" min="2.0" max="4.0" step="0.1" value="2.8" oninput="updateSliderLabel('m4Voltage','m4VoltageVal',1)">
+            <span class="slider-val" id="m4VoltageVal">2.8</span>
+          </div>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">時速</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Speed" min="10" max="70" step="0.1" value="30" oninput="updateSliderLabel('m4Speed','m4SpeedVal',1)">
+            <span class="slider-val" id="m4SpeedVal">30.0</span>
+          </div>
+        </div>
         <div class="form-select-grid">
           <div class="form-select-cell full">
             <span class="cell-label">モーター</span>
@@ -1611,46 +1659,6 @@
             <input type="number" class="form-input" id="m4Rpm" placeholder="rpm" step="1">
           </div>
         </div>
-        <div class="form-row form-row-slider">
-          <div class="form-label">タイヤmm</div>
-          <div class="slider-wrap">
-            <input type="range" id="m4Tire" min="22" max="40" step="0.1" value="23" oninput="updateSliderLabel('m4Tire','m4TireVal',1)">
-            <span class="slider-val" id="m4TireVal">23.0</span>
-          </div>
-        </div>
-        <div class="form-row form-row-slider">
-          <div class="form-label">車重g</div>
-          <div class="slider-wrap">
-            <input type="range" id="m4Weight" min="70" max="400" step="0.1" value="150" oninput="updateSliderLabel('m4Weight','m4WeightVal',1)">
-            <span class="slider-val" id="m4WeightVal">150.0</span>
-          </div>
-        </div>
-        <div class="form-row form-row-slider">
-          <div class="form-label">電圧V</div>
-          <div class="slider-wrap">
-            <input type="range" id="m4Voltage" min="2.0" max="4.0" step="0.1" value="2.8" oninput="updateSliderLabel('m4Voltage','m4VoltageVal',1)">
-            <span class="slider-val" id="m4VoltageVal">2.8</span>
-          </div>
-        </div>
-        <div class="form-row form-row-slider">
-          <div class="form-label">時速</div>
-          <div class="slider-wrap">
-            <input type="range" id="m4Speed" min="10" max="70" step="0.1" value="30" oninput="updateSliderLabel('m4Speed','m4SpeedVal',1)">
-            <span class="slider-val" id="m4SpeedVal">30.0</span>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-label">タイム</div>
-          <input type="text" class="form-input" id="m4LapTime" placeholder="例 3.245 秒" inputmode="decimal">
-        </div>
-        <div class="form-row">
-          <div class="form-label">ベストラップ</div>
-          <input type="text" class="form-input" id="m4BestLap" placeholder="自動入力可" inputmode="decimal" readonly style="opacity:0.85;">
-        </div>
-        <div class="form-row">
-          <div class="form-label"></div>
-          <button type="button" class="rpm-link" style="background:none;border:none;cursor:pointer;padding:0;" onclick="openStopwatch(true)">⏱️ タイムを計測する →</button>
-        </div>
         <div class="form-row" style="flex-wrap:wrap;gap:8px;">
           <div class="form-label">RPM連携</div>
           <div style="flex:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;">
@@ -1665,6 +1673,18 @@
         <div class="form-row">
           <div class="form-label"></div>
           <button type="button" class="rpm-link" style="background:none;border:none;cursor:pointer;padding:0;" onclick="openMotorCheckSolo()">モーターチェック単独で開く →</button>
+        </div>
+        <div class="form-row">
+          <div class="form-label">タイム</div>
+          <input type="text" class="form-input" id="m4LapTime" placeholder="例 3.245 秒" inputmode="decimal">
+        </div>
+        <div class="form-row">
+          <div class="form-label">ベストラップ</div>
+          <input type="text" class="form-input" id="m4BestLap" placeholder="自動入力可" inputmode="decimal" readonly style="opacity:0.85;">
+        </div>
+        <div class="form-row">
+          <div class="form-label"></div>
+          <button type="button" class="rpm-link" style="background:none;border:none;cursor:pointer;padding:0;" onclick="openStopwatch(true)">⏱️ タイムを計測する →</button>
         </div>
       </div>
 
@@ -3719,6 +3739,7 @@
         voltage: (document.getElementById('partsVoltage') || {}).value || '',
         gear: (document.getElementById('partsGear') || {}).value || '',
         tire: (document.getElementById('partsTire') || {}).value || '',
+        lapTime: (document.getElementById('partsLapTime') || {}).value || '',
         eventType: (document.getElementById('partsEventType') || {}).value || ''
       };
     }
@@ -3731,6 +3752,7 @@
         if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
         if (c.gear && eventGear(ev) !== c.gear) return false;
         if (c.tire && eventTire(ev) !== c.tire) return false;
+        if (c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
         if (c.eventType) {
           var et = (ev.m4 && ev.m4.eventType) || '';
           if (et !== c.eventType) return false;
@@ -3751,6 +3773,7 @@
           if (except !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
           if (except !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
           if (except !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
+          if (except !== 'lapTime' && c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
           if (except !== 'eventType' && c.eventType) {
             var et = (ev.m4 && ev.m4.eventType) || '';
             if (et !== c.eventType) return false;
@@ -3771,6 +3794,7 @@
       fillAnalysisSelect(document.getElementById('partsVoltage'), uniq(pool('voltage'), eventVoltage), 'すべて', c.voltage);
       fillAnalysisSelect(document.getElementById('partsGear'), uniq(pool('gear'), eventGear), 'すべて', c.gear);
       fillAnalysisSelect(document.getElementById('partsTire'), uniq(pool('tire'), eventTire), 'すべて', c.tire);
+      fillAnalysisSelect(document.getElementById('partsLapTime'), uniq(pool('lapTime'), eventLapTime), 'すべてのタイム', c.lapTime, lapTimeSort);
       var etSel = document.getElementById('partsEventType');
       if (etSel && c.eventType) etSel.value = c.eventType;
     }
@@ -3780,7 +3804,7 @@
       renderPartsLedger();
     }
     function resetPartsFilters() {
-      ['partsPlace','partsMotor','partsVoltage','partsGear','partsTire','partsEventType'].forEach(function(id) {
+      ['partsPlace','partsMotor','partsVoltage','partsGear','partsTire','partsLapTime','partsEventType'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.value = '';
       });
@@ -3858,6 +3882,7 @@
         voltage: (document.getElementById('lossVoltage') || {}).value || '',
         gear: (document.getElementById('lossGear') || {}).value || '',
         tire: (document.getElementById('lossTire') || {}).value || '',
+        lapTime: (document.getElementById('lossLapTime') || {}).value || '',
         eventType: (document.getElementById('lossEventType') || {}).value || ''
       };
     }
@@ -3870,6 +3895,7 @@
         if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
         if (c.gear && eventGear(ev) !== c.gear) return false;
         if (c.tire && eventTire(ev) !== c.tire) return false;
+        if (c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
         if (c.eventType) {
           var et = (ev.m4 && ev.m4.eventType) || '';
           if (et !== c.eventType) return false;
@@ -3888,6 +3914,7 @@
           if (except !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
           if (except !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
           if (except !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
+          if (except !== 'lapTime' && c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
           if (except !== 'eventType' && c.eventType) {
             var et = (ev.m4 && ev.m4.eventType) || '';
             if (et !== c.eventType) return false;
@@ -3908,6 +3935,7 @@
       fillAnalysisSelect(document.getElementById('lossVoltage'), uniq(pool('voltage'), eventVoltage), 'すべて', c.voltage);
       fillAnalysisSelect(document.getElementById('lossGear'), uniq(pool('gear'), eventGear), 'すべて', c.gear);
       fillAnalysisSelect(document.getElementById('lossTire'), uniq(pool('tire'), eventTire), 'すべて', c.tire);
+      fillAnalysisSelect(document.getElementById('lossLapTime'), uniq(pool('lapTime'), eventLapTime), 'すべてのタイム', c.lapTime, lapTimeSort);
       var etSel = document.getElementById('lossEventType');
       if (etSel && c.eventType) etSel.value = c.eventType;
     }
@@ -3917,7 +3945,7 @@
       renderLossPatterns();
     }
     function resetLossFilters() {
-      ['lossPlace','lossMotor','lossVoltage','lossGear','lossTire','lossEventType'].forEach(function(id) {
+      ['lossPlace','lossMotor','lossVoltage','lossGear','lossTire','lossLapTime','lossEventType'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.value = '';
       });
@@ -3933,7 +3961,8 @@
         round: (document.getElementById('raceRound') || {}).value || '',
         voltage: (document.getElementById('raceVoltage') || {}).value || '',
         gear: (document.getElementById('raceGear') || {}).value || '',
-        tire: (document.getElementById('raceTire') || {}).value || ''
+        tire: (document.getElementById('raceTire') || {}).value || '',
+        lapTime: (document.getElementById('raceLapTime') || {}).value || ''
       };
     }
 
@@ -3953,6 +3982,7 @@
         if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
         if (c.gear && eventGear(ev) !== c.gear) return false;
         if (c.tire && eventTire(ev) !== c.tire) return false;
+        if (c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
         return true;
       });
     }
@@ -3969,6 +3999,7 @@
           if (except !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
           if (except !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
           if (except !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
+          if (except !== 'lapTime' && c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
           return true;
         });
       }
@@ -3987,6 +4018,7 @@
       fillAnalysisSelect(document.getElementById('raceVoltage'), uniq(pool('voltage'), eventVoltage), 'すべて', c.voltage);
       fillAnalysisSelect(document.getElementById('raceGear'), uniq(pool('gear'), eventGear), 'すべて', c.gear);
       fillAnalysisSelect(document.getElementById('raceTire'), uniq(pool('tire'), eventTire), 'すべて', c.tire);
+      fillAnalysisSelect(document.getElementById('raceLapTime'), uniq(pool('lapTime'), eventLapTime), 'すべてのタイム', c.lapTime, lapTimeSort);
     }
 
     function onRaceFilterChange() {
@@ -3994,7 +4026,7 @@
       renderRaceAnalysis();
     }
     function resetRaceFilters() {
-      ['racePlace','raceName','raceMotor','raceRound','raceVoltage','raceGear','raceTire'].forEach(function(id) {
+      ['racePlace','raceName','raceMotor','raceRound','raceVoltage','raceGear','raceTire','raceLapTime'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.value = '';
       });
@@ -4688,7 +4720,8 @@
         motor: (document.getElementById('anMotorFilter') || {}).value || '',
         voltage: (document.getElementById('anVoltage') || {}).value || '',
         gear: (document.getElementById('anGear') || {}).value || '',
-        tire: (document.getElementById('anTire') || {}).value || ''
+        tire: (document.getElementById('anTire') || {}).value || '',
+        lapTime: (document.getElementById('anLapTime') || {}).value || ''
       };
     }
 
@@ -4705,6 +4738,13 @@
     }
     function eventGear(ev) {
       return (ev.m4 && ev.m4.gearRatio) || '';
+    }
+    function eventLapTime(ev) {
+      var t = ev.m4 && ev.m4.lapTime;
+      return (t != null && String(t).trim() !== '') ? String(t).trim() : '';
+    }
+    function lapTimeSort(a, b) {
+      return Number(a) - Number(b);
     }
 
     function fillAnalysisSelect(sel, values, allLabel, current, sortFn) {
@@ -4732,6 +4772,7 @@
         if (exceptKey !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
         if (exceptKey !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
         if (exceptKey !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
+        if (exceptKey !== 'lapTime' && c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
         return true;
       });
     }
@@ -4774,6 +4815,12 @@
         'すべてのタイヤ径', c.tire,
         function(a, b) { return Number(a) - Number(b); }
       );
+      fillAnalysisSelect(
+        document.getElementById('anLapTime'),
+        uniq(eventsForComboExcept('lapTime'), eventLapTime),
+        'すべてのタイム', c.lapTime,
+        lapTimeSort
+      );
     }
 
     function filterByCombo(list) {
@@ -4784,6 +4831,7 @@
         if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
         if (c.gear && eventGear(ev) !== c.gear) return false;
         if (c.tire && eventTire(ev) !== c.tire) return false;
+        if (c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
         return true;
       });
     }
@@ -4796,12 +4844,13 @@
       if (c.voltage) parts.push(c.voltage + 'V');
       if (c.gear) parts.push('ギヤ ' + c.gear);
       if (c.tire) parts.push('タイヤ ' + c.tire + 'mm');
+      if (c.lapTime) parts.push('タイム ' + c.lapTime);
       return parts.length ? parts.join(' · ') : '条件未指定（全データ）';
     }
 
     function hasAnyComboFilter() {
       var c = getAnalysisComboValues();
-      return !!(c.place || c.motor || c.voltage || c.gear || c.tire);
+      return !!(c.place || c.motor || c.voltage || c.gear || c.tire || c.lapTime);
     }
 
     function onAnalysisComboChange() {
@@ -4810,7 +4859,7 @@
     }
 
     function resetAnalysisCombo() {
-      ['anPlace', 'anMotorFilter', 'anVoltage', 'anGear', 'anTire'].forEach(function(id) {
+      ['anPlace', 'anMotorFilter', 'anVoltage', 'anGear', 'anTire', 'anLapTime'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.value = '';
       });
@@ -4967,7 +5016,8 @@
         rpm: document.getElementById('sfRpm'),
         tire: document.getElementById('sfTire'),
         result: document.getElementById('sfResult'),
-        machine: document.getElementById('sfMachine')
+        machine: document.getElementById('sfMachine'),
+        lapTime: document.getElementById('sfLapTime')
       };
     }
 
@@ -4993,7 +5043,8 @@
         rpm: els.rpm ? els.rpm.value : '',
         tire: els.tire ? els.tire.value : '',
         result: els.result ? els.result.value : '',
-        machine: els.machine ? els.machine.value : ''
+        machine: els.machine ? els.machine.value : '',
+        lapTime: els.lapTime ? els.lapTime.value : ''
       };
     }
 
@@ -5012,6 +5063,7 @@
         if (excludeKey !== 'tire' && f.tire && m4Val(ev, 'tireDiameter') !== f.tire) return false;
         if (excludeKey !== 'result' && f.result && m4Val(ev, 'result') !== f.result) return false;
         if (excludeKey !== 'machine' && f.machine && (ev.machineName || '') !== f.machine) return false;
+        if (excludeKey !== 'lapTime' && f.lapTime && m4Val(ev, 'lapTime') !== f.lapTime) return false;
         // フリーワードはプルダウン候補にも反映（常に適用）
         if (f.freeword && !eventMatchesFreeword(ev, f.freeword)) return false;
         return true;
@@ -5031,7 +5083,9 @@
         m4.speed != null ? String(m4.speed) : '',
         m4.rpm != null ? String(m4.rpm) : '',
         m4.tireDiameter != null ? String(m4.tireDiameter) : '',
-        m4.weight != null ? String(m4.weight) : ''
+        m4.weight != null ? String(m4.weight) : '',
+        m4.lapTime != null ? String(m4.lapTime) : '',
+        m4.bestLap != null ? String(m4.bestLap) : ''
       ].join(' ').toLowerCase();
       // スペース区切りは AND
       var tokens = q.split(/\s+/).filter(Boolean);
@@ -5053,6 +5107,7 @@
         else if (fieldKey === 'rpm') v = m4Val(ev, 'rpm');
         else if (fieldKey === 'tire') v = m4Val(ev, 'tireDiameter');
         else if (fieldKey === 'result') v = m4Val(ev, 'result');
+        else if (fieldKey === 'lapTime') v = m4Val(ev, 'lapTime');
         if (v) map[v] = true;
       });
       return Object.keys(map);
@@ -5096,6 +5151,7 @@
       fillSelect(els.tire, collectFieldValues(eventsMatchingFiltersExcept('tire'), 'tire'), numSort);
       fillSelect(els.result, collectFieldValues(eventsMatchingFiltersExcept('result'), 'result'));
       fillSelect(els.machine, collectFieldValues(eventsMatchingFiltersExcept('machine'), 'machine'));
+      fillSelect(els.lapTime, collectFieldValues(eventsMatchingFiltersExcept('lapTime'), 'lapTime'), function(a, b) { return Number(a) - Number(b); });
     }
 
     function filterEventsBySearch() {
@@ -5112,6 +5168,7 @@
         if (f.tire && m4Val(ev, 'tireDiameter') !== f.tire) return false;
         if (f.result && m4Val(ev, 'result') !== f.result) return false;
         if (f.machine && (ev.machineName || '') !== f.machine) return false;
+        if (f.lapTime && m4Val(ev, 'lapTime') !== f.lapTime) return false;
         if (f.freeword && !eventMatchesFreeword(ev, f.freeword)) return false;
         return true;
       }).sort(function(a, b) {
@@ -5327,9 +5384,7 @@
           }
         }
       }
-      var extra = '';
-      if (meta && meta.hz) extra = '（' + Number(meta.hz).toFixed(1) + ' Hz）';
-      setRpmLinkStatus('取り込み済 MAX: ' + rpm + ' rpm' + extra, true);
+      setRpmLinkStatus('取り込み済 MAX: ' + rpm + ' rpm', true);
       return true;
     }
 
