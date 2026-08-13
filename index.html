@@ -21,6 +21,15 @@
       background: #f2f2f7; color: #000; min-height: 100vh; overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-y: contain;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+    /* 入力欄だけ文字選択・コピー可 */
+    input, textarea, select, [contenteditable="true"] {
+      -webkit-user-select: text;
+      user-select: text;
+      -webkit-touch-callout: default;
     }
     /* 全スクロール領域をスムーズに */
     .today-section,
@@ -97,7 +106,7 @@
     }
     .fab:active {
       transform: scale(0.88);
-      box-shadow: 0 2px 8px rgba(0, 122, 255, 0.35);
+      box-shadow: 0 2px 8px rgba(107, 175, 214, 0.35);
     }
     .view-tab.active:active {
       transform: scale(0.96);
@@ -131,7 +140,7 @@
       width: 100%;
     }
     .today-btn, .media-header-btn, .search-header-btn {
-      background: none; border: none; color: #007aff;
+      background: none; border: none; color: #6BAFD6;
       font-size: 22px; cursor: pointer;
       padding: 2px 3px; line-height: 1.2;
       flex-shrink: 0;
@@ -140,7 +149,7 @@
     .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding: 6px 12px 0; }
     .month-label { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
     .nav-arrows { display: flex; gap: 12px; margin-right: 14px; }
-    .nav-btn { background: none; border: none; color: #007aff; font-size: 33px; cursor: pointer; padding: 4px 10px; line-height: 1; font-weight: 500; }
+    .nav-btn { background: none; border: none; color: #6BAFD6; font-size: 33px; cursor: pointer; padding: 4px 10px; line-height: 1; font-weight: 500; }
     .view-tabs { display: flex; background: #e5e5ea; border-radius: 8px; padding: 2px; margin: 0 12px 6px; }
     .view-tab {
       flex: 1; text-align: center; padding: 5px 0; font-size: 13px; font-weight: 500;
@@ -150,7 +159,7 @@
     .weekday-header { display: grid; grid-template-columns: repeat(7, 1fr); padding: 2px 2px 0; background: #fff; }
     .weekday { text-align: center; font-size: 10px; font-weight: 500; color: #8e8e93; padding: 2px 0; }
     .weekday.sun { color: #ff3b30; }
-    .weekday.sat { color: #007aff; }
+    .weekday.sat { color: #6BAFD6; }
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); background: #fff; padding: 0 1px 4px; gap: 0; }
     .day-cell {
       min-height: 42px; max-height: 48px; display: flex; flex-direction: column; align-items: center;
@@ -158,7 +167,7 @@
     }
     .day-cell:active { background: rgba(0, 0, 0, 0.05); }
     .day-cell.selected {
-      background: rgba(0, 122, 255, 0.1);
+      background: rgba(107, 175, 214, 0.1);
     }
     .day-number {
       font-size: 13px; font-weight: 400; width: 24px; height: 24px;
@@ -166,10 +175,10 @@
     }
     .day-cell.other-month .day-number { color: #c7c7cc; }
     .day-cell.sunday .day-number { color: #ff3b30; }
-    .day-cell.saturday .day-number { color: #007aff; }
+    .day-cell.saturday .day-number { color: #6BAFD6; }
     .day-cell.other-month.sunday .day-number,
     .day-cell.other-month.saturday .day-number { color: #c7c7cc; }
-    .day-cell.today .day-number { background: #007aff; color: #fff !important; font-weight: 600; }
+    .day-cell.today .day-number { background: #6BAFD6; color: #fff !important; font-weight: 600; }
     .day-cell.holiday .day-number { color: #ff3b30; }
     .day-cell.other-month.holiday .day-number { color: #ffb3ad; }
     .day-cell.today.holiday .day-number { background: #ff3b30; color: #fff !important; }
@@ -178,9 +187,9 @@
       display: flex; justify-content: center; align-items: center; gap: 3px; margin-top: 3px; min-height: 6px;
     }
     .day-event-dot {
-      width: 5px; height: 5px; border-radius: 50%; background: #007aff;
+      width: 5px; height: 5px; border-radius: 50%; background: #6BAFD6;
     }
-    .day-event-dot.practice { background: #007aff; }
+    .day-event-dot.practice { background: #6BAFD6; }
     .day-event-dot.race { background: #af52de; }
     .day-event-dot.holiday { background: #ff3b30; }
     .day-event-dot.more-dot { background: #8e8e93; width: 4px; height: 4px; }
@@ -197,7 +206,7 @@
       font-size: 15px; font-weight: 700; margin-bottom: 8px; color: #1c1c1e;
       display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
     }
-    .today-section-title span { color: #007aff; font-weight: 600; font-size: 13px; }
+    .today-section-title span { color: #6BAFD6; font-weight: 600; font-size: 13px; }
     .today-section-title .sel-count {
       margin-left: auto; font-size: 12px; font-weight: 500; color: #8e8e93;
     }
@@ -233,13 +242,13 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 1px;
     }
     .week-day-header.today .week-day-num {
-      background: #007aff; color: #fff; width: 30px; height: 30px; border-radius: 50%;
+      background: #6BAFD6; color: #fff; width: 30px; height: 30px; border-radius: 50%;
       display: inline-flex; align-items: center; justify-content: center; margin: 2px auto 0;
     }
     .week-day-header.holiday .week-day-num { color: #ff3b30; }
     .week-day-header.today.holiday .week-day-num { background: #ff3b30; color: #fff; }
     .week-day-header.sunday .week-day-name, .week-day-header.sunday .week-day-num { color: #ff3b30; }
-    .week-day-header.saturday .week-day-name, .week-day-header.saturday .week-day-num { color: #007aff; }
+    .week-day-header.saturday .week-day-name, .week-day-header.saturday .week-day-num { color: #6BAFD6; }
     .week-day-header.today.sunday .week-day-num, .week-day-header.today.saturday .week-day-num { color: #fff; }
     .week-body { display: grid; grid-template-columns: 48px repeat(7, 1fr); position: relative; }
     .time-labels { border-right: 0.5px solid #e5e5ea; }
@@ -251,7 +260,7 @@
     .week-col.holiday-col { background: rgba(255, 59, 48, 0.04); }
     .hour-line { position: absolute; left: 0; right: 0; height: 0.5px; background: #e5e5ea; }
     .week-event {
-      position: absolute; left: 2px; right: 2px; background: rgba(0, 122, 255, 0.85); color: #fff;
+      position: absolute; left: 2px; right: 2px; background: rgba(107, 175, 214, 0.85); color: #fff;
       border-radius: 4px; padding: 2px 4px; font-size: 10px; overflow: hidden; cursor: pointer; z-index: 2; line-height: 1.2;
     }
     .week-event-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -280,12 +289,12 @@
     .event-time { font-size: 13px; color: #8e8e93; margin-bottom: 4px; }
     .event-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; padding-right: 60px; }
     .event-address {
-      font-size: 14px; color: #007aff; margin-bottom: 2px;
+      font-size: 14px; color: #6BAFD6; margin-bottom: 2px;
       display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
     }
     .event-address .addr-text { flex: 1; min-width: 0; word-break: break-all; }
     .addr-copy-btn {
-      flex-shrink: 0; border: none; background: #f2f2f7; color: #007aff;
+      flex-shrink: 0; border: none; background: #f2f2f7; color: #6BAFD6;
       font-size: 11px; font-weight: 500; padding: 4px 8px; border-radius: 6px; cursor: pointer;
     }
     .addr-copy-btn:active { background: #e5e5ea; }
@@ -297,7 +306,7 @@
     }
     .copy-btn, .dup-btn {
       position: absolute; top: 12px; right: 12px;
-      background: #f2f2f7; border: none; color: #007aff;
+      background: #f2f2f7; border: none; color: #6BAFD6;
       font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 8px; cursor: pointer; z-index: 2;
     }
     .copy-btn:active, .dup-btn:active { background: #e5e5ea; }
@@ -315,7 +324,7 @@
     .detail-row:last-child { border-bottom: none; }
     .detail-label { width: 88px; color: #8e8e93; flex-shrink: 0; }
     .detail-value { flex: 1; color: #000; word-break: break-all; }
-    .detail-value.link { color: #007aff; }
+    .detail-value.link { color: #6BAFD6; }
     .detail-media {
       display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px;
     }
@@ -329,9 +338,9 @@
     .empty-state p { font-size: 15px; margin-bottom: 6px; }
     .fab {
       position: fixed; bottom: 24px; right: 18px; width: 54px; height: 54px; border-radius: 50%;
-      background: #007aff; color: #fff; border: none; font-size: 28px;
+      background: #6BAFD6; color: #fff; border: none; font-size: 28px;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(0, 122, 255, 0.4); cursor: pointer; z-index: 50; line-height: 1;
+      box-shadow: 0 4px 14px rgba(107, 175, 214, 0.4); cursor: pointer; z-index: 50; line-height: 1;
     }
     .fab:active { transform: scale(0.92); }
     .modal-overlay {
@@ -351,7 +360,7 @@
     }
     .modal-title { font-size: 17px; font-weight: 600; }
     .modal-close, .modal-save {
-      background: none; border: none; color: #007aff; font-size: 16px; cursor: pointer; padding: 4px 6px;
+      background: none; border: none; color: #6BAFD6; font-size: 16px; cursor: pointer; padding: 4px 6px;
     }
     .modal-save { font-weight: 600; }
     .form-group { background: #fff; margin: 12px 16px; border-radius: 12px; overflow: hidden; }
@@ -390,14 +399,14 @@
     .media-btn-row { display: flex; gap: 8px; }
     .media-btn {
       flex: 1; padding: 12px 8px; border: none; border-radius: 11px; background: #fff;
-      font-size: 13px; color: #007aff; cursor: pointer; display: flex; align-items: center;
+      font-size: 13px; color: #6BAFD6; cursor: pointer; display: flex; align-items: center;
       justify-content: center; gap: 5px; font-weight: 500; line-height: 1.25; text-align: center;
     }
     .media-btn:active { background: #e8e8ed; }
     .media-btn.primary-hq {
-      background: #007aff; color: #fff; font-weight: 600; padding: 14px 8px; font-size: 14px;
+      background: #6BAFD6; color: #fff; font-weight: 600; padding: 14px 8px; font-size: 14px;
     }
-    .media-btn.primary-hq:active { opacity: 0.85; background: #007aff; }
+    .media-btn.primary-hq:active { opacity: 0.85; background: #6BAFD6; }
     .media-hint {
       font-size: 11px; color: #8e8e93; margin: 0 0 4px; line-height: 1.4;
     }
@@ -438,7 +447,7 @@
     }
     .modal-save-bottom {
       width: calc(100% - 32px); margin: 8px 16px 8px; padding: 14px; border: none;
-      border-radius: 12px; background: #007aff; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+      border-radius: 12px; background: #6BAFD6; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
     }
     .modal-save-bottom:active { opacity: 0.85; }
     .delete-btn {
@@ -463,9 +472,9 @@
       display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
     }
     .analysis-stat {
-      flex: 1; min-width: 72px; background: #f2f2f7; border-radius: 10px; padding: 10px 8px; text-align: center;
+      flex: 1; min-width: 56px; background: #f2f2f7; border-radius: 8px; padding: 5px 4px; text-align: center;
     }
-    .analysis-stat .num { font-size: 18px; font-weight: 700; color: #007aff; }
+    .analysis-stat .num { font-size: 14px; font-weight: 700; color: #6BAFD6; }
     .analysis-stat .lbl { font-size: 11px; color: #8e8e93; margin-top: 2px; }
     .analysis-stat.finish .num { color: #34c759; }
     .analysis-stat.out .num { color: #ff3b30; }
@@ -575,10 +584,14 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.12);
     }
     .help-pick-btn.memory {
-      background: linear-gradient(135deg, #007aff, #5856d6);
+      background: linear-gradient(180deg, #fff0f5 0%, #ffe8f0 100%);
+      color: #8a5a6e;
+      box-shadow: 0 2px 10px rgba(200,140,160,0.18);
     }
     .help-pick-btn.analyzer {
-      background: linear-gradient(135deg, #ff9500, #ff3b30);
+      background: linear-gradient(180deg, #fff0f5 0%, #ffe8f0 100%);
+      color: #8a5a6e;
+      box-shadow: 0 2px 10px rgba(200,140,160,0.18);
     }
     .help-pick-btn .hp-title { font-size: 18px; margin-bottom: 4px; }
     .help-pick-btn .hp-desc { font-size: 12px; font-weight: 500; opacity: 0.95; line-height: 1.45; }
@@ -589,8 +602,9 @@
     body.dark-mode .help-back { background: #2c2c2e; color: #f2f2f7; }
 
     .help-hero {
-      background: linear-gradient(135deg, #007aff, #5856d6);
-      color: #fff; border-radius: 16px; padding: 16px; margin-bottom: 12px;
+      background: linear-gradient(180deg, #E8F4FB 0%, #F5FAFD 55%, #ffffff 100%);
+      color: #3a5a70; border-radius: 16px; padding: 16px; margin-bottom: 12px;
+      border: 1px solid rgba(107,175,214,0.35);
     }
     .help-hero h2 { margin: 0 0 6px; font-size: 18px; }
     .help-hero p { margin: 0; font-size: 13px; line-height: 1.5; opacity: 0.95; }
@@ -599,7 +613,7 @@
     }
     .help-toc button {
       border: none; border-radius: 999px; padding: 7px 11px; font-size: 12px; font-weight: 700;
-      background: #fff; color: #007aff; cursor: pointer;
+      background: #fff; color: #6BAFD6; cursor: pointer;
       box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
     body.dark-mode .help-toc button { background: #1c1c1e; color: #64b5ff; }
@@ -624,7 +638,7 @@
     .help-sec-b li { margin: 4px 0; }
     .help-pill {
       display: inline-block; font-size: 11px; font-weight: 700; border-radius: 6px;
-      padding: 2px 7px; margin: 0 2px 4px 0; background: #e8f1ff; color: #007aff;
+      padding: 2px 7px; margin: 0 2px 4px 0; background: #e8f1ff; color: #6BAFD6;
     }
     body.dark-mode .help-pill { background: #1a2a40; color: #64b5ff; }
     .help-warn {
@@ -657,10 +671,10 @@
       background: #e5e5ea; color: #3a3a3c;
     }
     .venues-mode-tab.active {
-      background: #007aff; color: #fff;
+      background: #6BAFD6; color: #fff;
     }
     body.dark-mode .venues-mode-tab { background: #2c2c2e; color: #aeaeb2; }
-    body.dark-mode .venues-mode-tab.active { background: #0a84ff; color: #fff; }
+    body.dark-mode .venues-mode-tab.active { background: #7EC0E0; color: #fff; }
     
     .station-circuit-filter {
       display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
@@ -670,7 +684,7 @@
     body.dark-mode .station-circuit-filter {
       background: #1c1c1e; color: #f2f2f7; border-color: #3a3a3c;
     }
-    .station-circuit-filter input { width: 18px; height: 18px; accent-color: #007aff; }
+    .station-circuit-filter input { width: 18px; height: 18px; accent-color: #6BAFD6; }
 
     .station-toolbar {
       display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;
@@ -690,7 +704,7 @@
     body.dark-mode .station-card { background: #1c1c1e; border-color: #2c2c2e; }
     .station-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
     .station-pref {
-      display: inline-block; font-size: 11px; font-weight: 700; color: #007aff;
+      display: inline-block; font-size: 11px; font-weight: 700; color: #6BAFD6;
       background: #e8f1ff; border-radius: 6px; padding: 2px 6px; margin-bottom: 6px;
     }
     body.dark-mode .station-pref { background: #1a2a40; color: #64b5ff; }
@@ -702,9 +716,9 @@
       border: none; border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
       background: #e5e5ea; color: #1c1c1e;
     }
-    .station-actions button.primary { background: #007aff; color: #fff; }
+    .station-actions button.primary { background: #6BAFD6; color: #fff; }
     body.dark-mode .station-actions button { background: #2c2c2e; color: #f2f2f7; }
-    body.dark-mode .station-actions button.primary { background: #0a84ff; }
+    body.dark-mode .station-actions button.primary { background: #7EC0E0; }
     .station-note {
       font-size: 11px; color: #8e8e93; margin-top: 10px; line-height: 1.45;
     }
@@ -821,7 +835,7 @@
       border: 1px solid #fff;
     }
     .japan-map-pin.selected span {
-      background: #007aff;
+      background: #6BAFD6;
       width: 11px;
       height: 11px;
     }
@@ -844,7 +858,7 @@
     .venue-selected-banner {
       font-size: 13px;
       font-weight: 600;
-      color: #007aff;
+      color: #6BAFD6;
       margin-bottom: 8px;
       min-height: 1.2em;
     }
@@ -860,7 +874,7 @@
     .venue-actions button {
       border: none; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
     }
-    .venue-btn-map { background: #007aff; color: #fff; }
+    .venue-btn-map { background: #6BAFD6; color: #fff; }
     .venue-btn-filter { background: #e5e5ea; color: #3a3a3c; }
     body.dark-mode .venue-btn-filter { background: #2c2c2e; color: #f2f2f7; }
     .venue-note {
@@ -893,10 +907,10 @@
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px;
     }
     .parts-meta-item {
-      background: #f2f2f7; border-radius: 8px; padding: 8px 4px; text-align: center;
+      background: #f2f2f7; border-radius: 8px; padding: 5px 3px; text-align: center;
     }
     body.dark-mode .parts-meta-item { background: #2c2c2e; }
-    .parts-meta-item .n { font-size: 15px; font-weight: 700; color: #007aff; }
+    .parts-meta-item .n { font-size: 13px; font-weight: 700; color: #6BAFD6; }
     .parts-meta-item .l { font-size: 10px; color: #8e8e93; margin-top: 2px; }
     .parts-places { font-size: 12px; color: #3a3a3c; line-height: 1.4; margin-bottom: 6px; }
     body.dark-mode .parts-places { color: #aeaeb2; }
@@ -920,7 +934,7 @@
     .compare-bar button {
       border: none; border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
     }
-    .compare-bar .cmp-go { background: #007aff; color: #fff; }
+    .compare-bar .cmp-go { background: #6BAFD6; color: #fff; }
     .compare-bar .cmp-go:disabled { opacity: 0.4; }
     .compare-bar .cmp-clear { background: #3a3a3c; color: #fff; }
     .compare-grid {
@@ -965,7 +979,7 @@
       flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #e5e5ea;
       font-size: 15px; background: #f9f9fb; outline: none; color: #000;
     }
-    .search-freeword-input:focus { border-color: #007aff; background: #fff; }
+    .search-freeword-input:focus { border-color: #6BAFD6; background: #fff; }
     .search-freeword-clear {
       border: none; background: #e5e5ea; color: #3a3a3c; border-radius: 8px;
       padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0;
@@ -996,7 +1010,7 @@
     .search-action-btn {
       border: none; border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
     }
-    .search-action-btn.primary { background: #007aff; color: #fff; }
+    .search-action-btn.primary { background: #6BAFD6; color: #fff; }
     .search-action-btn.gray { background: #e5e5ea; color: #3a3a3c; }
     .search-results {
       padding: 0 12px 20px;
@@ -1126,16 +1140,16 @@
     .slider-wrap input[type=range] { flex: 1; height: 28px; }
     .slider-val {
       flex: 0 0 40px; text-align: right; font-size: 14px; font-weight: 600;
-      color: #007aff; font-variant-numeric: tabular-nums;
+      color: #6BAFD6; font-variant-numeric: tabular-nums;
     }
     .rpm-link {
       flex: 1; text-align: right; font-size: 14px; font-weight: 600;
-      color: #007aff; text-decoration: none;
+      color: #6BAFD6; text-decoration: none;
     }
     .m4-badge {
       display: inline-block; font-size: 11px; font-weight: 600;
       padding: 2px 8px; border-radius: 999px; margin-right: 4px; margin-bottom: 4px;
-      background: rgba(0,122,255,0.12); color: #007aff;
+      background: rgba(107,175,214,0.12); color: #6BAFD6;
     }
     .m4-badge.race { background: rgba(175,82,222,0.12); color: #af52de; }
     .m4-badge.finish { background: rgba(52,199,89,0.15); color: #34c759; }
@@ -1167,7 +1181,7 @@
     body.dark-mode .nav-btn,
     body.dark-mode .modal-close,
     body.dark-mode .modal-save,
-    body.dark-mode .rpm-link { color: #0a84ff; }
+    body.dark-mode .rpm-link { color: #7EC0E0; }
     body.dark-mode .view-tabs { background: #2c2c2e; }
     body.dark-mode .view-tab { color: #aeaeb2; }
     body.dark-mode .view-tab.active {
@@ -1197,7 +1211,7 @@
     body.dark-mode .day-cell.other-month .day-number { color: #48484a; }
     body.dark-mode .day-number { color: #f2f2f7; }
     body.dark-mode .day-event-name {
-      color: #0a84ff; background: rgba(10, 132, 255, 0.18);
+      color: #7EC0E0; background: rgba(10, 132, 255, 0.18);
     }
     body.dark-mode .day-event-name.holiday-name {
       color: #ff453a; background: rgba(255, 69, 58, 0.18);
@@ -1237,7 +1251,7 @@
     body.dark-mode .m4-summary,
     body.dark-mode .detail-memo { color: #f2f2f7; }
     body.dark-mode .event-address .addr-text,
-    body.dark-mode .detail-value.link { color: #0a84ff; }
+    body.dark-mode .detail-value.link { color: #7EC0E0; }
     body.dark-mode .copy-btn,
     body.dark-mode .dup-btn,
     body.dark-mode .search-freeword-clear,
@@ -1246,21 +1260,21 @@
       background: #2c2c2e; color: #f2f2f7;
     }
     body.dark-mode .delete-btn { color: #ff453a; }
-    body.dark-mode .modal-save-bottom { background: #0a84ff; }
-    body.dark-mode .fab { background: #0a84ff; }
+    body.dark-mode .modal-save-bottom { background: #7EC0E0; }
+    body.dark-mode .fab { background: #7EC0E0; }
     body.dark-mode .empty-state { color: #8e8e93; }
     body.dark-mode .week-col { border-left-color: #2c2c2e; }
     body.dark-mode .hour-line { background: #2c2c2e; }
     body.dark-mode .time-label { color: #8e8e93; }
     body.dark-mode .week-day-header { border-left-color: #2c2c2e; }
     body.dark-mode .week-header { border-bottom-color: #2c2c2e; background: #1c1c1e; }
-    body.dark-mode .slider-val { color: #0a84ff; }
-    body.dark-mode .media-btn.primary-hq { background: #0a84ff; color: #fff; }
+    body.dark-mode .slider-val { color: #7EC0E0; }
+    body.dark-mode .media-btn.primary-hq { background: #7EC0E0; color: #fff; }
     body.dark-mode .gallery-tabs { background: #2c2c2e; }
     body.dark-mode .gallery-tab { color: #aeaeb2; }
     body.dark-mode .gallery-tab.active { background: #3a3a3c; color: #fff; }
     body.dark-mode .gallery-caption { background: #1c1c1e; color: #aeaeb2; }
-    body.dark-mode input[type="range"] { accent-color: #0a84ff; }
+    body.dark-mode input[type="range"] { accent-color: #7EC0E0; }
 
     .celebrate-toast {
       display: none; position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
@@ -1302,21 +1316,23 @@
     .diff-label { width: 72px; flex-shrink: 0; color: #8e8e93; font-weight: 600; }
     .diff-old { color: #8e8e93; text-decoration: line-through; }
     .diff-arrow { color: #8e8e93; }
-    .diff-new { color: #007aff; font-weight: 700; }
-    body.dark-mode .diff-new { color: #0a84ff; }
+    .diff-new { color: #6BAFD6; font-weight: 700; }
+    body.dark-mode .diff-new { color: #7EC0E0; }
     .diff-same-note { font-size: 12px; color: #34c759; font-weight: 600; }
     .fun-strip {
-      display: flex; gap: 8px; overflow-x: auto; padding: 0 0 8px;
-      -webkit-overflow-scrolling: touch;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
+      padding: 0 0 8px; width: 100%; max-width: 100%;
+      box-sizing: border-box;
     }
     .fun-chip {
-      flex: 0 0 auto; min-width: 96px; padding: 8px 10px; border-radius: 12px;
+      min-width: 0; padding: 6px 4px; border-radius: 10px;
       background: #fff; border: 1px solid rgba(0,0,0,0.06);
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      text-align: center;
     }
     body.dark-mode .fun-chip { background: #1c1c1e; border-color: #2c2c2e; }
-    .fun-chip .fc-label { font-size: 10px; color: #8e8e93; margin-bottom: 2px; }
-    .fun-chip .fc-val { font-size: 15px; font-weight: 700; color: #1c1c1e; }
+    .fun-chip .fc-label { font-size: 9px; color: #8e8e93; margin-bottom: 2px; line-height: 1.2; }
+    .fun-chip .fc-val { font-size: 13px; font-weight: 700; color: #1c1c1e; line-height: 1.2; word-break: break-all; }
     body.dark-mode .fun-chip .fc-val { color: #f2f2f7; }
     .fun-chip.good .fc-val { color: #34c759; }
     .fun-chip.hot .fc-val { color: #ff9f0a; }
@@ -1351,10 +1367,10 @@
       width: 100%; padding: 12px; border: none; border-radius: 10px;
       font-size: 15px; font-weight: 600; cursor: pointer; background: #e5e5ea; color: #1c1c1e;
     }
-    .data-tools-actions button.primary { background: #007aff; color: #fff; }
+    .data-tools-actions button.primary { background: #6BAFD6; color: #fff; }
     .data-tools-actions button.danger { background: #ff3b30; color: #fff; }
     body.dark-mode .data-tools-actions button { background: #2c2c2e; color: #f2f2f7; }
-    body.dark-mode .data-tools-actions button.primary { background: #0a84ff; color: #fff; }
+    body.dark-mode .data-tools-actions button.primary { background: #7EC0E0; color: #fff; }
     .data-tools-note { font-size: 12px; color: #8e8e93; margin-top: 10px; line-height: 1.5; }
 
     .data-select-list { max-height: 40vh; overflow-y: auto; margin: 8px 0; border: 1px solid #e5e5ea; border-radius: 10px; }
@@ -1386,9 +1402,9 @@
       padding: 8px 10px; border: none; border-radius: 8px; font-size: 12px; font-weight: 600;
       background: #e5e5ea; color: #1c1c1e; cursor: pointer;
     }
-    .tpl-bar button.primary { background: #007aff; color: #fff; }
+    .tpl-bar button.primary { background: #6BAFD6; color: #fff; }
     body.dark-mode .tpl-bar button { background: #3a3a3c; color: #f2f2f7; }
-    body.dark-mode .tpl-bar button.primary { background: #0a84ff; }
+    body.dark-mode .tpl-bar button.primary { background: #7EC0E0; }
     .race-pkg {
       border: 1px solid #e5e5ea; border-radius: 12px; padding: 12px; margin-bottom: 10px;
       background: #fafafa;
@@ -1436,11 +1452,55 @@
       border: none; border-radius: 999px; padding: 14px 20px; font-size: 15px; font-weight: 700; cursor: pointer;
       min-width: 88px;
     }
+
+    .sw-signal { background: #ff9f0a; color: #1c1c1e; }
+    .sw-signal:disabled { opacity: 0.4; }
+    .sw-signal-dots {
+      display: flex; justify-content: center; gap: 16px; padding: 12px 0 8px;
+    }
+    .sw-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #3a3a3c; border: 2px solid #636366;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+    .sw-dot.red {
+      background: #ff3b30; border-color: #ff6961; transform: scale(1.08);
+      box-shadow: 0 0 12px rgba(255,59,48,0.55);
+    }
+    .sw-dot.blue {
+      background: #6BAFD6; border-color: #9fd0ea; transform: scale(1.12);
+      box-shadow: 0 0 16px rgba(107,175,214,0.7);
+    }
+    .sw-signal-flash {
+      animation: swFlash 0.35s ease;
+    }
+    @keyframes swFlash {
+      0% { background: #1c1c1e; }
+      40% { background: #2a4a5c; }
+      100% { background: #1c1c1e; }
+    }
+    .sw-signal-settings {
+      margin: 10px 0 14px; padding: 12px; border-radius: 12px;
+      background: rgba(255,255,255,0.06); font-size: 12px;
+    }
+    .sw-signal-settings summary {
+      cursor: pointer; font-weight: 700; color: #e5e5ea; list-style: none;
+    }
+    .sw-signal-settings summary::-webkit-details-marker { display: none; }
+    .sw-signal-settings label {
+      display: flex; align-items: center; gap: 8px; margin: 8px 0 0; color: #aeaeb2;
+    }
+    .sw-signal-settings select, .sw-signal-settings input[type="file"] {
+      width: 100%; margin-top: 6px; border-radius: 8px; border: 1px solid #48484a;
+      background: #2c2c2e; color: #f2f2f7; padding: 8px; font-size: 12px;
+    }
+    .sw-signal-row { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-top: 8px; }
+
     .sw-start { background: #34c759; color: #fff; }
     .sw-stop { background: #ff3b30; color: #fff; }
     .sw-lap { background: #3a3a3c; color: #fff; }
     .sw-reset { background: #48484a; color: #fff; }
-    .sw-apply { background: #007aff; color: #fff; width: 100%; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; }
+    .sw-apply { background: #6BAFD6; color: #fff; width: 100%; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; }
     .sw-apply:disabled { opacity: 0.4; }
     .stopwatch-laps {
       margin: 12px 0; max-height: 160px; overflow-y: auto;
@@ -1452,7 +1512,7 @@
     }
     .stopwatch-lap-row.best { color: #34c759; font-weight: 600; }
     .stopwatch-close {
-      background: none; border: none; color: #0a84ff; font-size: 15px; font-weight: 600;
+      background: none; border: none; color: #7EC0E0; font-size: 15px; font-weight: 600;
       padding: 4px 0; cursor: pointer;
     }
   </style>
@@ -1935,7 +1995,7 @@
             <select class="form-input" id="m4Result">
               <option value="">-</option>
               <option value="完走">完走</option>
-              <option value="コースアウト">コースアウト</option>
+              <option value="コースアウト">アウト</option>
               <option value="失格">失格</option>
             </select>
           </div>
@@ -2198,6 +2258,9 @@
           </select>
         </div>
       </div>
+      <div style="padding:0 16px 10px;">
+        <button type="button" class="search-action-btn gray" style="width:100%;" onclick="closeGallery()">← 戻る</button>
+      </div>
       <div class="gallery-body" id="galleryBody"></div>
     </div>
   </div>
@@ -2244,14 +2307,50 @@
       </div>
       <div class="stopwatch-display" id="swDisplay">0.000</div>
       <div class="stopwatch-sub" id="swSub">停止中</div>
+      <div class="sw-signal-dots" id="swSignalDots" aria-hidden="true">
+        <div class="sw-dot" id="swDot1"></div>
+        <div class="sw-dot" id="swDot2"></div>
+        <div class="sw-dot" id="swDot3"></div>
+      </div>
       <div class="stopwatch-btns">
+        <button type="button" class="sw-signal" id="swSignalBtn" onclick="swStartWithSignal()">合図スタート</button>
         <button type="button" class="sw-start" id="swStartBtn" onclick="swStart()">スタート</button>
         <button type="button" class="sw-stop" id="swStopBtn" onclick="swStop()" style="display:none;">ストップ</button>
         <button type="button" class="sw-lap" id="swLapBtn" onclick="swLap()" disabled>ラップ</button>
         <button type="button" class="sw-reset" onclick="swReset()">リセット</button>
       </div>
+      <details class="sw-signal-settings" id="swSignalSettings">
+        <summary>⚙️ スタート合図の設定</summary>
+        <label>基本モード
+          <select id="swSignalMode" onchange="swSaveSignalSettings()">
+            <option value="off">合図なし（即スタート）</option>
+            <option value="visual">カウントダウンのみ</option>
+            <option value="sound" selected>カウントダウン＋音</option>
+          </select>
+        </label>
+        <div class="sw-signal-row">
+          <label><input type="checkbox" id="swSignalBeep" checked onchange="swSaveSignalSettings()" /> 音声ビープ</label>
+          <label><input type="checkbox" id="swSignalVibrate" checked onchange="swSaveSignalSettings()" /> 振動</label>
+          <label><input type="checkbox" id="swSignalFlash" checked onchange="swSaveSignalSettings()" /> 画面フラッシュ</label>
+        </div>
+        <label>開始タイミング
+          <select id="swSignalTiming" onchange="swSaveSignalSettings()">
+            <option value="normal" selected>通常（3→2→1→スタート）</option>
+            <option value="delay5">固定ディレイ（5秒後にカウント開始）</option>
+            <option value="random">ランダムディレイ（2〜5秒後）</option>
+          </select>
+        </label>
+        <label>カスタム音（任意・端末内の音声ファイル）
+          <input type="file" id="swSignalFile" accept="audio/*" onchange="swLoadCustomSound(this)" />
+        </label>
+        <p style="margin-top:8px;color:#8e8e93;font-size:11px;line-height:1.4;">
+          デフォルトは権利に配慮した簡易ビープ音です。カスタム音はこの端末のブラウザ内だけです。
+          「合図スタート」ボタン専用です。通常のスタートはすぐ計測します。
+        </p>
+      </details>
       <div class="stopwatch-laps" id="swLaps"></div>
       <button type="button" class="sw-apply" id="swApplyBtn" onclick="swApplyToForm()" disabled>このタイムをセッティングに反映</button>
+      <button type="button" class="sw-apply" id="swSaveNewBtn" onclick="swSaveAsNewSetting()" disabled style="margin-top:8px;background:#34c759;">保存して新規登録</button>
       <p style="font-size:11px;color:#8e8e93;text-align:center;margin-top:10px;">単位は秒です。ベストラップも自動で更新します。</p>
     </div>
   </div>
@@ -2630,26 +2729,25 @@
         if (date.getMonth() !== currentDate.getMonth() || date.getFullYear() !== currentDate.getFullYear()) {
           currentDate = new Date(selectedDate);
         }
-        renderMonth();
+        // 指定日のカードは日ビューで表示
+        switchView('day');
       };
       return cell;
     }
 
     function renderTodaySection() {
-      var key = formatDateKey(selectedDate);
+      // 月ビュー下は常に「今日」のカードのみ（選択日の詳細は日ビューへ）
       var todayKey = formatDateKey(new Date());
-      var isToday = key === todayKey;
       var titleEl = document.getElementById('selectedDayTitle');
-      if (titleEl) titleEl.textContent = isToday ? '今日の予定' : '選択日の予定';
-      document.getElementById('todayDateLabel').textContent = formatDisplayDate(selectedDate);
+      if (titleEl) titleEl.textContent = '今日の予定';
+      document.getElementById('todayDateLabel').textContent = formatDisplayDate(new Date());
       var list = document.getElementById('todayEventsList');
-      var events = getEventsForDate(key);
+      var events = getEventsForDate(todayKey);
       var countEl = document.getElementById('selectedDayCount');
       if (countEl) countEl.textContent = events.length ? (events.length + '件') : '';
-      var head = isToday ? funStripHtml() : '';
+      var head = funStripHtml();
       if (events.length === 0) {
-        list.innerHTML = head + '<div class="empty-state" style="padding:24px 0"><p>' +
-          (isToday ? '今日の予定はありません' : 'この日の予定はありません') + '</p></div>';
+        list.innerHTML = head + '<div class="empty-state" style="padding:24px 0"><p>今日の予定はありません</p></div>';
         return;
       }
       list.innerHTML = head + events.map(function(ev) { return eventCardHtml(ev, { showDup: true }); }).join('');
@@ -2667,7 +2765,7 @@
       var weekdays = ['日', '月', '火', '水', '木', '金', '土'];
       var dayColors = [
         'rgba(255, 59, 48, 0.90)', 'rgba(255, 149, 0, 0.90)', 'rgba(255, 179, 0, 0.92)',
-        'rgba(52, 199, 89, 0.90)', 'rgba(50, 173, 230, 0.90)', 'rgba(0, 122, 255, 0.90)', 'rgba(175, 82, 222, 0.90)'
+        'rgba(52, 199, 89, 0.90)', 'rgba(50, 173, 230, 0.90)', 'rgba(107, 175, 214, 0.90)', 'rgba(175, 82, 222, 0.90)'
       ];
       var HOUR_START = 0, HOUR_END = 23, HOUR_COUNT = HOUR_END - HOUR_START, ROW_H = 24;
 
@@ -2807,7 +2905,7 @@
       if (m4.rank) badges += '<span class="m4-badge">' + escapeHtml(m4.rank) + '位</span>';
       if (m4.classType) badges += '<span class="m4-badge">' + escapeHtml(m4.classType) + '</span>';
       if (m4.result === '完走') badges += '<span class="m4-badge finish">完走</span>';
-      if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">コースアウト</span>';
+      if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">アウト</span>';
       if (m4.result === '失格') badges += '<span class="m4-badge out">失格</span>';
       // 太字タイトル：モーター・電圧・RPM・ギヤ
       var titleParts = [];
@@ -3199,11 +3297,14 @@
     function sameSetKey(ev) {
       if (!ev) return '';
       var m4 = ev.m4 || {};
+      var place = (ev.address || '').trim();
+      if (!place) return ''; // 場所が無いと「同じセット」判定しない
       var machine = (ev.machineName || '').trim();
       var motor = (m4.motorType || '').trim();
       var mno = (m4.motorNumber || '').trim();
-      if (machine) return 'm:' + machine;
-      if (motor) return 't:' + motor + '|' + mno;
+      // 場所 + (マシン名 優先 / なければモーター+番号)
+      if (machine) return 'p:' + place + '|m:' + machine;
+      if (motor) return 'p:' + place + '|t:' + motor + '|' + mno;
       return '';
     }
 
@@ -3301,16 +3402,17 @@
         var p = prevDate.split('-');
         prevDate = p[0] + '/' + parseInt(p[1], 10) + '/' + parseInt(p[2], 10);
       }
-      var keyLabel = (curr.machineName && curr.machineName.trim())
+      var placeLabel = (curr.address && curr.address.trim()) ? curr.address.trim() : '';
+      var setLabel = (curr.machineName && curr.machineName.trim())
         ? curr.machineName.trim()
         : (((curr.m4 || {}).motorType || '') + (((curr.m4 || {}).motorNumber) ? ' #' + (curr.m4 || {}).motorNumber : ''));
-      if (!keyLabel) keyLabel = '同系統';
+      var keyLabel = [placeLabel, setLabel].filter(Boolean).join(' · ') || '同系統';
 
       var html = '<div class="diff-card">';
       html += '<div class="diff-card-title">🔁 前回同じセットとの差分</div>';
       html += '<div class="diff-card-sub">比較元: ' + escapeHtml(keyLabel) +
         (prevDate ? '（' + escapeHtml(prevDate) + '）' : '') +
-        ' <span style="color:#007aff;cursor:pointer;font-weight:600;" onclick="openDetailModal(\'' + escapeAttr(prev.id) + '\')">前回を見る</span></div>';
+        ' <span style="color:#6BAFD6;cursor:pointer;font-weight:600;" onclick="openDetailModal(\'' + escapeAttr(prev.id) + '\')">前回を見る</span></div>';
       if (!rows.length) {
         html += '<div class="diff-same-note">主要項目は前回と同じです</div>';
       } else {
@@ -3436,7 +3538,7 @@
       if (prevSet) html += buildDiffHtml(ev, prevSet);
       else if (sameSetKey(ev)) {
         html += '<div class="diff-card"><div class="diff-card-title">🔁 前回同じセットとの差分</div>' +
-          '<div class="diff-card-sub">このマシン／モーターの過去記録がまだありません。2回目以降に差分が出ます。</div></div>';
+          '<div class="diff-card-sub">同じ場所＋マシン／モーターの過去記録がまだありません。2回目以降に差分が出ます。</div></div>';
       }
       html += '<div class="detail-section-label">日時・場所</div><div class="detail-group">';
       html += row('日付', dateLabel);
@@ -4304,7 +4406,7 @@
       var sec = helpSec;
       var h = '';
       h += '<button type="button" class="help-back" onclick="showHelpPage(\'home\')">← アプリ選択に戻る</button>';
-      h += '<div class="help-hero" style="background:linear-gradient(135deg,#ff9500,#ff3b30);"><h2>RPM Analyzer</h2><p>マイクでモーター音を拾い、回転数（RPM）と速度を推定するアプリです。<br>履歴・比較表・memory 連携にも対応しています。</p></div>';
+      h += '<div class="help-hero" style="background:linear-gradient(180deg,#E8F4FB 0%,#F5FAFD 55%,#ffffff 100%);color:#3a5a70;border:1px solid rgba(107,175,214,0.35);"><h2>RPM Analyzer</h2><p>マイクでモーター音を拾い、回転数（RPM）と速度を推定するアプリです。<br>履歴・比較表・memory 連携にも対応しています。</p></div>';
       h += '<div class="help-toc">' +
         '<button type="button" data-help-jump="ra-basic">前提</button>' +
         '<button type="button" data-help-jump="ra-mic">マイク</button>' +
@@ -4553,14 +4655,24 @@
             ? '<img src="' + it.dataUrl + '" alt="" loading="lazy">'
             : '<video src="' + it.dataUrl + '" muted playsinline></video><span class="vid-badge">動画</span>') +
           (caption ? '<div class="gallery-caption">' + escapeHtml(caption) + '</div>' : '') +
+          (it.eventId ? '<button type="button" class="gallery-open-setting" data-eid="' + escapeAttr(it.eventId) + '">セッティングを開く</button>' : '') +
           '</div>';
       });
       html += '</div>';
       body.innerHTML = html;
       body.querySelectorAll('.gallery-item').forEach(function(el) {
-        el.onclick = function() {
+        el.onclick = function(e) {
+          if (e.target && e.target.classList && e.target.classList.contains('gallery-open-setting')) return;
           var it = allItems[parseInt(el.getAttribute('data-gidx'), 10)];
           if (it) openLightbox(it);
+        };
+      });
+      body.querySelectorAll('.gallery-open-setting').forEach(function(btn) {
+        btn.onclick = function(e) {
+          e.stopPropagation();
+          var id = btn.getAttribute('data-eid');
+          closeGallery();
+          if (id) openDetailModal(id);
         };
       });
     }
@@ -4585,6 +4697,13 @@
       document.getElementById('lightbox').classList.remove('active');
       document.getElementById('lightboxContent').innerHTML = '';
       currentLightboxItem = null;
+    }
+    function openSettingFromLightbox() {
+      var it = currentLightboxItem;
+      if (!it || !it.eventId) return;
+      closeLightbox();
+      closeGallery();
+      openDetailModal(it.eventId);
     }
 
     document.addEventListener('click', function(e) {
@@ -5039,7 +5158,7 @@
       html += '<div class="analysis-summary">';
       html += '<div class="analysis-stat"><div class="num">' + stats.total + '</div><div class="lbl">該当数</div></div>';
       html += '<div class="analysis-stat finish"><div class="num">' + stats.finish + '</div><div class="lbl">完走</div></div>';
-      html += '<div class="analysis-stat out"><div class="num">' + stats.out + '</div><div class="lbl">コースアウト</div></div>';
+      html += '<div class="analysis-stat out"><div class="num">' + stats.out + '</div><div class="lbl">アウト</div></div>';
       html += '<div class="analysis-stat"><div class="num">' + (stats.total ? stats.rate.toFixed(1) + '%' : '—') + '</div><div class="lbl">完走率</div></div>';
       html += '</div></div>';
       if (!allRace.length) {
@@ -5071,7 +5190,7 @@
       body.innerHTML = html;
     }
 
-    /** コースアウトの共通条件を抽出 */
+    /** アウトの共通条件を抽出 */
     function renderLossPatterns() {
       var body = document.getElementById('lossPatternContent');
       if (!body) return;
@@ -5085,7 +5204,7 @@
       });
 
       if (!losses.length) {
-        body.innerHTML = '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:24px 0;font-size:14px;">コースアウトの記録がありません。<br>結果に「コースアウト」を付けて保存するとパターン分析できます。</p></div>';
+        body.innerHTML = '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:24px 0;font-size:14px;">アウトの記録がありません。<br>結果に「アウト」を付けて保存するとパターン分析できます。</p></div>';
         return;
       }
 
@@ -5178,7 +5297,7 @@
       });
 
       var html = '';
-      html += '<div class="analysis-card"><div class="analysis-card-title">コースアウト概要</div>';
+      html += '<div class="analysis-card"><div class="analysis-card-title">アウト概要</div>';
       html += '<div class="analysis-summary">';
       html += '<div class="analysis-stat out"><div class="num">' + lossTotal + '</div><div class="lbl">アウト件数</div></div>';
       html += '<div class="analysis-stat finish"><div class="num">' + finishes.length + '</div><div class="lbl">完走件数</div></div>';
@@ -5942,8 +6061,8 @@
       });
       document.querySelectorAll('.venue-card').forEach(function(card) {
         var on = card.getAttribute('data-place') === selectedVenuePlace;
-        card.style.outline = on ? '2px solid #007aff' : '';
-        card.style.background = on ? 'rgba(0,122,255,0.06)' : '';
+        card.style.outline = on ? '2px solid #6BAFD6' : '';
+        card.style.background = on ? 'rgba(107,175,214,0.06)' : '';
       });
       var ban = document.getElementById('venueSelectedBanner');
       if (ban) {
@@ -6351,7 +6470,7 @@
       html += '<div class="analysis-summary">';
       html += '<div class="analysis-stat"><div class="num">' + comboStats.total + '</div><div class="lbl">該当数</div></div>';
       html += '<div class="analysis-stat finish"><div class="num">' + comboStats.finish + '</div><div class="lbl">完走</div></div>';
-      html += '<div class="analysis-stat out"><div class="num">' + comboStats.out + '</div><div class="lbl">コースアウト</div></div>';
+      html += '<div class="analysis-stat out"><div class="num">' + comboStats.out + '</div><div class="lbl">アウト</div></div>';
       html += '<div class="analysis-stat"><div class="num">' + (comboStats.total ? comboStats.rate.toFixed(1) + '%' : '—') + '</div><div class="lbl">完走率</div></div>';
       html += '</div>';
 
@@ -6405,12 +6524,12 @@
       html += '<div class="analysis-summary">';
       html += '<div class="analysis-stat"><div class="num">' + overall.total + '</div><div class="lbl">記録数</div></div>';
       html += '<div class="analysis-stat finish"><div class="num">' + overall.finish + '</div><div class="lbl">完走</div></div>';
-      html += '<div class="analysis-stat out"><div class="num">' + overall.out + '</div><div class="lbl">コースアウト</div></div>';
+      html += '<div class="analysis-stat out"><div class="num">' + overall.out + '</div><div class="lbl">アウト</div></div>';
       html += '<div class="analysis-stat"><div class="num">' + (overall.total ? overall.rate.toFixed(1) + '%' : '—') + '</div><div class="lbl">完走率</div></div>';
       html += '</div></div>';
 
       if (!overall.total) {
-        html += '<div class="analysis-card"><p style="color:#8e8e93;font-size:14px;text-align:center;padding:16px 0;">結果が記録されたセッティングがありません。<br>「完走」「コースアウト」を付けて保存すると分析できます。</p></div>';
+        html += '<div class="analysis-card"><p style="color:#8e8e93;font-size:14px;text-align:center;padding:16px 0;">結果が記録されたセッティングがありません。<br>「完走」「アウト」を付けて保存すると分析できます。</p></div>';
         document.getElementById('analysisContent').innerHTML = html;
         return;
       }
@@ -6667,7 +6786,7 @@
         if (m4.rank) badges += '<span class="m4-badge">' + escapeHtml(m4.rank) + '位</span>';
         if (m4.classType) badges += '<span class="m4-badge">' + escapeHtml(m4.classType) + '</span>';
         if (m4.result === '完走') badges += '<span class="m4-badge finish">完走</span>';
-        if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">コースアウト</span>';
+        if (m4.result === 'コースアウト') badges += '<span class="m4-badge out">アウト</span>';
         if (m4.result === '失格') badges += '<span class="m4-badge out">失格</span>';
         var titleParts = [];
         if (m4.motorType) titleParts.push(m4.motorType);
@@ -7085,6 +7204,214 @@
     });
 
     // ===== タイム計測（ストップウォッチ） =====
+
+    // ===== スタート合図 =====
+    var swSignalBusy = false;
+    var swSignalTimers = [];
+    var swCustomAudio = null;
+    var swAudioCtx = null;
+
+    function swLoadSignalSettings() {
+      try {
+        var s = JSON.parse(localStorage.getItem('memory_sw_signal') || '{}');
+        var mode = document.getElementById('swSignalMode');
+        var beep = document.getElementById('swSignalBeep');
+        var vib = document.getElementById('swSignalVibrate');
+        var flash = document.getElementById('swSignalFlash');
+        var timing = document.getElementById('swSignalTiming');
+        if (mode && s.mode) mode.value = s.mode;
+        if (beep && typeof s.beep === 'boolean') beep.checked = s.beep;
+        if (vib && typeof s.vibrate === 'boolean') vib.checked = s.vibrate;
+        if (flash && typeof s.flash === 'boolean') flash.checked = s.flash;
+        if (timing && s.timing) timing.value = s.timing;
+      } catch (e) {}
+    }
+    function swSaveSignalSettings() {
+      try {
+        localStorage.setItem('memory_sw_signal', JSON.stringify({
+          mode: (document.getElementById('swSignalMode') || {}).value || 'sound',
+          beep: !!(document.getElementById('swSignalBeep') || {}).checked,
+          vibrate: !!(document.getElementById('swSignalVibrate') || {}).checked,
+          flash: !!(document.getElementById('swSignalFlash') || {}).checked,
+          timing: (document.getElementById('swSignalTiming') || {}).value || 'normal'
+        }));
+      } catch (e) {}
+    }
+    function swClearSignalTimers() {
+      swSignalTimers.forEach(function(t) { clearTimeout(t); });
+      swSignalTimers = [];
+    }
+    function swResetDots() {
+      ['swDot1', 'swDot2', 'swDot3'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('red', 'blue');
+      });
+    }
+    function swSetDotState(nRed, allBlue) {
+      for (var i = 1; i <= 3; i++) {
+        var el = document.getElementById('swDot' + i);
+        if (!el) continue;
+        el.classList.remove('red', 'blue');
+        if (allBlue) el.classList.add('blue');
+        else if (i <= nRed) el.classList.add('red');
+      }
+    }
+    function swEnsureAudio() {
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        if (!swAudioCtx) swAudioCtx = new AC();
+        if (swAudioCtx.state === 'suspended') swAudioCtx.resume();
+        return swAudioCtx;
+      } catch (e) { return null; }
+    }
+    function swPlayDefaultBeep(kind) {
+      // kind: 'tick' | 'go'
+      var ctx = swEnsureAudio();
+      if (!ctx) return;
+      try {
+        var o = ctx.createOscillator();
+        var g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = kind === 'go' ? 880 : 660;
+        g.gain.value = 0.0001;
+        o.connect(g);
+        g.connect(ctx.destination);
+        var now = ctx.currentTime;
+        var dur = kind === 'go' ? 0.28 : 0.12;
+        g.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        o.start(now);
+        o.stop(now + dur + 0.02);
+      } catch (e) {}
+    }
+    function swPlaySignalSound(kind) {
+      var mode = (document.getElementById('swSignalMode') || {}).value || 'sound';
+      var wantBeep = !!(document.getElementById('swSignalBeep') || {}).checked;
+      if (mode !== 'sound' || !wantBeep) return;
+      if (swCustomAudio) {
+        try {
+          swCustomAudio.pause();
+          swCustomAudio.currentTime = 0;
+          // go のとき少し大きく感じるよう再生（同一音源）
+          swCustomAudio.play().catch(function() { swPlayDefaultBeep(kind); });
+          return;
+        } catch (e) {
+          swPlayDefaultBeep(kind);
+          return;
+        }
+      }
+      swPlayDefaultBeep(kind);
+    }
+    function swVibratePattern(kind) {
+      if (!(document.getElementById('swSignalVibrate') || {}).checked) return;
+      if (!navigator.vibrate) return;
+      try {
+        if (kind === 'go') navigator.vibrate([40, 40, 80]);
+        else navigator.vibrate(30);
+      } catch (e) {}
+    }
+    function swFlashPanel() {
+      if (!(document.getElementById('swSignalFlash') || {}).checked) return;
+      var panel = document.querySelector('.stopwatch-panel');
+      if (!panel) return;
+      panel.classList.remove('sw-signal-flash');
+      void panel.offsetWidth;
+      panel.classList.add('sw-signal-flash');
+    }
+    function swLoadCustomSound(input) {
+      var file = input && input.files && input.files[0];
+      if (!file) {
+        swCustomAudio = null;
+        return;
+      }
+      try {
+        if (swCustomAudio && swCustomAudio.src) URL.revokeObjectURL(swCustomAudio.src);
+        var url = URL.createObjectURL(file);
+        swCustomAudio = new Audio(url);
+        swCustomAudio.preload = 'auto';
+      } catch (e) {
+        swCustomAudio = null;
+        alert('この音声ファイルは使えませんでした');
+      }
+    }
+    function swCancelSignal() {
+      swClearSignalTimers();
+      swSignalBusy = false;
+      swResetDots();
+      var btn = document.getElementById('swSignalBtn');
+      if (btn) btn.disabled = false;
+      if (!swRunning) {
+        var sub = document.getElementById('swSub');
+        if (sub) sub.textContent = '停止中';
+      }
+    }
+    function swStartWithSignal() {
+      if (swRunning || swSignalBusy) return;
+      swLoadSignalSettings();
+      var mode = (document.getElementById('swSignalMode') || {}).value || 'sound';
+      if (mode === 'off') {
+        swStart();
+        return;
+      }
+      swSignalBusy = true;
+      var btn = document.getElementById('swSignalBtn');
+      if (btn) btn.disabled = true;
+      var sub = document.getElementById('swSub');
+      swResetDots();
+      swEnsureAudio();
+
+      var timing = (document.getElementById('swSignalTiming') || {}).value || 'normal';
+      var delay = 0;
+      if (timing === 'delay5') delay = 5000;
+      else if (timing === 'random') delay = 2000 + Math.floor(Math.random() * 3000);
+
+      function runCountdown() {
+        if (sub) sub.textContent = '合図中…';
+        // 3: first red
+        swSetDotState(1, false);
+        swPlaySignalSound('tick');
+        swVibratePattern('tick');
+        // 2
+        swSignalTimers.push(setTimeout(function() {
+          swSetDotState(2, false);
+          swPlaySignalSound('tick');
+          swVibratePattern('tick');
+        }, 1000));
+        // 1
+        swSignalTimers.push(setTimeout(function() {
+          swSetDotState(3, false);
+          swPlaySignalSound('tick');
+          swVibratePattern('tick');
+        }, 2000));
+        // GO all blue + sound + start
+        swSignalTimers.push(setTimeout(function() {
+          swSetDotState(3, true);
+          swPlaySignalSound('go');
+          swVibratePattern('go');
+          swFlashPanel();
+          if (sub) sub.textContent = 'スタート！';
+          swSignalBusy = false;
+          if (btn) btn.disabled = false;
+          swStart();
+          // keep blue briefly then clear
+          swSignalTimers.push(setTimeout(function() {
+            if (!swRunning) swResetDots();
+            else swResetDots();
+          }, 600));
+        }, 3000));
+      }
+
+      if (delay > 0) {
+        if (sub) sub.textContent = '待機中…（' + (delay / 1000).toFixed(1) + '秒）';
+        swSignalTimers.push(setTimeout(runCountdown, delay));
+      } else {
+        runCountdown();
+      }
+    }
+
+
     var swRunning = false;
     var swStartTs = 0;
     var swAccum = 0;
@@ -7119,16 +7446,25 @@
 
     function openStopwatch(fromForm) {
       swFromForm = !!fromForm;
+      swLoadSignalSettings();
       document.getElementById('stopwatchOverlay').classList.add('active');
       var applyBtn = document.getElementById('swApplyBtn');
+      var saveBtn = document.getElementById('swSaveNewBtn');
+      var hasTime = swLastMs > 0 || swLaps.length > 0;
       if (applyBtn) {
-        applyBtn.style.display = swFromForm || document.getElementById('modalOverlay').classList.contains('active') ? '' : 'none';
-        applyBtn.disabled = swLastMs <= 0 && swLaps.length === 0;
+        // フォーム編集中は反映ボタン、それ以外も表示（反映はフォームが開いているとき有効）
+        applyBtn.style.display = '';
+        applyBtn.disabled = !hasTime || !(swFromForm || document.getElementById('modalOverlay').classList.contains('active'));
+      }
+      if (saveBtn) {
+        saveBtn.style.display = '';
+        saveBtn.disabled = !hasTime;
       }
       renderSwLaps();
     }
 
     function closeStopwatch() {
+      swCancelSignal();
       document.getElementById('stopwatchOverlay').classList.remove('active');
     }
 
@@ -7155,12 +7491,13 @@
       document.getElementById('swLapBtn').disabled = true;
       document.getElementById('swSub').textContent = '停止 · ' + formatSwSeconds(swLastMs) + ' 秒';
       var applyBtn = document.getElementById('swApplyBtn');
+      var saveBtn = document.getElementById('swSaveNewBtn');
+      var modalOpen = document.getElementById('modalOverlay').classList.contains('active');
       if (applyBtn) {
-        applyBtn.disabled = false;
-        if (document.getElementById('modalOverlay').classList.contains('active')) {
-          applyBtn.style.display = '';
-        }
+        applyBtn.disabled = !modalOpen && !swFromForm;
+        applyBtn.style.display = '';
       }
+      if (saveBtn) saveBtn.disabled = false;
     }
 
     function swLap() {
@@ -7174,6 +7511,7 @@
     }
 
     function swReset() {
+      swCancelSignal();
       swRunning = false;
       if (swRaf) cancelAnimationFrame(swRaf);
       swRaf = null;
@@ -7188,6 +7526,8 @@
       document.getElementById('swStopBtn').style.display = 'none';
       document.getElementById('swLapBtn').disabled = true;
       document.getElementById('swApplyBtn').disabled = true;
+      var saveBtn = document.getElementById('swSaveNewBtn');
+      if (saveBtn) saveBtn.disabled = true;
       renderSwLaps();
     }
 
@@ -7208,6 +7548,37 @@
           '<span>' + formatSwSeconds(l.split) + '  /  通算 ' + formatSwSeconds(l.total) + '</span></div>';
       }
       box.innerHTML = html;
+    }
+
+
+    function swGetTimes() {
+      var totalMs = swLastMs;
+      if (totalMs <= 0 && swLaps.length) totalMs = swLaps[swLaps.length - 1].total;
+      if (totalMs <= 0) return null;
+      var sec = formatSwSeconds(totalMs);
+      var best = sec;
+      if (swLaps.length) {
+        var bestMs = Math.min.apply(null, swLaps.map(function(l) { return l.split; }));
+        best = formatSwSeconds(bestMs);
+      }
+      return { sec: sec, best: best };
+    }
+
+    function swSaveAsNewSetting() {
+      var t = swGetTimes();
+      if (!t) return;
+      closeStopwatch();
+      openAddModal();
+      setTimeout(function() {
+        var lapEl = document.getElementById('m4LapTime');
+        var bestEl = document.getElementById('m4BestLap');
+        if (lapEl) lapEl.value = t.sec;
+        if (bestEl) bestEl.value = t.best;
+        try {
+          var dateEl = document.getElementById('eventDate');
+          if (dateEl && !dateEl.value) dateEl.value = formatDateKey(new Date());
+        } catch (e) {}
+      }, 80);
     }
 
     function swApplyToForm() {
@@ -7727,6 +8098,17 @@
     document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
     document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
     document.addEventListener('gestureend', function(e) { e.preventDefault(); });
+    /* 長押し・右クリックでのコピー／選択メニュー抑制（入力欄は除外） */
+    function isEditableTarget(t) {
+      if (!t || !t.closest) return false;
+      return !!t.closest('input, textarea, select, [contenteditable="true"]');
+    }
+    document.addEventListener('contextmenu', function(e) {
+      if (!isEditableTarget(e.target)) e.preventDefault();
+    });
+    document.addEventListener('selectstart', function(e) {
+      if (!isEditableTarget(e.target)) e.preventDefault();
+    });
   </script>
 </body>
 </html>
