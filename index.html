@@ -106,13 +106,29 @@
       background: rgba(255, 255, 255, 0.88);
       backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border-bottom: 0.5px solid rgba(0, 0, 0, 0.12);
-      position: sticky; top: 0; z-index: 100; padding: 6px 12px 0;
+      position: sticky; top: 0; z-index: 100; padding: 0 0 0;
     }
-    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 4px; }
-    .header-title { font-size: 15px; font-weight: 600; flex-shrink: 0; }
+    .header-title-bar {
+      display: flex; align-items: center;
+      padding: 3px 12px;
+      min-height: 28px;
+      background: linear-gradient(180deg, #fff0f5 0%, #fffafc 50%, #ffffff 100%);
+      border-bottom: none;
+    }
+    .header-title {
+      font-size: 14px; font-weight: 700; flex-shrink: 0;
+      color: #d4a8b8; letter-spacing: 0.03em;
+      line-height: 1.2;
+    }
+    .header-row {
+      display: flex; justify-content: flex-end; align-items: center;
+      margin: 0; gap: 0; padding: 4px 8px 2px;
+      background: #ffffff;
+    }
     .header-actions {
       display: flex; align-items: center; gap: 0;
       flex-wrap: nowrap; min-width: 0; justify-content: flex-end;
+      width: 100%;
     }
     .today-btn, .media-header-btn, .search-header-btn {
       background: none; border: none; color: #007aff;
@@ -121,11 +137,11 @@
       flex-shrink: 0;
     }
     .media-header-btn, .search-header-btn { font-size: 22px; }
-    .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding: 6px 12px 0; }
     .month-label { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
     .nav-arrows { display: flex; gap: 12px; margin-right: 14px; }
     .nav-btn { background: none; border: none; color: #007aff; font-size: 33px; cursor: pointer; padding: 4px 10px; line-height: 1; font-weight: 500; }
-    .view-tabs { display: flex; background: #e5e5ea; border-radius: 8px; padding: 2px; margin-bottom: 6px; }
+    .view-tabs { display: flex; background: #e5e5ea; border-radius: 8px; padding: 2px; margin: 0 12px 6px; }
     .view-tab {
       flex: 1; text-align: center; padding: 5px 0; font-size: 13px; font-weight: 500;
       color: #3a3a3c; border: none; background: transparent; border-radius: 6px; cursor: pointer; transition: all 0.2s;
@@ -499,6 +515,118 @@
       font-size: 12px; font-weight: 600; color: #8e8e93; cursor: pointer;
     }
 
+
+    .help-overlay {
+      display: none; position: fixed; inset: 0; z-index: 520;
+      background: rgba(0,0,0,0.45); align-items: stretch; justify-content: center;
+    }
+    .help-overlay.active { display: flex; }
+    .help-sheet {
+      width: 100%; max-width: 480px; margin: 0 auto; background: #f2f2f7;
+      height: 100%; display: flex; flex-direction: column;
+      animation: helpIn 0.22s ease;
+    }
+    body.dark-mode .help-sheet { background: #000; }
+    @keyframes helpIn {
+      from { transform: translateY(12px); opacity: 0.6; }
+      to { transform: none; opacity: 1; }
+    }
+    .help-head {
+      flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 14px 10px; background: #fff; border-bottom: 1px solid #e5e5ea;
+    }
+    body.dark-mode .help-head { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+    .help-title { font-size: 17px; font-weight: 800; }
+    .help-close {
+      border: none; background: #e5e5ea; color: #1c1c1e; border-radius: 999px;
+      padding: 8px 14px; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    body.dark-mode .help-close { background: #2c2c2e; color: #f2f2f7; }
+    .help-body {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 12px 12px 28px;
+    }
+
+    .help-pick {
+      display: flex; flex-direction: column; gap: 10px; margin-top: 4px;
+    }
+    .help-pick-btn {
+      display: block; width: 100%; text-align: left; border: none; cursor: pointer;
+      border-radius: 16px; padding: 16px; color: #fff; font-weight: 700;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    }
+    .help-pick-btn.memory {
+      background: linear-gradient(135deg, #007aff, #5856d6);
+    }
+    .help-pick-btn.analyzer {
+      background: linear-gradient(135deg, #ff9500, #ff3b30);
+    }
+    .help-pick-btn .hp-title { font-size: 18px; margin-bottom: 4px; }
+    .help-pick-btn .hp-desc { font-size: 12px; font-weight: 500; opacity: 0.95; line-height: 1.45; }
+    .help-back {
+      border: none; background: #e5e5ea; color: #1c1c1e; border-radius: 999px;
+      padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer; margin-bottom: 10px;
+    }
+    body.dark-mode .help-back { background: #2c2c2e; color: #f2f2f7; }
+
+    .help-hero {
+      background: linear-gradient(135deg, #007aff, #5856d6);
+      color: #fff; border-radius: 16px; padding: 16px; margin-bottom: 12px;
+    }
+    .help-hero h2 { margin: 0 0 6px; font-size: 18px; }
+    .help-hero p { margin: 0; font-size: 13px; line-height: 1.5; opacity: 0.95; }
+    .help-toc {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+    }
+    .help-toc button {
+      border: none; border-radius: 999px; padding: 7px 11px; font-size: 12px; font-weight: 700;
+      background: #fff; color: #007aff; cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    body.dark-mode .help-toc button { background: #1c1c1e; color: #64b5ff; }
+    .help-sec {
+      background: #fff; border-radius: 14px; margin-bottom: 10px; overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+    body.dark-mode .help-sec { background: #1c1c1e; border-color: #2c2c2e; }
+    .help-sec-h {
+      width: 100%; text-align: left; border: none; background: transparent;
+      padding: 14px 14px; font-size: 15px; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; gap: 8px; color: inherit;
+    }
+    .help-sec-h .arrow { margin-left: auto; color: #8e8e93; font-size: 12px; }
+    .help-sec-b {
+      display: none; padding: 0 14px 14px; font-size: 13px; line-height: 1.55; color: #3a3a3c;
+    }
+    body.dark-mode .help-sec-b { color: #aeaeb2; }
+    .help-sec.open .help-sec-b { display: block; }
+    .help-sec.open .arrow { transform: rotate(180deg); }
+    .help-sec-b ul { margin: 6px 0 0; padding-left: 1.1em; }
+    .help-sec-b li { margin: 4px 0; }
+    .help-pill {
+      display: inline-block; font-size: 11px; font-weight: 700; border-radius: 6px;
+      padding: 2px 7px; margin: 0 2px 4px 0; background: #e8f1ff; color: #007aff;
+    }
+    body.dark-mode .help-pill { background: #1a2a40; color: #64b5ff; }
+    .help-warn {
+      background: #fff4e5; color: #9a5b00; border-radius: 10px; padding: 10px 12px;
+      font-size: 12px; line-height: 1.45; margin-top: 8px;
+    }
+    body.dark-mode .help-warn { background: #2c2418; color: #ffcc80; }
+    .help-ok {
+      background: #e8f8ec; color: #1b7a3a; border-radius: 10px; padding: 10px 12px;
+      font-size: 12px; line-height: 1.45; margin-top: 8px;
+    }
+    body.dark-mode .help-ok { background: #14261a; color: #7ddea0; }
+    .help-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
+    }
+    .help-mini {
+      background: #f5f5f7; border-radius: 10px; padding: 10px; font-size: 12px;
+    }
+    body.dark-mode .help-mini { background: #2c2c2e; }
+    .help-mini b { display: block; margin-bottom: 4px; font-size: 13px; }
+
     .venues-view { display: none; padding: 8px 12px 28px; }
 
     .venues-mode-tabs {
@@ -514,6 +642,17 @@
     }
     body.dark-mode .venues-mode-tab { background: #2c2c2e; color: #aeaeb2; }
     body.dark-mode .venues-mode-tab.active { background: #0a84ff; color: #fff; }
+    
+    .station-circuit-filter {
+      display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+      color: #3a3a3c; padding: 8px 10px; background: #fff; border-radius: 10px;
+      border: 1px solid #c7c7cc; cursor: pointer; user-select: none;
+    }
+    body.dark-mode .station-circuit-filter {
+      background: #1c1c1e; color: #f2f2f7; border-color: #3a3a3c;
+    }
+    .station-circuit-filter input { width: 18px; height: 18px; accent-color: #007aff; }
+
     .station-toolbar {
       display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;
     }
@@ -996,7 +1135,12 @@
       background: rgba(28, 28, 30, 0.92);
       border-bottom-color: rgba(255, 255, 255, 0.12);
     }
-    body.dark-mode .header-title,
+    body.dark-mode .header-title-bar {
+      background: linear-gradient(180deg, #2e282c 0%, #242022 55%, #1c1c1e 100%);
+      border-bottom: none;
+    }
+    body.dark-mode .header-title { color: #b890a0; }
+    body.dark-mode .header-row { background: rgba(28, 28, 30, 0.7); }
     body.dark-mode .month-label { color: #f2f2f7; }
     body.dark-mode .today-btn,
     body.dark-mode .media-header-btn,
@@ -1158,10 +1302,11 @@
     .fun-chip.good .fc-val { color: #34c759; }
     .fun-chip.hot .fc-val { color: #ff9f0a; }
     .fun-msg {
-      font-size: 12px; color: #3a3a3c; background: #fff8e6; border-radius: 10px;
+      font-size: 12px; color: #6b4a58; background: #fff0f5; border-radius: 10px;
       padding: 8px 10px; margin-bottom: 8px; line-height: 1.45;
+      border: 1px solid rgba(255, 220, 230, 0.8);
     }
-    body.dark-mode .fun-msg { background: #2c2618; color: #f2e6c8; }
+    body.dark-mode .fun-msg { background: #2e282c; color: #e0c4d0; border-color: rgba(180, 140, 160, 0.25); }
     .best-badge {
       display: inline-block; font-size: 10px; font-weight: 700; color: #fff;
       background: linear-gradient(135deg, #ff9f0a, #ff3b30); border-radius: 6px;
@@ -1295,8 +1440,10 @@
 </head>
 <body>
   <div class="app-header">
-    <div class="header-row">
+    <div class="header-title-bar">
       <div class="header-title">memory</div>
+    </div>
+    <div class="header-row">
       <div class="header-actions">
         <button class="today-btn" id="themeToggleBtn" onclick="toggleTheme()" title="表示モード切替">🌙</button>
         <button class="today-btn" onclick="goHome()" title="ホーム（月ビュー）">🏠</button>
@@ -1307,6 +1454,7 @@
         <button class="search-header-btn" onclick="openMotorCheckSolo()" title="モーターチェック単独">🏎️</button>
         <button class="search-header-btn" onclick="openSearchView()" title="セッティング検索">🔍</button>
         <button class="media-header-btn" onclick="openGallery()" title="すべての写真・動画">📷</button>
+        <button class="search-header-btn" onclick="openHelpGuide()" title="使い方">❓</button>
       </div>
     </div>
     <div class="month-nav">
@@ -1652,6 +1800,18 @@
         削除前にバックアップ推奨です。「写真は残してデータのみ」はメモ・セッティング情報を消し、写真付きの記録だけ残します。
       </p>
       <div id="dataSelectPanel" style="display:none;margin-top:14px;"></div>
+    </div>
+  </div>
+
+  
+  <!-- 使い方ガイド -->
+  <div class="help-overlay" id="helpOverlay" onclick="if(event.target===this)closeHelpGuide()">
+    <div class="help-sheet" role="dialog" aria-label="使い方">
+      <div class="help-head">
+        <div class="help-title">❓ 使い方</div>
+        <button type="button" class="help-close" onclick="closeHelpGuide()">閉じる</button>
+      </div>
+      <div class="help-body" id="helpBody"></div>
     </div>
   </div>
 
@@ -3958,6 +4118,298 @@
       });
     }
 
+
+
+    var helpGuidePage = 'home'; // home | memory | analyzer
+    function openHelpGuide() {
+      helpGuidePage = 'home';
+      renderHelpGuide();
+      document.getElementById('helpOverlay').classList.add('active');
+    }
+    function closeHelpGuide() {
+      var el = document.getElementById('helpOverlay');
+      if (el) el.classList.remove('active');
+    }
+    function showHelpPage(page) {
+      helpGuidePage = page || 'home';
+      renderHelpGuide();
+    }
+    function renderHelpGuide() {
+      var body = document.getElementById('helpBody');
+      if (!body) return;
+      if (helpGuidePage === 'memory') body.innerHTML = buildMemoryHelpHtml();
+      else if (helpGuidePage === 'analyzer') body.innerHTML = buildAnalyzerHelpHtml();
+      else body.innerHTML = buildHelpHomeHtml();
+      body.querySelectorAll('.help-sec-h').forEach(function(btn) {
+        btn.onclick = function() {
+          btn.parentElement.classList.toggle('open');
+        };
+      });
+      body.querySelectorAll('[data-help-jump]').forEach(function(btn) {
+        btn.onclick = function() {
+          var id = btn.getAttribute('data-help-jump');
+          var el = document.getElementById(id);
+          if (!el) return;
+          el.classList.add('open');
+          try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+        };
+      });
+      body.scrollTop = 0;
+    }
+    function helpSec(id, icon, title, inner) {
+      return '<div class="help-sec" id="' + id + '">' +
+        '<button type="button" class="help-sec-h"><span>' + icon + '</span><span>' + title + '</span><span class="arrow">▼</span></button>' +
+        '<div class="help-sec-b">' + inner + '</div></div>';
+    }
+    function buildHelpHomeHtml() {
+      var h = '';
+      h += '<div class="help-hero"><h2>使い方ガイド</h2><p>説明を見たいアプリを選んでください。</p></div>';
+      h += '<div class="help-pick">';
+      h += '<button type="button" class="help-pick-btn memory" onclick="showHelpPage(\'memory\')">' +
+        '<div class="hp-title">📅 memory</div>' +
+        '<div class="hp-desc">セッティング記録・カレンダー・分析・会場マップ・バックアップ</div></button>';
+      h += '<button type="button" class="help-pick-btn analyzer" onclick="showHelpPage(\'analyzer\')">' +
+        '<div class="hp-title">🏎️ RPM Analyzer</div>' +
+        '<div class="hp-desc">マイクで回転数を測る・比較表・履歴・memory連携</div></button>';
+      h += '</div>';
+      h += '<div class="help-ok" style="margin-top:14px;">測るのが Analyzer、残して分析するのが memory です。</div>';
+      return h;
+    }
+    function buildMemoryHelpHtml() {
+      var sec = helpSec;
+      var h = '';
+      h += '<button type="button" class="help-back" onclick="showHelpPage(\'home\')">← アプリ選択に戻る</button>';
+      h += '<div class="help-hero"><h2>memory の使い方</h2><p>ミニ四駆の記録をカレンダーに残して、あとから探す・比べるアプリです。<br>データはスマホの中に保存されます。</p></div>';
+      h += '<div class="help-toc">' +
+        '<button type="button" data-help-jump="help-basic">まずここ</button>' +
+        '<button type="button" data-help-jump="help-header">ボタン</button>' +
+        '<button type="button" data-help-jump="help-record">記録</button>' +
+        '<button type="button" data-help-jump="help-rpm">RPM</button>' +
+        '<button type="button" data-help-jump="help-map">地図</button>' +
+        '<button type="button" data-help-jump="help-data">バックアップ</button>' +
+        '</div>';
+      h += sec('help-basic', '📌', 'まず覚えておくこと',
+        '<ul>' +
+        '<li>データは<strong>この端末・このブラウザ</strong>にだけ残ります</li>' +
+        '<li>Safari と Chrome ではデータが別です</li>' +
+        '<li>大事な前に <span class="help-pill">💾</span> でバックアップ</li>' +
+        '<li>機種変更の前も必ず書き出してください</li>' +
+        '</ul>' +
+        '<div class="help-warn">履歴削除や別URLで開くと、データが見えなくなることがあります。</div>' +
+        '<div class="help-ok">写真が多いとバックアップファイルが大きくなります。</div>');
+      h += sec('help-header', '🧭', '上のボタンの意味',
+        '<div class="help-grid">' +
+        '<div class="help-mini"><b>🌙 / ☀️</b>画面の明るさ</div>' +
+        '<div class="help-mini"><b>🏠</b>月カレンダーへ</div>' +
+        '<div class="help-mini"><b>💾</b>保存・削除・復元</div>' +
+        '<div class="help-mini"><b>📊</b>完走率など分析</div>' +
+        '<div class="help-mini"><b>🗺️</b>会場マップ</div>' +
+        '<div class="help-mini"><b>⏱️</b>ストップウォッチ</div>' +
+        '<div class="help-mini"><b>🏎️</b>モーター計測（単独）</div>' +
+        '<div class="help-mini"><b>🔍</b>記録を探す</div>' +
+        '<div class="help-mini"><b>📷</b>写真一覧</div>' +
+        '<div class="help-mini"><b>❓</b>この説明</div>' +
+        '</div>' +
+        '<div class="help-warn">🏎️ は測るだけ。memory には戻りません。記録にRPMを入れるときはフォーム内の「RPM Analyzerを開く」を使います。</div>');
+      h += sec('help-cal', '📅', 'カレンダー',
+        '<p><strong>月</strong> … 色ドットが記録あり。日付を押すとその日の一覧。</p>' +
+        '<p><strong>週</strong> … 時間つきの予定が見やすい。時刻を入れると表示されます。</p>' +
+        '<p><strong>日</strong> … その日のカード一覧。</p>' +
+        '<ul>' +
+        '<li>カードの短い文字は、場所 → マシン → モーターの順で決まります</li>' +
+        '<li>今日の画面では、今月の完走率などの小さなまとめも出ます</li>' +
+        '</ul>');
+      h += sec('help-record', '✍️', '記録する（＋ボタン）',
+        '<p>右下の <strong>＋</strong> から新規作成です。</p>' +
+        '<ul>' +
+        '<li><strong>テンプレ</strong> … よく使うセッティングを保存・呼び出し（写真は含みません）</li>' +
+        '<li><strong>場所</strong> … 名前は手入力。地図ピン用にGPSも取れます</li>' +
+        '<li><strong>結果</strong> … 完走／アウトを付けると分析に入ります</li>' +
+        '<li><strong>大会</strong> … 大会名・ラウンドを入れると大会まとめが使いやすくなります</li>' +
+        '<li><strong>写真</strong> … 端末のアルバムから入れるのがきれいです</li>' +
+        '</ul>' +
+        '<div class="help-ok">大会で完走保存すると、ときどき応援コメントが出ます。</div>' +
+        '<div class="help-warn">保存前に閉じると入力中の内容は消えます。</div>');
+      h += sec('help-detail', '🔍', '見る・比べる・コピー',
+        '<ul>' +
+        '<li>カードを開くと<strong>詳細</strong>。そこから編集できます</li>' +
+        '<li>同じマシン／モーターの<strong>前回との差分</strong>が出ます</li>' +
+        '<li>タイムが自己ベストだと 🏆 が付きます</li>' +
+        '<li><strong>比較に追加</strong>で2件を並べて違いを見られます</li>' +
+        '<li>コピー（複製）では<strong>写真はコピーされません</strong></li>' +
+        '</ul>');
+      h += sec('help-rpm', '🔊', 'RPMを取り込む',
+        '<ol style="padding-left:1.2em;margin:6px 0 0;">' +
+        '<li>記録画面で「RPM Analyzerを開く」</li>' +
+        '<li>計測する</li>' +
+        '<li>「memoryへ戻る」または「結果を取り込む」</li>' +
+        '<li><strong>最高RPM（MAX）</strong>が回転数に入ります</li>' +
+        '</ol>' +
+        '<div class="help-warn">マイク許可と https が必要です。CURRENT ではなく MAX が入ります。</div>');
+      h += sec('help-search', '🔎', '検索と分析',
+        '<p><strong>検索</strong> … 言葉とプルダウンで絞り込み。候補は「今の条件に合うデータだけ」出ます。</p>' +
+        '<p><strong>分析</strong></p>' +
+        '<ul>' +
+        '<li>分析 … 条件ごとの完走率</li>' +
+        '<li>台帳 … モーター番号ごとの成績</li>' +
+        '<li>大会 … ラウンドやパッケージ</li>' +
+        '<li>負け … アウトの傾向</li>' +
+        '</ul>' +
+        '<div class="help-warn">結果を付けていない記録は、完走率の計算に入りません。</div>');
+      h += sec('help-map', '🗺️', '会場マップ',
+        '<p>2つのモードがあります。</p>' +
+        '<ul>' +
+        '<li><strong>GPSピン地図</strong> … 自分の記録の位置。武蔵野市あたりを基準にピン配置</li>' +
+        '<li><strong>ステーション一覧</strong> … お店リスト（全国内蔵）。サーキット設置店だけにも絞れます</li>' +
+        '</ul>' +
+        '<div class="help-warn">GPSがない記録はピンに出ません。地図はイラストなので、近い店は拡大して選んでください。</div>');
+      h += sec('help-data', '💾', 'バックアップと削除',
+        '<ul>' +
+        '<li><strong>書き出し</strong> … JSONファイルを端末に保存</li>' +
+        '<li><strong>復元</strong> … 置き換え／マージを選べます</li>' +
+        '<li>記録の選択削除・全削除、写真だけ消す、などもここ</li>' +
+        '</ul>' +
+        '<div class="help-warn">消す前に必ずバックアップ。消したデータは戻しにくいです。</div>');
+      h += sec('help-trouble-m', '🛠️', 'うまくいかないとき',
+        '<ul>' +
+        '<li><strong>データがない</strong> … 別ブラウザ／別URL／履歴削除。バックアップは？</li>' +
+        '<li><strong>RPMが入らない</strong> … フォームの「開く」経由か。マイクは許可したか</li>' +
+        '<li><strong>GPSが取れない</strong> … 位置情報の許可、屋外かどうか</li>' +
+        '<li><strong>保存できない</strong> … 写真・動画が多すぎるかも</li>' +
+        '</ul>');
+      h += '<p style="text-align:center;color:#8e8e93;font-size:11px;margin:16px 0 8px;">memory · 操作ガイド</p>';
+      return h;
+    }
+    function buildAnalyzerHelpHtml() {
+      var sec = helpSec;
+      var h = '';
+      h += '<button type="button" class="help-back" onclick="showHelpPage(\'home\')">← アプリ選択に戻る</button>';
+      h += '<div class="help-hero" style="background:linear-gradient(135deg,#ff9500,#ff3b30);"><h2>RPM Analyzer</h2><p>マイクでモーター音を拾い、回転数（RPM）と速度を推定するアプリです。<br>履歴・比較表・memory 連携にも対応しています。</p></div>';
+      h += '<div class="help-toc">' +
+        '<button type="button" data-help-jump="ra-basic">前提</button>' +
+        '<button type="button" data-help-jump="ra-mic">マイク</button>' +
+        '<button type="button" data-help-jump="ra-rpm">RPM</button>' +
+        '<button type="button" data-help-jump="ra-btn">ボタン</button>' +
+        '<button type="button" data-help-jump="ra-link">連携</button>' +
+        '<button type="button" data-help-jump="ra-trouble">困ったとき</button>' +
+        '</div>';
+
+      h += sec('ra-basic', '📌', '全体の前提',
+        '<p><strong>できること</strong></p>' +
+        '<ul>' +
+        '<li>音の周波数から RPM を推定</li>' +
+        '<li>ギヤ・タイヤ・電圧・負荷から速度（km/h）を計算</li>' +
+        '<li>MAX / MIN、履歴、電圧別の比較表</li>' +
+        '</ul>' +
+        '<p><strong>必要なもの</strong></p>' +
+        '<ul>' +
+        '<li>マイク許可（必須）</li>' +
+        '<li>できるだけ <strong>https</strong> で開く</li>' +
+        '</ul>' +
+        '<div class="help-warn">接触式のタコメーターではありません。騒音・距離・マイク性能で数字がぶれます。前後の相対比較向きです。</div>' +
+        '<div class="help-ok">履歴や設定は端末のブラウザ内（localStorage）に保存されます。</div>');
+
+      h += sec('ra-mic', '🎙️', 'マイクとスペクトラム',
+        '<ul>' +
+        '<li>上の棒が入力レベル。動かないときは許可・ミュート・距離を確認</li>' +
+        '<li>初回はブラウザがマイク許可を聞きます</li>' +
+        '<li>iOS は設定アプリ側のマイク権限も確認</li>' +
+        '<li>スペクトルは音を周波数に分解したもの。ピークから RPM を出します</li>' +
+        '<li>静かな場所で、モーターに近づけると安定しやすいです</li>' +
+        '<li>タブを裏に回すと解析が止まる端末があります</li>' +
+        '</ul>');
+
+      h += sec('ra-filter', '🎚️', '集音フィルタ（RPM範囲）',
+        '<ul>' +
+        '<li>下限〜上限の RPM だけを解析対象にします</li>' +
+        '<li>狭くしすぎると、実回転が枠外で「拾えない」ことがあります</li>' +
+        '<li>数字で下限・上限を確認してから使ってください</li>' +
+        '</ul>');
+
+      h += sec('ra-rpm', '🔢', 'MOTOR RPM と SPEED',
+        '<div class="help-grid">' +
+        '<div class="help-mini"><b>CURRENT</b>いまの推定回転</div>' +
+        '<div class="help-mini"><b>MAX</b>開始後の最高回転</div>' +
+        '<div class="help-mini"><b>MIN</b>開始後の最低回転</div>' +
+        '<div class="help-mini"><b>SPEED</b>ギヤ・タイヤから換算</div>' +
+        '</div>' +
+        '<div class="help-warn">memory に送るのは <strong>MAX</strong> です（CURRENT ではない）。ノイズで MAX が跳ねたらリセットして測り直してください。</div>' +
+        '<ul>' +
+        '<li>速度は公式計測やレーダーと一致しないことがあります</li>' +
+        '<li>タイヤ径・ギヤの設定ミスが速度誤差に直結します</li>' +
+        '<li>負荷％は経験的な補正です</li>' +
+        '</ul>');
+
+      h += sec('ra-btn', '▶️', 'メイン操作ボタン',
+        '<ul>' +
+        '<li><strong>計測開始／停止</strong> … マイク起動と解析</li>' +
+        '<li><strong>ロック</strong> … 今の値を固定して比較表の基準にする</li>' +
+        '<li><strong>保存</strong> … 名前などを付けて履歴へ</li>' +
+        '<li><strong>履歴</strong> … 過去データの表示・フィルタ・削除（計測は止めない）</li>' +
+        '<li><strong>設定</strong> … ノイズ閾値・校正・負荷・ダークモード</li>' +
+        '<li><strong>リセット</strong> … 表示の CURRENT/MAX/MIN をクリア（履歴は消えない）</li>' +
+        '<li><strong>memoryへ戻る</strong> … 連携起動時だけ表示。MAX を渡して戻る</li>' +
+        '</ul>' +
+        '<div class="help-warn">ロック中は「今の音」と表の数字が一致しないことがあります。条件を変えるとロック基準で再計算されます。</div>');
+
+      h += sec('ra-table', '📊', '比較表・設定・履歴',
+        '<p><strong>比較表</strong></p>' +
+        '<ul>' +
+        '<li>電圧・ギヤ・タイヤ径・負荷％を変えて一覧</li>' +
+        '<li>電圧換算は単純比例（実モーター特性までは再現しない）</li>' +
+        '<li>比較したい瞬間でロックするのが安全</li>' +
+        '</ul>' +
+        '<p><strong>設定</strong></p>' +
+        '<ul>' +
+        '<li>ノイズ閾値 … 高いとモーターも無視しがち、低いと環境音で暴れる</li>' +
+        '<li>RPM校正 … 実測とずれるときの倍率</li>' +
+        '<li>ダークモードは Analyzer 単体の設定（memory とは別）</li>' +
+        '</ul>' +
+        '<p><strong>履歴</strong></p>' +
+        '<ul>' +
+        '<li>プルダウンは「他条件に存在する値」中心</li>' +
+        '<li>名前タップでお気に入り、削除は取り消し不可</li>' +
+        '</ul>');
+
+      h += sec('ra-link', '🔗', 'memory との連携',
+        '<div class="help-grid">' +
+        '<div class="help-mini"><b>RPM Analyzerを開く</b>MAXをmemoryへ</div>' +
+        '<div class="help-mini"><b>🏎️ 単独</b>書き戻さない</div>' +
+        '</div>' +
+        '<ul>' +
+        '<li>送る優先値は <strong>MAX RPM</strong></li>' +
+        '<li>localStorage / postMessage / 戻りURL など複数経路</li>' +
+        '<li>「Analyzerを開いてからのセッション」中だけ反映</li>' +
+        '<li>別ドメインだと localStorage は共有されません</li>' +
+        '<li>ポップアップを手動で閉じると戻り処理が途中で終わることがあります</li>' +
+        '</ul>' +
+        '<div class="help-ok">測る → Analyzer　残す・分析する → memory</div>');
+
+      h += sec('ra-flow', '✅', 'おすすめの手順',
+        '<ol style="padding-left:1.2em;margin:6px 0 0;">' +
+        '<li>静かな場所でモーターに近づける</li>' +
+        '<li>集音レンジを大まかに合わせる</li>' +
+        '<li>計測開始 → マイク許可</li>' +
+        '<li>安定したらロック（比較したいとき）</li>' +
+        '<li>保存 or memoryへ戻る</li>' +
+        '<li>おかしい数字はリセットして再計測</li>' +
+        '</ol>');
+
+      h += sec('ra-trouble', '🛠️', 'うまくいかないとき',
+        '<ul>' +
+        '<li><strong>集音しない</strong> … マイク許可、https、他アプリの占有</li>' +
+        '<li><strong>数字が跳ねる</strong> … 閾値を上げる、距離固定、リセット</li>' +
+        '<li><strong>全部低い／高い</strong> … 校正、レンジ、ギヤ・タイヤ</li>' +
+        '<li><strong>Safariだけダメ</strong> … サイトのマイク権限、タブの停止</li>' +
+        '<li><strong>memoryに戻らない</strong> … 連携で開いたか、ポップアップブロック</li>' +
+        '<li><strong>履歴が消えた</strong> … 別ブラウザ、データ削除、プライベートモード</li>' +
+        '</ul>' +
+        '<div class="help-ok">マイク音声は端末上で処理する想定です。外部サーバーへ音を送る処理はありません。</div>');
+
+      h += '<p style="text-align:center;color:#8e8e93;font-size:11px;margin:16px 0 8px;">RPM Analyzer · 操作ガイド</p>';
+      return h;
+    }
+
     function openGallery() {
       galleryMode = 'all';
       document.querySelectorAll('.gallery-tab').forEach(function(t) {
@@ -4780,77 +5232,334 @@
     // GPS日本地図とは独立。更新は公式 https://www.tamiya.com/japan/mini4wd/mini4wdstation を確認
     var venuesPageMode = 'gps'; // 'gps' | 'station'
     var STATION_SHOPS = [
-      // 東京
-      { pref: '東京都', name: 'TAMIYA PLAMODEL FACTORY TOKYO', address: '東京都江東区青海1-1-10 ダイバーシティ東京 プラザ7F', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '東京都', name: 'コジマ×ビックカメラ 三鷹店', address: '東京都三鷹市下連雀3-37-22', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '東京都', name: 'コジマ×ビックカメラ 西東京店', address: '東京都西東京市芝久保町3-2-22', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '東京都', name: 'コジマ×ビックカメラ 成城店', address: '東京都世田谷区成城6-12-10', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '東京都', name: 'コジマ×ビックカメラ ベルクスモール浮間舟渡店', address: '東京都板橋区舟渡1-6-22', tags: 'ステーション サーキット設置', tel: '03-6454-5522' },
-      { pref: '東京都', name: 'コジマ×ビックカメラ 井草店', address: '東京都杉並区上井草3-37-20', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '東京都', name: 'コジマ×ビックカメラ 善福寺店', address: '東京都杉並区善福寺1-14-10', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '東京都', name: 'コジマ×ビックカメラ 東大和店', address: '東京都東大和市高木3-378-3', tags: 'ステーション サーキット設置', tel: '042-562-6711' },
-      { pref: '東京都', name: 'ヨドバシカメラ マルチメディア錦糸町', address: '東京都墨田区江東橋3-9-10', tags: '販売・取扱', tel: '' },
-      { pref: '東京都', name: 'ヨドバシカメラ 新宿西口本店', address: '東京都新宿区西新宿1-11-1', tags: 'ミニ四駆販売', tel: '03-3346-1010' },
-      { pref: '東京都', name: 'ホビー サン星', address: '東京都中野区上高田2-53-5 クレセント村松1F', tags: 'ステーション', tel: '03-3385-5038' },
-      { pref: '東京都', name: 'おもちゃのぶんぶく', address: '東京都豊島区南長崎5-26-14', tags: 'ステーション サーキット設置', tel: '03-3952-7530' },
-      { pref: '東京都', name: 'Robotma.com', address: '東京都板橋区蓮沼町34-1 innovation Garage', tags: 'ステーション サーキット設置', tel: '03-6807-9191' },
-      { pref: '東京都', name: 'フジヤ', address: '東京都板橋区常盤台2-27-9', tags: 'ステーション サーキット設置', tel: '03-3960-2829' },
-      { pref: '東京都', name: 'えのもとサーキット', address: '東京都八王子市高尾町1529-3', tags: 'ステーション サーキット設置', tel: '042-664-3249' },
-      { pref: '東京都', name: 'Mini4wd Geeks', address: '東京都', tags: 'サーキット・コミュニティ', tel: '' },
-      { pref: '東京都', name: 'もりや', address: '東京都東大和市向原5-1024-35', tags: '販売', tel: '042-561-0922' },
-      // 神奈川
-      { pref: '神奈川県', name: 'タミヤプラモデルファクトリー トレッサ横浜店', address: '神奈川県横浜市港北区師岡町700 トレッサ横浜南棟1F', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '神奈川県', name: 'コジマ×ビックカメラ 梶ヶ谷店', address: '神奈川県川崎市高津区梶ヶ谷2-2-3', tags: 'ステーション サーキット設置', tel: '044-860-2411' },
-      { pref: '神奈川県', name: 'エディオン 横浜西口本店', address: '神奈川県横浜市西区南幸2丁目16-1', tags: 'ステーション サーキット設置', tel: '045-410-2511' },
-      { pref: '神奈川県', name: 'コジマ×ビックカメラ 横浜大口店', address: '神奈川県横浜市神奈川区神之木町3-3', tags: 'ステーション サーキット設置', tel: '045-439-3255' },
-      { pref: '神奈川県', name: 'ラジコンカー練習場･元気っ子さん', address: '神奈川県横浜市神奈川区松本町5-38-1 ボンジョルノ三ツ沢2F', tags: 'ステーション サーキット設置', tel: '045-294-8154' },
-      { pref: '神奈川県', name: 'コジマ×ビックカメラ 海老名店', address: '神奈川県海老名市中央2-4-1', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '神奈川県', name: 'コジマ×ビックカメラ 東海大学前店', address: '神奈川県秦野市', tags: 'ステーション', tel: '' },
-      { pref: '神奈川県', name: 'コジマ×ビックカメラ 横須賀店', address: '神奈川県横須賀市', tags: 'ステーション', tel: '' },
-      { pref: '神奈川県', name: '滝口模型', address: '神奈川県横浜市都筑区大熊町138', tags: 'ステーション サーキット設置', tel: '045-473-0957' },
-      { pref: '神奈川県', name: 'HOBBY SHOP たからばこ', address: '神奈川県横浜市青葉区すすき野3-7-1 根岸ビル1F', tags: 'ステーション サーキット設置', tel: '045-507-5820' },
-      { pref: '神奈川県', name: 'アンドロメダ屋模型店 鴨居店', address: '神奈川県横浜市緑区鴨居1-11-2', tags: 'ステーション サーキット設置', tel: '045-934-3881' },
-      { pref: '神奈川県', name: 'サムカワサーキット', address: '神奈川県', tags: 'サーキット', tel: '' },
-      { pref: '神奈川県', name: 'HP CIRCUIT CLUB', address: '神奈川県', tags: 'サーキット', tel: '' },
-      { pref: '神奈川県', name: 'ミニ四駆サーキットKINJIRO BASE', address: '神奈川県', tags: 'サーキット', tel: '' },
-      // 埼玉
-      { pref: '埼玉県', name: 'イエローサブマリン 大宮本店', address: '埼玉県さいたま市北区宮原町3-561', tags: 'ステーション サーキット設置', tel: '048-652-7977' },
-      { pref: '埼玉県', name: 'タムタム大宮店', address: '埼玉県さいたま市見沼区春野2-8 Patria東大宮3F', tags: 'ステーション サーキット設置', tel: '048-688-9666' },
-      { pref: '埼玉県', name: 'コジマ×ビックカメラ 鳩ヶ谷店', address: '埼玉県川口市里1585-1', tags: 'ステーション サーキット設置', tel: '048-288-9100' },
-      { pref: '埼玉県', name: 'コジマ×ビックカメラ 春日部店', address: '埼玉県春日部市', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '埼玉県', name: 'コジマ×ビックカメラ 越谷店', address: '埼玉県越谷市', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '埼玉県', name: '埼玉レジャーランド 春日部店', address: '埼玉県春日部市', tags: 'サーキット', tel: '' },
-      { pref: '埼玉県', name: 'ホビーゾーンイオンモール浦和美園店', address: '埼玉県さいたま市緑区美園5丁目50-1-3階', tags: 'ステーション サーキット設置', tel: '050-3626-1547' },
-      { pref: '埼玉県', name: 'ホビーゾーン イオンレイクタウンmori店', address: '埼玉県越谷市レイクタウン3-1-1', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '埼玉県', name: 'TSUNOI Mini4WD Site', address: '埼玉県八潮市緑町5丁目29-26', tags: 'ステーション サーキット設置', tel: '048-997-6336' },
-      { pref: '埼玉県', name: 'ヨドバシカメラ マルチメディアさいたま新都心駅前店', address: '埼玉県さいたま市中央区新都心3-1', tags: '販売', tel: '' },
-      { pref: '埼玉県', name: '精文堂', address: '埼玉県', tags: '販売・取扱', tel: '' },
-      // 千葉
-      { pref: '千葉県', name: 'コジマ×ビックカメラ 柏店', address: '千葉県柏市', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '千葉県', name: 'らじこんひろば', address: '千葉県', tags: 'サーキット', tel: '' },
-      { pref: '千葉県', name: 'ホビーショップ橘花', address: '千葉県', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '千葉県', name: '太陽模型 君津本店', address: '千葉県君津市', tags: '販売・サーキット', tel: '' },
-      // 茨城
-      { pref: '茨城県', name: '水戸鑑定団', address: '茨城県水戸市', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '茨城県', name: 'ジョイフル本田 ニューポートひたちなか店', address: '茨城県ひたちなか市', tags: 'ステーション', tel: '' },
-      { pref: '茨城県', name: 'HOBBY ZONE イオンモール水戸内原店', address: '茨城県水戸市', tags: 'ステーション', tel: '' },
-      { pref: '茨城県', name: '勝田ラジコン模型', address: '茨城県ひたちなか市', tags: '販売', tel: '' },
-      // 栃木
-      { pref: '栃木県', name: 'コジマ×ビックカメラ 宇都宮本店', address: '栃木県宇都宮市', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '栃木県', name: 'コジマ×ビックカメラ さくら店', address: '栃木県さくら市', tags: 'ステーション', tel: '' },
-      { pref: '栃木県', name: 'コジマ×ビックカメラ 日光店', address: '栃木県日光市', tags: 'ステーション', tel: '' },
-      { pref: '栃木県', name: 'コジマ×ビックカメラ 栃木店', address: '栃木県栃木市', tags: 'ステーション', tel: '' },
-      { pref: '栃木県', name: 'おもちゃのマンネンヤ', address: '栃木県', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '栃木県', name: 'ガラクタ鑑定団小山総本店', address: '栃木県小山市', tags: 'ステーション', tel: '' },
-      // 群馬
-      { pref: '群馬県', name: 'コジマ×ビックカメラ 高崎店', address: '群馬県高崎市', tags: 'ステーション', tel: '' },
-      { pref: '群馬県', name: 'タカサキハンズ', address: '群馬県高崎市', tags: 'ステーション サーキット設置', tel: '' },
-      { pref: '群馬県', name: 'コジマ×ビックカメラ 足利店', address: '栃木県足利市', tags: 'ステーション', tel: '' },
-      // 主要・他地域（抜粋）
-      { pref: '静岡県', name: 'タミヤ本社・ホビースクエア関連', address: '静岡県静岡市', tags: '公式・イベント拠点', tel: '' },
-      { pref: '大阪府', name: 'ヨドバシカメラ マルチメディア梅田', address: '大阪府大阪市', tags: '販売', tel: '' },
-      { pref: '北海道', name: 'コジマ×ビックカメラ 新さっぽろデュオ店', address: '北海道札幌市', tags: 'ステーション', tel: '' },
-      { pref: '愛知県', name: 'タム･タム 豊橋店', address: '愛知県豊橋市下地町字境田100 オートバックスとよはし店2階', tags: 'ステーション サーキット設置', tel: '0532-57-5300' }
+      { pref: '北海道', name: '（株）リューツー', address: '北海道札幌市白石区流通センター5丁目4番25号', tags: 'サーキット設置 ステーション 販売店', tel: '011-862-8658', circuit: true },
+      { pref: '北海道', name: 'OHMツインサーキット', address: '北海道札幌市白石区川下2068-1', tags: 'サーキット設置 ステーション 販売店', tel: '011-879-5381', circuit: true },
+      { pref: '北海道', name: 'コジマ×ビックカメラ 新さっぽろデュオ店', address: '北海道札幌市厚別区厚別中央二条5丁目6番2号 新さっぽろアークシティデュオ１', tags: 'サーキット設置 ステーション 販売店', tel: '011-801-5252', circuit: true },
+      { pref: '北海道', name: 'ホビー光 本店', address: '北海道小樽市花園4-10-4', tags: 'サーキット設置 ステーション 販売店', tel: '0134-33-1103', circuit: true },
+      { pref: '北海道', name: 'ホビーショップイルカ', address: '北海道北斗市七重浜1-10-40', tags: 'サーキット設置 ステーション 販売店', tel: '0138-49-3080', circuit: true },
+      { pref: '北海道', name: 'BOOKOFF DCM上磯店', address: '北海道北斗市七重浜7-12-1 DCM上磯店 2F', tags: 'サーキット設置 ステーション 販売店', tel: '0138-48-0030', circuit: true },
+      { pref: '北海道', name: 'かたつむり', address: '北海道室蘭市高砂町1-56-2', tags: 'サーキット設置 ステーション 販売店', tel: '0143-47-1177', circuit: true },
+      { pref: '北海道', name: 'ドリームホビー', address: '北海道苫小牧市明野新町5-17-16', tags: 'サーキット設置 ステーション 販売店', tel: '0144-52-1811', circuit: true },
+      { pref: '北海道', name: 'コジマ×ビックカメラ イオン西岡店', address: '北海道札幌市豊平区西岡3条3-4-1 イオン札幌西岡ショッピングセンター2階', tags: 'サーキット設置 ステーション 販売店', tel: '011-857-3000', circuit: true },
+      { pref: '北海道', name: 'オーム模型', address: '北海道札幌市豊平区平岸3条14-1-22', tags: 'サーキット設置 ステーション 販売店', tel: '011-821-1367', circuit: true },
+      { pref: '北海道', name: 'RCショップ･サーキットDo', address: '北海道岩見沢市中幌向町113-22', tags: 'サーキット設置 ステーション 販売店', tel: '0126-26-6044', circuit: true },
+      { pref: '北海道', name: 'ホビーショップ てづか', address: '北海道旭川市豊岡11条2-1-7', tags: 'サーキット設置 ステーション 販売店', tel: '0166-33-9126', circuit: true },
+      { pref: '北海道', name: 'MEGAドンキホーテ 西帯広店', address: '北海道帯広市西21条南4-1', tags: 'サーキット設置 ステーション 販売店', tel: '0155-41-3810', circuit: true },
+      { pref: '北海道', name: '東武イーストモール店', address: '北海道北見市端野町三区572番地1', tags: 'サーキット設置 ステーション 販売店', tel: '0157-56-4147', circuit: true },
+      { pref: '青森県', name: '(有)工藤模型', address: '青森県青森市橋本3-4-1', tags: 'サーキット設置 ステーション 販売店', tel: '017-773-5160', circuit: true },
+      { pref: '青森県', name: 'コジマ×ビックカメラ 弘前店', address: '青森県弘前市城東北4-6-3', tags: 'サーキット設置 ステーション 販売店', tel: '0172-29-5300', circuit: true },
+      { pref: '青森県', name: 'アメリカンパラダイス浪館店', address: '青森県青森市浪館前田4-10-36', tags: 'サーキット設置 ステーション 販売店', tel: '017-766-7423', circuit: true },
+      { pref: '青森県', name: 'ミウラ電波模型店', address: '青森県八戸市西白山台6-8-3', tags: 'サーキット設置 ステーション 販売店', tel: '0178-20-9192', circuit: true },
+      { pref: '岩手県', name: 'コジマ×ビックカメラ 盛岡店', address: '岩手県盛岡市盛岡駅西通1-27-1', tags: 'サーキット設置 ステーション 販売店', tel: '019-604-7133', circuit: true },
+      { pref: '岩手県', name: 'ホビースクエアにしな みたけ店', address: '岩手県盛岡市みたけ3-18-29', tags: 'サーキット設置 ステーション 販売店', tel: '019-641-2580', circuit: true },
+      { pref: '岩手県', name: 'ファン･アーマット', address: '岩手県盛岡市津志田町1-6-20', tags: 'サーキット設置 ステーション 販売店', tel: '019-635-2475', circuit: true },
+      { pref: '岩手県', name: '(株)甲山屋 盛岡店', address: '岩手県盛岡市南大通2丁目6-6', tags: 'サーキット設置 ステーション 販売店', tel: '019-624-5963', circuit: true },
+      { pref: '岩手県', name: 'ホビーショップ･パワーナイン', address: '岩手県一関市山目字寺前34-2', tags: 'サーキット設置 ステーション 販売店', tel: '0191-48-5231', circuit: true },
+      { pref: '岩手県', name: '万SAI堂 北上店', address: '岩手県北上市村崎野14地割68番地32', tags: 'サーキット設置 ステーション 販売店', tel: '0197-62-6505', circuit: true },
+      { pref: '岩手県', name: 'アメリカン パラダイス 北上店', address: '岩手県北上市北鬼柳32地割44', tags: 'サーキット設置 ステーション 販売店', tel: '0197-63-7898', circuit: true },
+      { pref: '岩手県', name: '(有)サンホビー アンクル', address: '岩手県遠野市中央通り5-5', tags: 'サーキット設置 ステーション 販売店', tel: '0198-62-0399', circuit: true },
+      { pref: '宮城県', name: 'コジマ×ビックカメラ イオンモール名取店', address: '宮城県名取市杜せきのした五丁目3番地の1', tags: 'サーキット設置 ステーション 販売店', tel: '022-784-1220', circuit: true },
+      { pref: '宮城県', name: 'コジマ×ビックカメラ 泉中央店', address: '宮城県仙台市泉区泉中央1丁目2番地1', tags: 'サーキット設置 ステーション 販売店', tel: '022-771-7151', circuit: true },
+      { pref: '宮城県', name: 'アークオアシス仙台泉店', address: '宮城県仙台市泉区大沢3丁目', tags: 'サーキット設置 ステーション 販売店', tel: '022-771-2080', circuit: true },
+      { pref: '宮城県', name: 'ヤマダデンキ 仙台あすと長町店', address: '宮城県仙台市太白区あすと長町三丁目1番29号', tags: 'サーキット設置 ステーション 販売店', tel: '022-745-2190', circuit: true },
+      { pref: '宮城県', name: '仙台フロンティア', address: '宮城県仙台市若林区志波町1-1', tags: 'サーキット設置 ステーション 販売店', tel: '022-236-1923', circuit: true },
+      { pref: '宮城県', name: 'コジマ×ビックカメラ 多賀城店', address: '宮城県多賀城市町前2-7-31', tags: 'サーキット設置 ステーション 販売店', tel: '022-362-1131', circuit: true },
+      { pref: '秋田県', name: 'コジマ×ビックカメラ 卸団地店', address: '秋田県秋田市卸町2-3-12', tags: 'サーキット設置 ステーション 販売店', tel: '018-883-1661', circuit: true },
+      { pref: '山形県', name: 'ローリングパークナカノ', address: '山形県天童市東久野本3-7-67', tags: 'サーキット設置 ステーション 販売店', tel: '023-653-5009', circuit: true },
+      { pref: '山形県', name: '(株)プラセンスガワラ', address: '山形県鶴岡市道形町46-5', tags: 'サーキット設置 ステーション 販売店', tel: '0235-23-4188', circuit: true },
+      { pref: '福島県', name: 'コジマ×ビックカメラ 福島店', address: '福島県福島市丸子字広町12-1', tags: 'サーキット設置 ステーション 販売店', tel: '024-553-0090', circuit: true },
+      { pref: '福島県', name: 'RCラボ 伊達店', address: '福島県伊達市梁川町大舘15-2', tags: 'サーキット設置 ステーション 販売店', tel: '024-573-5121', circuit: true },
+      { pref: '福島県', name: 'コジマ×ビックカメラ 方木田店', address: '福島県福島市方木田字南島10-1', tags: 'サーキット設置 ステーション 販売店', tel: '024-545-3600', circuit: true },
+      { pref: '福島県', name: 'コジマ×ビックカメラ 郡山店', address: '福島県郡山市図景2丁目15番1号', tags: 'サーキット設置 ステーション 販売店', tel: '024-939-0110', circuit: true },
+      { pref: '福島県', name: 'コジマ×ビックカメラ 会津若松店', address: '福島県会津若松市花春町4番1号', tags: 'サーキット設置 ステーション 販売店', tel: '0242-28-7711', circuit: true },
+      { pref: '福島県', name: 'コジマ×ビックカメラ いわき店', address: '福島県いわき市平菱川町3-1', tags: 'サーキット設置 ステーション 販売店', tel: '0246-37-5588', circuit: true },
+      { pref: '茨城県', name: 'チャイルドハウス ドリーム', address: '茨城県取手市新取手駅前通り1-4-10', tags: 'サーキット設置 ステーション 販売店', tel: '0297-72-3238', circuit: true },
+      { pref: '茨城県', name: 'WonderGOO 守谷店', address: '茨城県守谷市松ヶ丘6-6-4', tags: 'サーキット設置 ステーション 販売店', tel: '0297-21-1081', circuit: true },
+      { pref: '茨城県', name: 'Work’s７', address: '茨城県筑西市門井1470-2', tags: 'サーキット設置 ステーション 販売店', tel: '', circuit: true },
+      { pref: '茨城県', name: 'JOYFUL-2 ひたちなか店', address: '茨城県ひたちなか市新光町34-1', tags: 'サーキット設置 ステーション 販売店', tel: '029-264-2300', circuit: true },
+      { pref: '茨城県', name: '勝田ラジコン模型', address: '茨城県ひたちなか市東石川3-16-18', tags: 'サーキット設置 ステーション 販売店', tel: '029-272-0038', circuit: true },
+      { pref: '茨城県', name: '茨城鑑定団 神栖店', address: '茨城県神栖市大野原2-11-5', tags: 'サーキット設置 ステーション 販売店', tel: '0299-90-0221', circuit: true },
+      { pref: '茨城県', name: 'ホビーゾーンイオンモール水戸内原店', address: '茨城県水戸市内原2丁目1 イオンモール水戸内原3F', tags: 'サーキット設置 ステーション 販売店', tel: '050-3507-2714', circuit: true },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ 宇都宮本店', address: '栃木県宇都宮市今泉2996-1', tags: 'サーキット設置 ステーション 販売店', tel: '028-662-0001', circuit: true },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ 日光店', address: '栃木県日光市今市994-1', tags: 'サーキット設置 ステーション 販売店', tel: '0288-21-1001', circuit: true },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ 小山店', address: '栃木県小山市駅南町6丁目13番4号', tags: 'サーキット設置 ステーション 販売店', tel: '0285-27-8001', circuit: true },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ 黒磯店', address: '栃木県那須塩原市豊住町78ｰ4', tags: 'サーキット設置 ステーション 販売店', tel: '0287-62-2001', circuit: true },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ 足利店', address: '栃木県足利市朝倉町243-1', tags: 'サーキット設置 ステーション 販売店', tel: '0284-70-1555', circuit: true },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ 佐野店', address: '栃木県佐野市高萩町1338-1', tags: 'サーキット設置 ステーション 販売店', tel: '0283-21-1110', circuit: true },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ 栃木店', address: '栃木県栃木市箱森町41-3', tags: 'サーキット設置 ステーション 販売店', tel: '0282-24-4001', circuit: true },
+      { pref: '栃木県', name: 'Little Craft', address: '栃木県小山市粟宮1412-1', tags: 'サーキット設置 ステーション 販売店', tel: '0285-38-9990', circuit: true },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ さくら店', address: '栃木県さくら市櫻野1609', tags: 'サーキット設置 ステーション 販売店', tel: '028-682-0811', circuit: true },
+      { pref: '栃木県', name: 'おもちゃのマンネンヤ', address: '栃木県那須塩原市西大和1-8 アクアス1F', tags: 'サーキット設置 ステーション 販売店', tel: '0287-36-8151', circuit: true },
+      { pref: '群馬県', name: 'タカサキハンズ', address: '群馬県高崎市南大類町533-5', tags: 'サーキット設置 ステーション 販売店', tel: '027-353-0705', circuit: true },
+      { pref: '群馬県', name: 'コジマ×ビックカメラ 高崎店', address: '群馬県高崎市緑町3-1-4', tags: 'サーキット設置 ステーション 販売店', tel: '027-370-8111', circuit: true },
+      { pref: '群馬県', name: 'HOBBY THE TOMY 高崎緑町店', address: '群馬県高崎市緑町1-28-4', tags: 'サーキット設置 ステーション 販売店', tel: '027-363-7272', circuit: true },
+      { pref: '群馬県', name: 'CIRCUIT ＆ DINING ひなさんち高崎店', address: '群馬県高崎市石原町3183-10', tags: 'サーキット設置 ステーション 販売店', tel: '027-335-9784', circuit: true },
+      { pref: '群馬県', name: 'ワールドジャムレーシング', address: '群馬県富岡市神農原148-3', tags: 'サーキット設置 ステーション 販売店', tel: '090-6104-5401', circuit: true },
+      { pref: '群馬県', name: 'ホビーショップ ミュルサンヌ', address: '群馬県前橋市下小出町2-11-10', tags: 'サーキット設置 ステーション 販売店', tel: '027-233-8320', circuit: true },
+      { pref: '群馬県', name: 'ガラクタ鑑定団スーパーモールカンケンプラザ店', address: '群馬県太田市植木野町253-1 カンケンプラザwow2', tags: 'サーキット設置 ステーション 販売店', tel: '0276-50-2015', circuit: true },
+      { pref: '群馬県', name: 'HOBBY THE TOMY 前橋下大島店', address: '群馬県前橋市下大島町372-1', tags: 'サーキット設置 ステーション 販売店', tel: '027-266-9840', circuit: true },
+      { pref: '群馬県', name: 'コジマ×ビックカメラ スマーク伊勢崎店', address: '群馬県伊勢崎市西小保方町368 スマーク伊勢崎3階', tags: 'サーキット設置 ステーション 販売店', tel: '0270-70-5200', circuit: true },
+      { pref: '群馬県', name: 'KIT BOY', address: '群馬県みどり市笠懸町阿左美629-14', tags: 'サーキット設置 ステーション 販売店', tel: '0277-76-2992', circuit: true },
+      { pref: '埼玉県', name: 'イエローサブマリン 大宮本店', address: '埼玉県さいたま市北区宮原町3-561', tags: 'サーキット設置 ステーション 販売店', tel: '048-652-7977', circuit: true },
+      { pref: '埼玉県', name: 'コジマ×ビックカメラ 鳩ヶ谷店', address: '埼玉県川口市 里1585-1', tags: 'サーキット設置 ステーション 販売店', tel: '048-288-9100', circuit: true },
+      { pref: '埼玉県', name: 'ホビーゾーンイオンモール浦和美園店', address: '埼玉県さいたま市緑区美園5丁目50-1-3階', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-1547', circuit: true },
+      { pref: '埼玉県', name: 'タムタム大宮店', address: '埼玉県さいたま市見沼区春野2-8 Patria東大宮3F', tags: 'サーキット設置 ステーション 販売店', tel: '048-688-9666', circuit: true },
+      { pref: '埼玉県', name: 'TSUNOI Mini4WD Site', address: '埼玉県八潮市緑町5丁目29-26 (株) イデア ツノイ電氣 八潮店', tags: 'サーキット設置 ステーション 販売店', tel: '048-997-6336', circuit: true },
+      { pref: '埼玉県', name: 'ヴィシーズ三郷店', address: '埼玉県三郷市ピアラシティー1丁目1番地140 2階', tags: 'サーキット設置 ステーション 販売店', tel: '048-949-5631', circuit: true },
+      { pref: '埼玉県', name: 'コジマ×ビックカメラ 越谷店', address: '埼玉県越谷市南荻島153番1', tags: 'サーキット設置 ステーション 販売店', tel: '048-970-3300', circuit: true },
+      { pref: '埼玉県', name: 'ホビーゾーンイオンモールレイクタウンmori店', address: '埼玉県越谷市レイクタウン3-1-1 イオンレイクタウンmori3Ｆ', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-7291', circuit: true },
+      { pref: '埼玉県', name: 'コジマ×ビックカメラ 新座店', address: '埼玉県新座市野火止6丁目1番10号', tags: 'サーキット設置 ステーション 販売店', tel: '048-482-9900', circuit: true },
+      { pref: '埼玉県', name: '埼玉レジャーランド春日部店', address: '埼玉県春日部市増富163-1', tags: 'サーキット設置 ステーション 販売店', tel: '048-763-4061', circuit: true },
+      { pref: '埼玉県', name: 'コジマ×ビックカメラ 春日部店', address: '埼玉県春日部市梅田2-9-20', tags: 'サーキット設置 ステーション 販売店', tel: '048-753-3700', circuit: true },
+      { pref: '埼玉県', name: 'コジマ×ビックカメラ 坂戸店', address: '埼玉県坂戸市八幡2-5-38', tags: 'サーキット設置 ステーション 販売店', tel: '049-289-1101', circuit: true },
+      { pref: '埼玉県', name: '精文堂', address: '埼玉県川越市脇田本町6-3', tags: 'サーキット設置 ステーション 販売店', tel: '049-247-0335', circuit: true },
+      { pref: '埼玉県', name: 'グるグる成増本店', address: '埼玉県和光市白子3-38-40 2F', tags: 'サーキット設置 ステーション 販売店', tel: '048-424-2439', circuit: true },
+      { pref: '埼玉県', name: 'ホビーボックス つるや', address: '埼玉県志木市本町4-4-25', tags: 'サーキット設置 ステーション 販売店', tel: '048-470-2755', circuit: true },
+      { pref: '埼玉県', name: 'バットカンパニー', address: '埼玉県入間郡三芳町みよし台5-9', tags: 'サーキット設置 ステーション 販売店', tel: '049-259-5600', circuit: true },
+      { pref: '埼玉県', name: 'るーく', address: '埼玉県東松山市箭弓町3-2-4', tags: 'サーキット設置 ステーション 販売店', tel: '0493-81-3719', circuit: true },
+      { pref: '埼玉県', name: 'ラジコン館YOSHIMI', address: '埼玉県比企郡吉見町中新井65-1', tags: 'サーキット設置 ステーション 販売店', tel: '0493-54-1567', circuit: true },
+      { pref: '埼玉県', name: 'エリア51', address: '埼玉県ふじみ野市新田2-2-14 2F', tags: 'サーキット設置 ステーション 販売店', tel: '049-257-6215', circuit: true },
+      { pref: '埼玉県', name: 'ヴィシーズ埼玉大井店', address: '埼玉県ふじみ野市西鶴ケ岡1-3-15', tags: 'サーキット設置 ステーション 販売店', tel: '049-278-7931', circuit: true },
+      { pref: '埼玉県', name: 'なかの模型店', address: '埼玉県ふじみ野市鶴ヶ岡4-1-26', tags: 'サーキット設置 ステーション 販売店', tel: '049-264-1898', circuit: true },
+      { pref: '埼玉県', name: 'コジマ×ビックカメラ 熊谷店', address: '埼玉県熊谷市大字石原484', tags: 'サーキット設置 ステーション 販売店', tel: '048-525-8881', circuit: true },
+      { pref: '埼玉県', name: 'ジョーシン鴻巣店 キッズランド', address: '埼玉県鴻巣市袋763-2', tags: 'ステーション 販売店', tel: '048-549-3821', circuit: false },
+      { pref: '埼玉県', name: '若林モケイ花園店', address: '埼玉県深谷市田中2929-6', tags: 'サーキット設置 ステーション 販売店', tel: '048-583-6039', circuit: true },
+      { pref: '千葉県', name: 'ホビーゾーンイオンモール幕張新都心店', address: '千葉県千葉市美浜区豊砂1-1', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-8711', circuit: true },
+      { pref: '千葉県', name: 'コジマ×ビックカメラ ワンズモール稲毛店', address: '千葉県千葉市稲毛区長沼町330-50 ワンズモール稲毛2階', tags: 'サーキット設置 ステーション 販売店', tel: '043-257-5522', circuit: true },
+      { pref: '千葉県', name: 'プラBOX', address: '千葉県千葉市若葉区桜木7-14-1', tags: 'サーキット設置 ステーション 販売店', tel: '043-232-5910', circuit: true },
+      { pref: '千葉県', name: 'ラジコン天国 ROUTE66＆YONTAMA', address: '千葉県千葉市若葉区中田町1120-2', tags: 'サーキット設置 ステーション 販売店', tel: '043-371-2490', circuit: true },
+      { pref: '千葉県', name: 'ユニオンベース ホビーステーション', address: '千葉県印西市平賀2858', tags: 'サーキット設置 ステーション 販売店', tel: '090-3312-8866', circuit: true },
+      { pref: '千葉県', name: 'コジマ×ビックカメラ 松戸店', address: '千葉県松戸市緑が丘1-121-2', tags: 'サーキット設置 ステーション 販売店', tel: '047-303-2525', circuit: true },
+      { pref: '千葉県', name: 'ミニよんファクトリー 行徳店', address: '千葉県市川市関ケ原16-2 ニューパレスプロスパー 1・2F', tags: 'サーキット設置 ステーション 販売店', tel: '047-358-3939', circuit: true },
+      { pref: '千葉県', name: 'コジマ×ビックカメラ 新船橋店', address: '千葉県船橋市山手3-7-1', tags: 'サーキット設置 ステーション 販売店', tel: '047-420-0611', circuit: true },
+      { pref: '千葉県', name: 'コジマ×ビックカメラ 習志野店', address: '千葉県船橋市習志野4-5-5', tags: 'サーキット設置 ステーション 販売店', tel: '047-477-7700', circuit: true },
+      { pref: '千葉県', name: 'コジマ×ビックカメラ 船橋店', address: '千葉県船橋市二和東3-7-24', tags: 'サーキット設置 ステーション 販売店', tel: '047-448-4881', circuit: true },
+      { pref: '千葉県', name: '千葉鑑定団 八千代店', address: '千葉県八千代市勝田台南1-18-1', tags: 'サーキット設置 ステーション 販売店', tel: '047-487-5832', circuit: true },
+      { pref: '千葉県', name: 'コジマ×ビックカメラ 柏店', address: '千葉県柏市大山台1-10', tags: 'サーキット設置 ステーション 販売店', tel: '04-7137-1200', circuit: true },
+      { pref: '千葉県', name: '千葉鑑定団 酒々井店リサイクル館', address: '千葉県印旛郡酒々井町上本佐倉130-1', tags: 'サーキット設置 ステーション 販売店', tel: '043-497-5910', circuit: true },
+      { pref: '千葉県', name: '千葉鑑定団 東金店', address: '千葉県山武市成東745-1', tags: 'サーキット設置 ステーション 販売店', tel: '0475-82-1771', circuit: true },
+      { pref: '千葉県', name: 'ホビーショップ橘花', address: '千葉県木更津市ほたる野4-10-16', tags: 'サーキット設置 ステーション 販売店', tel: '0438-97-3948', circuit: true },
+      { pref: '千葉県', name: '太陽模型', address: '千葉県君津市東坂田2-7-5', tags: 'サーキット設置 ステーション 販売店', tel: '0439-52-8208', circuit: true },
+      { pref: '千葉県', name: 'ホビーショップ ピットイン', address: '千葉県君津市外箕輪3-5-30', tags: 'サーキット設置 ステーション 販売店', tel: '0439-55-2053', circuit: true },
+      { pref: '千葉県', name: 'RC･HIROBAらじこんひろば', address: '千葉県大網白里市池田82-6', tags: 'サーキット設置 ステーション 販売店', tel: '0475-77-7564', circuit: true },
+      { pref: '東京都', name: 'エディオン AKIBA', address: '東京都千代田区外神田1-2-9', tags: 'サーキット設置 ステーション 販売店', tel: '03-3257-1100', circuit: true },
+      { pref: '東京都', name: 'TAMIYA PLAMODEL FACTORY TOKYO', address: '東京都港区新橋4-3-1 新虎安田ビル1F', tags: 'サーキット設置 ステーション 販売店', tel: '03-6809-1175', circuit: true },
+      { pref: '東京都', name: 'MINI4WD GEEKS 三ノ輪橋駅前店', address: '東京都荒川区南千住1-16-8 VIVA!BASE三ノ輪橋2階', tags: 'サーキット設置 ステーション 販売店', tel: '03-6806-5851', circuit: true },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 江北駅前店', address: '東京都足立区西新井本町2-31-20', tags: 'サーキット設置 ステーション 販売店', tel: '03-5838-1866', circuit: true },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 江戸川店', address: '東京都江戸川区中央1-8-4', tags: 'サーキット設置 ステーション 販売店', tel: '03-5607-7555', circuit: true },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 南砂町SUNAMO店', address: '東京都江東区新砂3-4-31 南砂町ショッピングセンターSUNAMO 2F', tags: 'サーキット設置 ステーション 販売店', tel: '03-5665-7313', circuit: true },
+      { pref: '東京都', name: 'ホビー サン星', address: '東京都中野区上高田2-53-5 クレセント村松 1F', tags: 'ステーション 販売店', tel: '03-3385-5038', circuit: false },
+      { pref: '東京都', name: 'コジマ×ビックカメラ ベルクスモール浮間舟渡店', address: '東京都板橋区舟渡1-6-22', tags: 'サーキット設置 ステーション 販売店', tel: '03-6454-5522', circuit: true },
+      { pref: '東京都', name: 'Robotma.com', address: '東京都板橋区蓮沼町34-1 innovation Garage', tags: 'サーキット設置 ステーション 販売店', tel: '03-6807-9191', circuit: true },
+      { pref: '東京都', name: 'フジヤ', address: '東京都板橋区常盤台2-27-9', tags: 'サーキット設置 ステーション 販売店', tel: '03-3960-2829', circuit: true },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 三鷹店', address: '東京都三鷹市野崎1丁目3番10号', tags: 'サーキット設置 ステーション 販売店', tel: '0422-79-6600', circuit: true },
+      { pref: '東京都', name: 'ドリム', address: '東京都調布市仙川町1-4-29', tags: 'サーキット設置 ステーション 販売店', tel: '03-3307-0780', circuit: true },
+      { pref: '東京都', name: 'Y&#39;s ミニ四ガレージ', address: '東京都西東京市田無町7-2-1浜野ビル2階', tags: 'サーキット設置 ステーション 販売店', tel: '042-497-4947', circuit: true },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 東村山店', address: '東京都東村山市恩多町5-47-5', tags: 'サーキット設置 ステーション 販売店', tel: '042-390-2111', circuit: true },
+      { pref: '東京都', name: 'ホビーオフ八王子大和田店', address: '東京都八王子市大和田町5-1-21', tags: 'サーキット設置 ステーション 販売店', tel: '042-660-8837', circuit: true },
+      { pref: '東京都', name: 'SIG.WORKS/GARAGE', address: '東京都八王子市北野町538-2 小俣ビル３F', tags: 'サーキット設置 ステーション 販売店', tel: '042-649-3928', circuit: true },
+      { pref: '東京都', name: 'Ultimate Base (アルティメット ベース)', address: '東京都八王子市片倉町1781 2F', tags: 'サーキット設置 ステーション 販売店', tel: '03-6206-0860', circuit: true },
+      { pref: '東京都', name: 'えのもとサーキット', address: '東京都八王子市高尾町1529-3', tags: 'サーキット設置 ステーション 販売店', tel: '042-664-3249', circuit: true },
+      { pref: '東京都', name: 'お宝あっとマーケット町田店', address: '東京都町田市根岸2-33-2', tags: 'サーキット設置 ステーション 販売店', tel: '042-791-8121', circuit: true },
+      { pref: '東京都', name: 'ブックスオオトリ 昭島店', address: '東京都昭島市宮沢町500-1 ザ・ビッグ昭島店', tags: 'サーキット設置 ステーション 販売店', tel: '042-549-0251', circuit: true },
+      { pref: '東京都', name: 'コジマ×ビックカメラ イオン昭島ショッピングセンター店', address: '東京都昭島市宮沢町500-1 イオンザ・ビッグ内２階', tags: 'サーキット設置 ステーション 販売店', tel: '042-545-2005', circuit: true },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 福生店', address: '東京都福生市本町36-1', tags: 'サーキット設置 ステーション 販売店', tel: '042-539-3711', circuit: true },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 東大和店', address: '東京都東大和市高木3-378-3', tags: 'サーキット設置 ステーション 販売店', tel: '042-562-6711', circuit: true },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 梶ヶ谷店', address: '神奈川県川崎市高津区梶ヶ谷2-2-3', tags: 'サーキット設置 ステーション 販売店', tel: '044-860-2411', circuit: true },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 横浜大口店', address: '神奈川県横浜市神奈川区神之木町3-3', tags: 'サーキット設置 ステーション 販売店', tel: '045-439-3255', circuit: true },
+      { pref: '神奈川県', name: 'ラジコンカー練習場･元気っ子さん', address: '神奈川県横浜市神奈川区松本町5-38-1ボンジョルノ三ツ沢2F', tags: 'サーキット設置 ステーション 販売店', tel: '045-294-8154', circuit: true },
+      { pref: '神奈川県', name: 'タミヤプラモデルファクトリー トレッサ横浜店(南棟)', address: '神奈川県横浜市港北区師岡町700 トレッサ横浜南棟1F', tags: 'サーキット設置 ステーション 販売店', tel: '045-534-2406', circuit: true },
+      { pref: '神奈川県', name: 'Hobby Space ウーパー', address: '神奈川県横浜市港北区篠原町2838-10 キャッスルけやき101', tags: 'サーキット設置 ステーション 販売店', tel: '045-633-7290', circuit: true },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 港北東急S.C.店', address: '神奈川県横浜市都筑区茅ヶ崎中央5-1 港北東急S.C.内', tags: 'サーキット設置 ステーション 販売店', tel: '045-482-5254', circuit: true },
+      { pref: '神奈川県', name: '滝口模型', address: '神奈川県横浜市都筑区大熊町138', tags: 'サーキット設置 ステーション 販売店', tel: '045-473-0957', circuit: true },
+      { pref: '神奈川県', name: 'HOBBY SHOP たからばこ', address: '神奈川県横浜市青葉区すすき野3-7-1 根岸ビル1F2号', tags: 'サーキット設置 ステーション 販売店', tel: '045-507-5820', circuit: true },
+      { pref: '神奈川県', name: 'アンドロメダ屋模型店 鴨居店', address: '神奈川県横浜市緑区鴨居1-11-2', tags: 'サーキット設置 ステーション 販売店', tel: '045-934-3881', circuit: true },
+      { pref: '神奈川県', name: 'ミニ四駆研究所 フォースラボ', address: '神奈川県横浜市中区元町1-13-5 ラビ元町3F', tags: 'サーキット設置 ステーション 販売店', tel: '045-663-2355', circuit: true },
+      { pref: '神奈川県', name: 'ベイサイドサーキット 小春', address: '神奈川県横浜市磯子区杉田1-16-3', tags: 'サーキット設置 ステーション 販売店', tel: '045-308-7537', circuit: true },
+      { pref: '神奈川県', name: 'HP CIRCUIT CLUB', address: '神奈川県横浜市金沢区東朝比奈3-11-1 メゾン朝比奈201', tags: 'サーキット設置 ステーション 販売店', tel: '080-5012-3249', circuit: true },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 横須賀店', address: '神奈川県横須賀市日の出町3-16-1', tags: 'サーキット設置 ステーション 販売店', tel: '046-828-3500', circuit: true },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 西友二俣川店', address: '神奈川県横浜市旭区二俣川2-52-1-2Ｆ', tags: 'サーキット設置 ステーション 販売店', tel: '045-442-8877', circuit: true },
+      { pref: '神奈川県', name: 'ポストホビー 厚木店', address: '神奈川県厚木市中町1-5-10 厚木ガーデンシティビル8F', tags: 'サーキット設置 ステーション 販売店', tel: '046-297-7440', circuit: true },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 海老名店', address: '神奈川県海老名市大谷北1-2-1', tags: 'サーキット設置 ステーション 販売店', tel: '046-235-8711', circuit: true },
+      { pref: '神奈川県', name: 'M Atsugi Racing', address: '神奈川県厚木市山際204', tags: 'サーキット設置 ステーション 販売店', tel: '046-281-7688', circuit: true },
+      { pref: '神奈川県', name: 'ミニ四駆ガレージ プラネットスペース', address: '神奈川県横浜市瀬谷区本郷3-16-1', tags: 'サーキット設置 ステーション 販売店', tel: '045-459-5576', circuit: true },
+      { pref: '神奈川県', name: 'トイプラザビットワン', address: '神奈川県座間市ひばりが丘4-11-1 ライズモール2F', tags: 'サーキット設置 ステーション 販売店', tel: '046-204-4211', circuit: true },
+      { pref: '神奈川県', name: 'ジョーシン相模原小山店 キッズランド', address: '神奈川県相模原市中央区小田3-37-1', tags: 'ステーション 販売店', tel: '042-770-1611', circuit: false },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 相模原店', address: '神奈川県相模原市中央区共和4-18-19', tags: 'サーキット設置 ステーション 販売店', tel: '042-786-2200', circuit: true },
+      { pref: '神奈川県', name: 'サムカワサーキット', address: '神奈川県高座郡寒川町田端3375', tags: 'サーキット設置 ステーション 販売店', tel: '080-3578-8380', circuit: true },
+      { pref: '新潟県', name: 'CIRCUIT ＆ DINING ひなさんち長岡店', address: '新潟県長岡市中島6丁目9-25', tags: 'サーキット設置 ステーション 販売店', tel: '090-7201-4139', circuit: true },
+      { pref: '新潟県', name: 'コジマ×ビックカメラ 上越店', address: '新潟県上越市大道福田602番地', tags: 'サーキット設置 ステーション 販売店', tel: '025-522-8811', circuit: true },
+      { pref: '新潟県', name: 'ホビーロード イオン新潟西店', address: '新潟県新潟市西区小新南2-1-10', tags: 'サーキット設置 ステーション 販売店', tel: '025-378-8155', circuit: true },
+      { pref: '新潟県', name: 'クリヤマモケイ', address: '新潟県三条市本町1-4-3', tags: 'サーキット設置 ステーション 販売店', tel: '0256-34-4079', circuit: true },
+      { pref: '富山県', name: 'Party room', address: '富山県魚津市上村木1丁目1-10', tags: 'サーキット設置 ステーション 販売店', tel: '0765-32-3352', circuit: true },
+      { pref: '富山県', name: 'おもちゃのバンビ 本郷店', address: '富山県富山市本郷新町16-8', tags: 'サーキット設置 ステーション 販売店', tel: '076-421-9011', circuit: true },
+      { pref: '石川県', name: 'みなと模型 若宮店', address: '石川県金沢市若宮町ホ34-1', tags: 'サーキット設置 ステーション 販売店', tel: '076-262-2006', circuit: true },
+      { pref: '石川県', name: 'ジョーシン金沢本店キッズランド', address: '石川県金沢市戸板西2丁目7番地', tags: 'サーキット設置 ステーション 販売店', tel: '076-268-5755', circuit: true },
+      { pref: '石川県', name: 'みなと模型 金沢店', address: '石川県金沢市額新町1-194-4', tags: 'サーキット設置 ステーション 販売店', tel: '076-298-9591', circuit: true },
+      { pref: '石川県', name: '万代書店 石川加賀店', address: '石川県加賀市上河崎町子138-１', tags: 'サーキット設置 ステーション 販売店', tel: '0761-72-7015', circuit: true },
+      { pref: '福井県', name: 'ジョーシン 福井本店キッズランド', address: '福井県福井市高柳1-201', tags: 'サーキット設置 ステーション 販売店', tel: '0776-54-6901', circuit: true },
+      { pref: '福井県', name: 'サイト玩具店 善光寺店', address: '福井県越前市京町1-2-11', tags: 'サーキット設置 ステーション 販売店', tel: '0778-23-6380', circuit: true },
+      { pref: '福井県', name: 'レディオ ガガ', address: '福井県丹生郡越前町下糸生133-14', tags: 'サーキット設置 ステーション 販売店', tel: '0778-34-2075', circuit: true },
+      { pref: '山梨県', name: 'コジマ×ビックカメラ 甲府店', address: '山梨県甲府市富竹1-10-33', tags: 'サーキット設置 ステーション 販売店', tel: '055-221-3377', circuit: true },
+      { pref: '山梨県', name: '万代書店 山梨本店', address: '山梨県甲斐市西八幡4415', tags: 'サーキット設置 ステーション 販売店', tel: '055-260-7021', circuit: true },
+      { pref: '山梨県', name: 'コジマ×ビックカメラ 甲府バイパス店', address: '山梨県甲府市中小河原1-14-12', tags: 'サーキット設置 ステーション 販売店', tel: '055-241-0311', circuit: true },
+      { pref: '山梨県', name: 'エム･ライズ富士河口湖店', address: '山梨県南都留郡富士河口湖町船津4899', tags: 'サーキット設置 ステーション 販売店', tel: '0555-73-8730', circuit: true },
+      { pref: '長野県', name: '東京堂科学模型教材社', address: '長野県長野市西後町624', tags: 'サーキット設置 ステーション 販売店', tel: '026-232-5035', circuit: true },
+      { pref: '長野県', name: '万代書店 長野店', address: '長野県長野市川合新田3389-1', tags: 'サーキット設置 ステーション 販売店', tel: '026-214-3075', circuit: true },
+      { pref: '長野県', name: 'セレクトショップ ハッピーデイ', address: '長野県北佐久郡軽井沢町中軽井沢7-4-2', tags: 'サーキット設置 ステーション 販売店', tel: '0267-41-0474', circuit: true },
+      { pref: '長野県', name: 'はま屋 松本店', address: '長野県松本市双葉12-56', tags: 'サーキット設置 ステーション 販売店', tel: '0263-88-8890', circuit: true },
+      { pref: '長野県', name: 'CaliforniaGate', address: '長野県茅野市ちの2730-2', tags: 'サーキット設置 ステーション 販売店', tel: '0266-63-1005', circuit: true },
+      { pref: '長野県', name: '(有)ホビーショップ丸信', address: '長野県諏訪市清水1-2-20', tags: 'サーキット設置 ステーション 販売店', tel: '0266-52-3287', circuit: true },
+      { pref: '長野県', name: 'パッシングポイント', address: '長野県安曇野市豊科高家5733-8', tags: 'サーキット設置 ステーション 販売店', tel: '0263-71-5519', circuit: true },
+      { pref: '岐阜県', name: 'TOY BOX', address: '岐阜県岐阜市加野7丁目7-24 2F', tags: 'サーキット設置 ステーション 販売店', tel: '090-6572-1764', circuit: true },
+      { pref: '岐阜県', name: '大垣模型', address: '岐阜県大垣市日の出町2丁目46', tags: 'サーキット設置 ステーション 販売店', tel: '0584-74-4353', circuit: true },
+      { pref: '岐阜県', name: 'HOT LAP', address: '岐阜県大垣市桧町807-1', tags: 'サーキット設置 ステーション 販売店', tel: '0584-91-3090', circuit: true },
+      { pref: '岐阜県', name: 'ホビーゾーンイオンモール各務原店', address: '岐阜県各務原市那加萱場町38 イオンモール各務原３F', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-9827', circuit: true },
+      { pref: '岐阜県', name: 'ミニ四駆専門店 ふたつぼし', address: '岐阜県中津川市花戸町1-85-1', tags: 'サーキット設置 ステーション 販売店', tel: '070-3314-1004', circuit: true },
+      { pref: '岐阜県', name: 'おもちゃのタグチ', address: '岐阜県恵那市大井町262-16', tags: 'サーキット設置 ステーション 販売店', tel: '0573-26-3552', circuit: true },
+      { pref: '静岡県', name: 'コジマ×ビックカメラ 沼津店', address: '静岡県沼津市東熊堂410-1', tags: 'サーキット設置 ステーション 販売店', tel: '055-926-9800', circuit: true },
+      { pref: '静岡県', name: 'キットボックス', address: '静岡県沼津市千本東町5', tags: 'サーキット設置 ステーション 販売店', tel: '055-962-4922', circuit: true },
+      { pref: '静岡県', name: 'マルサンモケイ', address: '静岡県三島市新谷47-6', tags: 'サーキット設置 ステーション 販売店', tel: '055-972-1932', circuit: true },
+      { pref: '静岡県', name: '(株)ミシマトイス', address: '静岡県三島市本町3-35', tags: 'サーキット設置 ステーション 販売店', tel: '055-975-0092', circuit: true },
+      { pref: '静岡県', name: 'コジマ×ビックカメラ 富士店', address: '静岡県富士市蓼原54-4', tags: 'サーキット設置 ステーション 販売店', tel: '0545-65-1511', circuit: true },
+      { pref: '静岡県', name: 'ホビーショップ湖月堂', address: '静岡県富士市今泉1-11-1', tags: 'サーキット設置 ステーション 販売店', tel: '0545-52-1768', circuit: true },
+      { pref: '静岡県', name: '富士鑑定団', address: '静岡県富士市八代町4-17', tags: 'サーキット設置 ステーション 販売店', tel: '0545-57-6393', circuit: true },
+      { pref: '静岡県', name: 'マルシン模型', address: '静岡県富士宮市東阿幸地245', tags: 'サーキット設置 ステーション 販売店', tel: '0544-27-7270', circuit: true },
+      { pref: '静岡県', name: 'コジマ×ビックカメラ 静岡店', address: '静岡県静岡市駿河区国吉田1-1-57', tags: 'サーキット設置 ステーション 販売店', tel: '054-208-5711', circuit: true },
+      { pref: '静岡県', name: '静岡ホビースクエア オフィシャルショップ', address: '静岡県静岡市駿河区南町18-1 サウスポット静岡3F', tags: 'サーキット設置 ステーション 販売店', tel: '054-289-3033', circuit: true },
+      { pref: '静岡県', name: 'おもちゃのポッポ', address: '静岡県島田市中央町1897-1', tags: 'サーキット設置 ステーション 販売店', tel: '0547-37-8228', circuit: true },
+      { pref: '静岡県', name: 'コジマ×ビックカメラ 浜松店', address: '静岡県浜松市中央区高林5丁目7番28号', tags: 'サーキット設置 ステーション 販売店', tel: '053-412-7111', circuit: true },
+      { pref: '静岡県', name: '(有)トイフル エポック', address: '静岡県掛川市葛川671-1', tags: 'サーキット設置 ステーション 販売店', tel: '0537-24-4444', circuit: true },
+      { pref: '愛知県', name: 'タム･タム 豊橋店', address: '愛知県豊橋市下地町字境田100 オートバックスとよはし店2階', tags: 'サーキット設置 ステーション 販売店', tel: '0532-57-5300', circuit: true },
+      { pref: '愛知県', name: 'MEGAドン・キホーテ豊橋店', address: '愛知県豊橋市藤沢町141', tags: 'サーキット設置 ステーション 販売店', tel: '0532-38-9211', circuit: true },
+      { pref: '愛知県', name: 'コジマ×ビックカメラ 豊橋店', address: '愛知県豊橋市神野新田町字口ﾉ割52番地', tags: 'サーキット設置 ステーション 販売店', tel: '0532-34-3131', circuit: true },
+      { pref: '愛知県', name: 'ホビーショップ DAYZ', address: '愛知県豊川市東豊町5-37', tags: 'サーキット設置 ステーション 販売店', tel: '0533-65-9927', circuit: true },
+      { pref: '愛知県', name: 'ホビーショップ ハピネス', address: '愛知県豊川市駅前通3-25', tags: 'サーキット設置 ステーション 販売店', tel: '0533-86-2673', circuit: true },
+      { pref: '愛知県', name: 'トヨカワホビー', address: '愛知県豊川市中央通2-50', tags: 'サーキット設置 ステーション 販売店', tel: '0533-86-2779', circuit: true },
+      { pref: '愛知県', name: 'iiba(イーバ)蒲郡', address: '愛知県蒲郡市平田町長根31-2', tags: 'サーキット設置 ステーション 販売店', tel: '0533-55-1297', circuit: true },
+      { pref: '愛知県', name: 'ヤシマホビー', address: '愛知県岡崎市福岡町字北裏33-3', tags: 'サーキット設置 ステーション 販売店', tel: '0564-53-1555', circuit: true },
+      { pref: '愛知県', name: 'ポストホビー すまいるキング 岡崎店', address: '愛知県岡崎市針崎西2丁目7-1', tags: 'サーキット設置 ステーション 販売店', tel: '0564-83-9619', circuit: true },
+      { pref: '愛知県', name: 'コジマ×ビックカメラ 熱田店', address: '愛知県名古屋市熱田区大宝2-4-22', tags: 'サーキット設置 ステーション 販売店', tel: '052-684-1421', circuit: true },
+      { pref: '愛知県', name: '(有)トイズタウン 本店', address: '愛知県名古屋市南区港東通1-1', tags: 'サーキット設置 ステーション 販売店', tel: '052-611-2413', circuit: true },
+      { pref: '愛知県', name: 'フクシマヤ', address: '愛知県名古屋市緑区鳴海町本町105', tags: 'サーキット設置 ステーション 販売店', tel: '052-621-0124', circuit: true },
+      { pref: '愛知県', name: 'ジョーシン スーパーキッズランド大須店', address: '愛知県名古屋市中区大須4-2-48', tags: 'ステーション 販売店', tel: '052-262-1203', circuit: false },
+      { pref: '愛知県', name: 'モリヤマホビー', address: '愛知県名古屋市守山区永森町88', tags: 'サーキット設置 ステーション 販売店', tel: '052-793-5023', circuit: true },
+      { pref: '愛知県', name: 'おもちゃのミッキー曙店', address: '愛知県名古屋市昭和区阿由知道り2丁目6番地', tags: 'サーキット設置 ステーション 販売店', tel: '052-731-2310', circuit: true },
+      { pref: '愛知県', name: '四駆堂', address: '愛知県みよし市三好町前田12-1', tags: 'サーキット設置 ステーション 販売店', tel: '', circuit: true },
+      { pref: '愛知県', name: 'ホビーゾーンイオンモール東浦店', address: '愛知県知多郡東浦町大字緒川字旭13-2', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-1922', circuit: true },
+      { pref: '愛知県', name: 'コジマ×ビックカメラ 有松インター店', address: '愛知県大府市梶田町1-122', tags: 'サーキット設置 ステーション 販売店', tel: '0562-43-8881', circuit: true },
+      { pref: '愛知県', name: 'コジマ×ビックカメラ 清洲東インター店', address: '愛知県北名古屋市中之郷神明45-5', tags: 'サーキット設置 ステーション 販売店', tel: '0568-26-3033', circuit: true },
+      { pref: '愛知県', name: '工房ひなゆめ', address: '愛知県犬山市字上榎島25-2', tags: 'サーキット設置 ステーション 販売店', tel: '0568-67-1751', circuit: true },
+      { pref: '愛知県', name: 'ホビープラザとらや', address: '愛知県小牧市新町3-491', tags: 'サーキット設置 ステーション 販売店', tel: '0568-76-2981', circuit: true },
+      { pref: '愛知県', name: '（有）REV', address: '愛知県小牧市西之島1449', tags: 'サーキット設置 ステーション 販売店', tel: '0568-68-9603', circuit: true },
+      { pref: '愛知県', name: '夢遊', address: '愛知県瀬戸市東赤重町2-130-2', tags: 'サーキット設置 ステーション 販売店', tel: '0561-85-5240', circuit: true },
+      { pref: '愛知県', name: 'おもちゃの水光園', address: '愛知県一宮市浅井町大日比野2099-1', tags: 'サーキット設置 ステーション 販売店', tel: '0586-78-1226', circuit: true },
+      { pref: '三重県', name: 'コジマ×ビックカメラ アピタ四日市店', address: '三重県四日市市安島1-3-31 トナリエ四日市 3階', tags: 'サーキット設置 ステーション 販売店', tel: '059-350-6777', circuit: true },
+      { pref: '三重県', name: 'ロボネット四日市営業所', address: '三重県四日市市諏訪栄町19-9', tags: 'サーキット設置 ステーション 販売店', tel: '059-324-8329', circuit: true },
+      { pref: '三重県', name: '万代書店 鈴鹿店', address: '三重県鈴鹿市西條町500-1', tags: 'サーキット設置 ステーション 販売店', tel: '059-373-5053', circuit: true },
+      { pref: '三重県', name: 'ホビーゾーンイオンモール津南店', address: '三重県津市高茶屋小森町145番地 イオンモール津南3F', tags: 'サーキット設置 ステーション 販売店', tel: '050-3507-4560', circuit: true },
+      { pref: '滋賀県', name: 'とれとる 米原店', address: '滋賀県米原市顔戸1429', tags: 'サーキット設置 ステーション 販売店', tel: '0749-52-8383', circuit: true },
+      { pref: '滋賀県', name: 'attrapia', address: '滋賀県守山市今浜町2620-5 ピエリ守山2階', tags: 'サーキット設置 ステーション 販売店', tel: '', circuit: true },
+      { pref: '京都府', name: 'ホビーショップ バンビーノ', address: '京都府京都市伏見区醍醐御園尾町26-1', tags: 'サーキット設置 ステーション 販売店', tel: '075-571-5852', circuit: true },
+      { pref: '京都府', name: 'ホビーショップ44', address: '京都府京都市上京区泰童片原町663-12', tags: 'サーキット設置 ステーション 販売店', tel: '090-1149-3249', circuit: true },
+      { pref: '京都府', name: 'アークオアシス京都八幡店', address: '京都府八幡市欽明台北3-1', tags: 'サーキット設置 ステーション 販売店', tel: '075-982-2037', circuit: true },
+      { pref: '京都府', name: 'ジョーシン京都1ばん館スーパーキッズランド', address: '京都府京都市右京区西院巽町38', tags: 'サーキット設置 ステーション 販売店', tel: '075-323-2751', circuit: true },
+      { pref: '京都府', name: '舞鶴電脳工作室', address: '京都府舞鶴市浜264', tags: 'サーキット設置 ステーション 販売店', tel: '0773-77-1022', circuit: true },
+      { pref: '大阪府', name: '3249ROOM', address: '大阪府大阪市北区中之島6-4-1', tags: 'サーキット設置 ステーション 販売店', tel: '06-6225-3395', circuit: true },
+      { pref: '大阪府', name: 'スーパーラジコン 日本橋店', address: '大阪府大阪市中央区高津3-14-6 島之内ビル2F', tags: 'サーキット設置 ステーション 販売店', tel: '06-6644-3139', circuit: true },
+      { pref: '大阪府', name: '駒川模型店', address: '大阪府大阪市東住吉区駒川5-20-4', tags: 'サーキット設置 ステーション 販売店', tel: '06-6692-3544', circuit: true },
+      { pref: '大阪府', name: 'RCアドバイザー チャンプ', address: '大阪府大阪市平野区長吉川辺3-18-37', tags: 'サーキット設置 ステーション 販売店', tel: '06-6702-8870', circuit: true },
+      { pref: '大阪府', name: '八島模型店', address: '大阪府大阪市大正区泉尾1-34-4', tags: 'サーキット設置 ステーション 販売店', tel: '06-6551-8984', circuit: true },
+      { pref: '大阪府', name: 'ドリームライントヨシマ', address: '大阪府大阪市福島区大開1-15-28', tags: 'サーキット設置 ステーション 販売店', tel: '06-6464-0955', circuit: true },
+      { pref: '大阪府', name: 'ミニ四駆 BAR 100R', address: '大阪府大阪市浪速区日本橋4-11-2 2階', tags: 'サーキット設置 ステーション 販売店', tel: '06-4393-8299', circuit: true },
+      { pref: '大阪府', name: 'ジョーシン スーパーキッズランド本店', address: '大阪府大阪市浪速区日本橋4-12-4', tags: 'サーキット設置 ステーション 販売店', tel: '06-6634-0041', circuit: true },
+      { pref: '大阪府', name: 'コジマ×ビックカメラ 箕面店', address: '大阪府箕面市瀬川5丁目1番1号', tags: 'サーキット設置 ステーション 販売店', tel: '072-720-7201', circuit: true },
+      { pref: '大阪府', name: 'コジマ×ビックカメラ 大東店', address: '大阪府大東市諸福5丁目13番25号', tags: 'サーキット設置 ステーション 販売店', tel: '072-869-2144', circuit: true },
+      { pref: '大阪府', name: 'ホビーゾーンイオンモール四條畷店', address: '大阪府四條畷市砂4-3-2 イオンモール四條畷3F', tags: 'ステーション 販売店', tel: '050-3626-7719', circuit: false },
+      { pref: '大阪府', name: 'TOY&#39;s きゃっぷ', address: '大阪府八尾市志紀町2-10', tags: 'サーキット設置 ステーション 販売店', tel: '072-949-8900', circuit: true },
+      { pref: '兵庫県', name: 'やかん模型', address: '兵庫県姫路市飾磨区矢倉町1丁目55-10', tags: 'サーキット設置 ステーション 販売店', tel: '090-8821-6826', circuit: true },
+      { pref: '兵庫県', name: 'スタジオ・ウインド', address: '兵庫県神戸市中央区東川崎町1-8-1 プロメナ神戸４F', tags: 'サーキット設置 ステーション 販売店', tel: '078-381-6161', circuit: true },
+      { pref: '兵庫県', name: 'ジョーシン三宮1ばん館スーパーキッズランド', address: '兵庫県神戸市中央区八幡通3-2-16', tags: 'ステーション 販売店', tel: '078-231-3811', circuit: false },
+      { pref: '兵庫県', name: 'ジョーシン 淡路店キッズランド', address: '兵庫県南あわじ市広田広田117-1', tags: 'サーキット設置 ステーション 販売店', tel: '0799-44-2721', circuit: true },
+      { pref: '兵庫県', name: 'ホビーショップ タム･タム サンシャインワーフ神戸店', address: '兵庫県神戸市東灘区青木1-2-34 サンシャインワーク神戸2F', tags: 'サーキット設置 ステーション 販売店', tel: '078-414-4305', circuit: true },
+      { pref: '兵庫県', name: 'Racers（レーサーズ）尼崎店', address: '兵庫県尼崎市神田中通り4-116 2階', tags: 'サーキット設置 ステーション 販売店', tel: '06-7221-2198', circuit: true },
+      { pref: '兵庫県', name: 'GR Garage西宮・ダイハツ西宮建石', address: '兵庫県西宮市建石町2番34号', tags: 'サーキット設置 ステーション 販売店', tel: '0798-35-5200', circuit: true },
+      { pref: '兵庫県', name: 'アークオアシス姫路店', address: '兵庫県姫路市広畑区夢前町3丁目1-7', tags: 'サーキット設置 ステーション 販売店', tel: '079-238-6346', circuit: true },
+      { pref: '兵庫県', name: '田中屋模型店', address: '兵庫県高砂市高砂町鍛冶屋町1418', tags: 'サーキット設置 ステーション 販売店', tel: '079-442-0813', circuit: true },
+      { pref: '奈良県', name: 'バンビ 生駒店', address: '奈良県生駒市真弓南1-10-5', tags: 'サーキット設置 ステーション 販売店', tel: '0743-79-1301', circuit: true },
+      { pref: '奈良県', name: 'ジョーシン郡山店 スーパーキッズランド', address: '奈良県大和郡山市横田町693-1', tags: 'ステーション 販売店', tel: '0743-59-2222', circuit: false },
+      { pref: '和歌山県', name: '和歌山模型', address: '和歌山県和歌山市北新5-20', tags: 'サーキット設置 ステーション 販売店', tel: '073-423-1637', circuit: true },
+      { pref: '和歌山県', name: '白崎青少年の家 SHIRASAKI BASE', address: '和歌山県日高郡由良町大引961-1', tags: 'サーキット設置 ステーション 販売店', tel: '0738-65-2351', circuit: true },
+      { pref: '鳥取県', name: '株式会社 開放倉庫 鳥取店', address: '鳥取県鳥取市安長223', tags: 'サーキット設置 ステーション 販売店', tel: '0857-54-1530', circuit: true },
+      { pref: '島根県', name: 'ベニヤ模型 本店', address: '島根県松江市末次本町12', tags: 'サーキット設置 ステーション 販売店', tel: '0852-21-5571', circuit: true },
+      { pref: '島根県', name: 'おおとり模型', address: '島根県出雲市大津新崎町4-28', tags: 'サーキット設置 ステーション 販売店', tel: '0853-21-0459', circuit: true },
+      { pref: '岡山県', name: 'ホビーゾーン イオンモール岡山店', address: '岡山県岡山市北区下石井1丁目2番1号 イオンモール岡山4Ｆ', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-5396', circuit: true },
+      { pref: '岡山県', name: 'メディオ!西市 本館', address: '岡山県岡山市南区西市411', tags: 'ステーション 販売店', tel: '086-242-0990', circuit: false },
+      { pref: '岡山県', name: 'RC PROSHOP T2', address: '岡山県備前市香登本48番地3', tags: 'サーキット設置 ステーション 販売店', tel: '0869-92-4220', circuit: true },
+      { pref: '岡山県', name: '遊びの創造ランド おもちゃ王国', address: '岡山県玉野市滝1640-1', tags: 'サーキット設置 ステーション 販売店', tel: '0863-71-4488', circuit: true },
+      { pref: '岡山県', name: '(株)モコガレージ', address: '岡山県津山市昭和町2丁目127-3', tags: 'サーキット設置 ステーション 販売店', tel: '0868-35-3677', circuit: true },
+      { pref: '岡山県', name: 'メディオ!沖新', address: '岡山県倉敷市東富井805-2', tags: 'ステーション 販売店', tel: '086-435-0070', circuit: false },
+      { pref: '岡山県', name: 'おもちゃの国 にしおか本店', address: '岡山県笠岡市中央町23-32', tags: 'サーキット設置 ステーション 販売店', tel: '0865-62-2727', circuit: true },
+      { pref: '岡山県', name: 'タカノプランニング HOKUBOBASE', address: '岡山県真庭市下中津井536-5', tags: 'サーキット設置 ステーション 販売店', tel: '070-9090-3249', circuit: true },
+      { pref: '岡山県', name: 'プラモデル専門店 プラネット', address: '岡山県浅口市鴨方町六条院中2349-2', tags: 'サーキット設置 ステーション 販売店', tel: '0865-44-8818', circuit: true },
+      { pref: '広島県', name: 'エディオン アルパーク南店', address: '広島県広島市西区商工センター2-5-1', tags: 'サーキット設置 ステーション 販売店', tel: '082-276-8111', circuit: true },
+      { pref: '広島県', name: 'Yellow', address: '広島県広島市中区紙屋町2-2-18 サンモール5F', tags: 'サーキット設置 ステーション 販売店', tel: '082-246-1985', circuit: true },
+      { pref: '広島県', name: 'はとや', address: '広島県広島市中区大手町5-8-30', tags: 'サーキット設置 ステーション 販売店', tel: '082-241-7967', circuit: true },
+      { pref: '広島県', name: 'こいのぼり', address: '広島県広島市安佐南区長束西2-18-11 1F', tags: 'サーキット設置 ステーション 販売店', tel: '082-237-5155', circuit: true },
+      { pref: '広島県', name: 'ホビーゾーン可部店', address: '広島県広島市安佐北区可部4-1-10', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-1373', circuit: true },
+      { pref: '広島県', name: 'ホビーショップ HB', address: '広島県広島市西区庚午中4-16-2 庚午パールマンション1F', tags: 'サーキット設置 ステーション 販売店', tel: '082-554-5693', circuit: true },
+      { pref: '広島県', name: 'ヤマダデンキ テックランド広島アルパーク店', address: '広島県広島市西区井口明神1丁目16-1 アルパーク西棟３F', tags: 'サーキット設置 ステーション 販売店', tel: '082-533-8700', circuit: true },
+      { pref: '広島県', name: 'コジマ×ビックカメラ 宇品店', address: '広島県広島市南区宇品東5丁目2番35号', tags: 'サーキット設置 ステーション 販売店', tel: '082-251-7211', circuit: true },
+      { pref: '広島県', name: 'ホビーゾーン広島府中店', address: '広島県安芸郡府中町大須2丁目1-1 イオンモール広島府中3F', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-8273', circuit: true },
+      { pref: '山口県', name: 'R/C SHOP joren&#39;s(ジョーレンズ)', address: '山口県下松市切山308-2', tags: 'サーキット設置 ステーション 販売店', tel: '0833-46-1111', circuit: true },
+      { pref: '山口県', name: 'マンガ倉庫山口店', address: '山口県山口市吉敷下東3丁目3番10号', tags: 'ステーション 販売店', tel: '083-920-4444', circuit: false },
+      { pref: '山口県', name: 'コジマ×ビックカメラ 山口宇部空港店', address: '山口県宇部市東見初町1-76', tags: 'サーキット設置 ステーション 販売店', tel: '0836-36-0770', circuit: true },
+      { pref: '山口県', name: 'ホビーショップ ムック', address: '山口県宇部市浜町1-2-14', tags: 'ステーション 販売店', tel: '0836-32-9221', circuit: false },
+      { pref: '徳島県', name: 'ホビーベースパレパレ', address: '徳島県徳島市南田宮2丁目2-46', tags: 'サーキット設置 ステーション 販売店', tel: '088-677-8781', circuit: true },
+      { pref: '徳島県', name: '模型のひろば クリッパー', address: '徳島県徳島市佐古四番町13-11', tags: 'サーキット設置 ステーション 販売店', tel: '088-623-5653', circuit: true },
+      { pref: '香川県', name: 'Garage Hangout', address: '香川県高松市元山町1257-1', tags: 'サーキット設置 ステーション 販売店', tel: '087-814-7440', circuit: true },
+      { pref: '香川県', name: 'ホビーゾーンイオンモール綾川店', address: '香川県綾歌郡綾川町萓原822-1 イオンﾓｰﾙ綾川3F', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-3491', circuit: true },
+      { pref: '香川県', name: 'ペリカン高松店(ゆめタウン内)', address: '香川県高松市三条町字中所608-1 2F', tags: 'サーキット設置 ステーション 販売店', tel: '087-869-7733', circuit: true },
+      { pref: '香川県', name: 'アドバンテージ', address: '香川県三豊市三野町下高瀬字西浜357-2', tags: 'サーキット設置 ステーション 販売店', tel: '0875-73-3558', circuit: true },
+      { pref: '愛媛県', name: 'RacingBAR 100R 松山店', address: '愛媛県松山市二番町1-10-4 205', tags: 'サーキット設置 ステーション 販売店', tel: '080-9825-5438', circuit: true },
+      { pref: '愛媛県', name: '富士教材(有)', address: '愛媛県松山市柳井町3-8-9', tags: 'サーキット設置 ステーション 販売店', tel: '089-941-9413', circuit: true },
+      { pref: '愛媛県', name: '(有)オーバーシープラモ', address: '愛媛県松山市余戸南3-1-30', tags: 'サーキット設置 ステーション 販売店', tel: '089-971-2323', circuit: true },
+      { pref: '愛媛県', name: 'ジョリーハダ', address: '愛媛県新居浜市西喜光地町11-41', tags: 'サーキット設置 ステーション 販売店', tel: '0897-43-2211', circuit: true },
+      { pref: '愛媛県', name: '今治模型社', address: '愛媛県今治市室屋町2-2-13', tags: 'サーキット設置 ステーション 販売店', tel: '0898-22-5655*', circuit: true },
+      { pref: '愛媛県', name: 'ホビーショップ 井上', address: '愛媛県八幡浜市五反田2-784-3', tags: 'サーキット設置 ステーション 販売店', tel: '0894-29-1755', circuit: true },
+      { pref: '高知県', name: 'モデルショップ ヨシオカ', address: '高知県高知市上町1-4-6', tags: 'サーキット設置 ステーション 販売店', tel: '088-872-6420', circuit: true },
+      { pref: '福岡県', name: 'ホビーゾーンイオンモール直方店', address: '福岡県直方市湯野原2-1-1', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-2306', circuit: true },
+      { pref: '福岡県', name: 'WOT&#39;S', address: '福岡県北九州市小倉南区津田南町18-10', tags: 'サーキット設置 ステーション 販売店', tel: '093-647-0135', circuit: true },
+      { pref: '福岡県', name: 'コジマ×ビックカメラ 小倉店', address: '福岡県北九州市小倉南区上葛原2-18-1', tags: 'サーキット設置 ステーション 販売店', tel: '093-923-7007', circuit: true },
+      { pref: '福岡県', name: 'ホビー総合のお店 フカヤ 本店', address: '福岡県北九州市八幡東区前田1-9-4', tags: 'サーキット設置 ステーション 販売店', tel: '093-662-1239', circuit: true },
+      { pref: '福岡県', name: 'コジマ×ビックカメラ 八幡店', address: '福岡県北九州市八幡東区 東田1丁目7-21', tags: 'サーキット設置 ステーション 販売店', tel: '093-663-6622', circuit: true },
+      { pref: '福岡県', name: 'ホビーショップ トム･ソーヤ(天神店)', address: '福岡県福岡市中央区渡辺通り4-9-25 Luz福岡天神 B1F', tags: 'サーキット設置 ステーション 販売店', tel: '092-732-0007', circuit: true },
+      { pref: '福岡県', name: 'コジマ×ビックカメラ マークイズ福岡ももち店', address: '福岡県福岡市中央区地行浜2-2-1 MARK IS 福岡ももち 4階', tags: 'サーキット設置 ステーション 販売店', tel: '092-844-5252', circuit: true },
+      { pref: '福岡県', name: 'OMISEYA SUN', address: '福岡県宗像市大島1011 umiba 2F、3F', tags: 'サーキット設置 ステーション 販売店', tel: '090-8026-5294', circuit: true },
+      { pref: '福岡県', name: 'スーパーラジコン福岡博多店', address: '福岡県福岡市博多区榎田2-3-1 榎田ビル1F', tags: 'サーキット設置 ステーション 販売店', tel: '092-434-7878', circuit: true },
+      { pref: '福岡県', name: 'コジマ×ビックカメラ 福岡春日店', address: '福岡県春日市須玖北1-1-1', tags: 'サーキット設置 ステーション 販売店', tel: '092-571-8484', circuit: true },
+      { pref: '福岡県', name: 'ホビーショップタムタム筑紫野店', address: '福岡県筑紫野市美しが丘南1-12-1 筑紫野ベレッサ3F', tags: 'サーキット設置 ステーション 販売店', tel: '092-919-0120', circuit: true },
+      { pref: '福岡県', name: 'Cafe&Bar4×4', address: '福岡県筑紫野市永岡948-1', tags: 'サーキット設置 ステーション 販売店', tel: '', circuit: true },
+      { pref: '福岡県', name: 'コジマ×ビックカメラ 福岡西店', address: '福岡県福岡市西区橋本1-12-3', tags: 'サーキット設置 ステーション 販売店', tel: '092-811-9600', circuit: true },
+      { pref: '福岡県', name: '模型のはら', address: '福岡県みやま市瀬高町下庄1440-2', tags: 'サーキット設置 ステーション 販売店', tel: '0944-62-3838', circuit: true },
+      { pref: '福岡県', name: '(有)中村模型店', address: '福岡県久留米市国分町2063-1', tags: 'サーキット設置 ステーション 販売店', tel: '0942-22-3225', circuit: true },
+      { pref: '佐賀県', name: 'R263三瀬高原サーキット', address: '佐賀県佐賀市三瀬村三瀬2687-1 三瀬高原ギャラリー内', tags: 'サーキット設置 ステーション 販売店', tel: '090-7981-6171', circuit: true },
+      { pref: '長崎県', name: '(株)ワタノ', address: '長崎県壱岐市勝本町新城東触618', tags: 'サーキット設置 ステーション 販売店', tel: '0920-42-1343', circuit: true },
+      { pref: '熊本県', name: 'コジマ×ビックカメラ 熊本店', address: '熊本県熊本市南区日吉1-7-7', tags: 'サーキット設置 ステーション 販売店', tel: '096-320-2900', circuit: true },
+      { pref: '熊本県', name: 'ホビーショップ コスモ', address: '熊本県熊本市保田窪2-1-1', tags: 'サーキット設置 ステーション 販売店', tel: '096-385-4073', circuit: true },
+      { pref: '大分県', name: 'RCショップ STEP UP', address: '大分県大分市宮崎字天神目867-18', tags: 'サーキット設置 ステーション 販売店', tel: '097-568-3000', circuit: true },
+      { pref: '大分県', name: 'アカシ模型店？', address: '大分県日田市豆田町7-13', tags: 'サーキット設置 ステーション 販売店', tel: '0973-22-3723', circuit: true },
+      { pref: '大分県', name: 'T.H.M.F ヒタハシリ', address: '大分県日田市水目町273-1', tags: 'サーキット設置 ステーション 販売店', tel: '0973-30-4057', circuit: true },
+      { pref: '宮崎県', name: '模型の国トヤマ', address: '宮崎県宮崎市橘通東3-6-2', tags: 'サーキット設置 ステーション 販売店', tel: '0985-28-2424', circuit: true },
+      { pref: '宮崎県', name: 'カードショップ＠ほ～む。宮崎店', address: '宮崎県宮崎県宮崎市柳丸町153番１ C棟2-2', tags: 'サーキット設置 ステーション 販売店', tel: '050-1479-4154', circuit: true },
+      { pref: '宮崎県', name: 'ヘリポート', address: '宮崎県児湯郡新富町富田南1丁目114番地', tags: 'サーキット設置 ステーション 販売店', tel: '0983-33-6123', circuit: true },
+      { pref: '鹿児島県', name: '(有)福地模型', address: '鹿児島県鹿児島市下伊敷1-6-18', tags: 'サーキット設置 ステーション 販売店', tel: '099-222-0497', circuit: true },
+      { pref: '鹿児島県', name: 'マンガ倉庫 鹿児島店', address: '鹿児島県鹿児島市小松原1-6-7', tags: 'サーキット設置 ステーション 販売店', tel: '099-299-1122', circuit: true },
+      { pref: '鹿児島県', name: 'ホビーゾーンイオンモール鹿児島店', address: '鹿児島県鹿児島市東開町7 イオンモール鹿児島2F', tags: 'サーキット設置 ステーション 販売店', tel: '050-3626-6688', circuit: true },
+      { pref: '鹿児島県', name: 'Hobby Garage Clover', address: '鹿児島県霧島市国分福島3丁目1-29', tags: 'サーキット設置 ステーション 販売店', tel: '0995-73-8522', circuit: true },
+      { pref: '鹿児島県', name: 'RC SPEED SHOP ホビーランドサーキット', address: '鹿児島県姶良市平松3237-2', tags: 'サーキット設置 ステーション 販売店', tel: '099-555-5730', circuit: true },
+      { pref: '沖縄県', name: 'コジマ×ビックカメラ 那覇店', address: '沖縄県那覇市字安謝664-5', tags: 'サーキット設置 ステーション 販売店', tel: '098-941-3001', circuit: true },
+      { pref: '沖縄県', name: 'コジマ×ビックカメラ イーアス沖縄豊崎店', address: '沖縄県豊見城市豊崎3-35 イーアス沖縄豊崎1階', tags: 'サーキット設置 ステーション 販売店', tel: '098-840-5252', circuit: true }
     ];
 
     function setVenuesPageMode(mode) {
@@ -4871,6 +5580,7 @@
       var q = qEl ? qEl.value.trim().toLowerCase() : '';
       return STATION_SHOPS.filter(function(s) {
         if (pref && s.pref !== pref) return false;
+        if (window._stationCircuitOnly && !s.circuit) return false;
         if (!q) return true;
         var blob = (s.name + ' ' + s.address + ' ' + s.pref + ' ' + (s.tags || '')).toLowerCase();
         return blob.indexOf(q) !== -1;
@@ -4887,17 +5597,19 @@
       // temporary filter state via globals for first paint
       if (!window._stationPrefInit) {
         window._stationPrefInit = true;
-        window._stationPref = '東京都';
+        window._stationPref = '';
         window._stationQ = '';
       }
       if (prefEl) window._stationPref = prefEl.value;
       if (qEl) window._stationQ = qEl.value;
 
-      var pref = (typeof window._stationPref === 'string') ? window._stationPref : '東京都';
+      var pref = (typeof window._stationPref === 'string') ? window._stationPref : '';
       var q = (typeof window._stationQ === 'string') ? window._stationQ.trim().toLowerCase() : '';
 
+      var circuitOnly = !!window._stationCircuitOnly;
       var list = STATION_SHOPS.filter(function(s) {
         if (pref && s.pref !== pref) return false;
+        if (circuitOnly && !s.circuit) return false;
         if (!q) return true;
         var blob = (s.name + ' ' + s.address + ' ' + s.pref + ' ' + (s.tags || '')).toLowerCase();
         return blob.indexOf(q) !== -1;
@@ -4911,9 +5623,12 @@
         html += '<option value="' + escapeAttr(p) + '"' + (p === pref ? ' selected' : '') + '>' + escapeHtml(p) + '</option>';
       });
       html += '</select>';
+      html += '<label class="station-circuit-filter"><input type="checkbox" id="stationCircuitOnly" ' +
+        (window._stationCircuitOnly ? 'checked ' : '') +
+        'onchange="window._stationCircuitOnly=this.checked;renderVenuesMap()" /> サーキット設置店だけ</label>';
       html += '<input type="search" id="stationSearch" placeholder="店名・住所で検索" value="' + escapeAttr(qEl ? qEl.value : (window._stationQ || '')) + '" oninput="window._stationQ=this.value;renderVenuesMap()" />';
       html += '</div>';
-      html += '<p style="font-size:12px;color:#8e8e93;margin:0 0 10px;">公式のミニ四駆ステーション情報を参考にした内蔵リストです（' + STATION_SHOPS.length + '件）。営業・設置状況は店舗・公式で確認してください。GPS地図とは別データです。</p>';
+      html += '<p style="font-size:12px;color:#8e8e93;margin:0 0 10px;">タミヤ公式ショップリスト（全国）を内蔵。サーキット設置店フィルタ対応（' + STATION_SHOPS.length + '件）。営業・設置状況は店舗・公式で確認してください。GPS地図とは別データです。</p>';
 
       if (!list.length) {
         html += '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:20px 0;">該当する店舗がありません</p></div>';
@@ -5237,10 +5952,11 @@
 
       if (venuesPageMode === 'station') {
         // フィルタ用に現在の入力を保持したまま描画
-        var pref = (typeof window._stationPref === 'string') ? window._stationPref : '東京都';
+        var pref = (typeof window._stationPref === 'string') ? window._stationPref : '';
         var q = (typeof window._stationQ === 'string') ? window._stationQ.trim().toLowerCase() : '';
         var list = STATION_SHOPS.filter(function(s) {
           if (pref && s.pref !== pref) return false;
+          if (window._stationCircuitOnly && !s.circuit) return false;
           if (!q) return true;
           var blob = (s.name + ' ' + s.address + ' ' + s.pref + ' ' + (s.tags || '')).toLowerCase();
           return blob.indexOf(q) !== -1;
