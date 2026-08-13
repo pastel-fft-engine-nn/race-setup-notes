@@ -677,9 +677,10 @@
     body.dark-mode .venues-mode-tab.active { background: #7EC0E0; color: #fff; }
     
     .station-circuit-filter {
-      display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
-      color: #3a3a3c; padding: 8px 10px; background: #fff; border-radius: 10px;
+      display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
+      color: #3a3a3c; padding: 10px 12px; background: #fff; border-radius: 10px;
       border: 1px solid #c7c7cc; cursor: pointer; user-select: none;
+      width: 100%; box-sizing: border-box; min-height: 44px;
     }
     body.dark-mode .station-circuit-filter {
       background: #1c1c1e; color: #f2f2f7; border-color: #3a3a3c;
@@ -2372,7 +2373,7 @@
     <div class="stopwatch-panel">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <div style="font-size:16px;font-weight:700;">⏱️ タイム計測</div>
-        <button type="button" class="stopwatch-close" onclick="closeStopwatch()">閉じる</button>
+        <button type="button" class="stopwatch-close" onclick="closeStopwatch()">← 戻る</button>
       </div>
       <div class="stopwatch-display" id="swDisplay">0.000</div>
       <div class="stopwatch-sub" id="swSub">停止中</div>
@@ -2419,8 +2420,8 @@
         </p>
       </details>
       <div class="stopwatch-laps" id="swLaps"></div>
-      <button type="button" class="sw-apply" id="swApplyBtn" onclick="swApplyToForm()" disabled>このタイムをセッティングに反映</button>
-      <button type="button" class="sw-apply" id="swSaveNewBtn" onclick="swSaveAsNewSetting()" disabled style="margin-top:8px;background:#34c759;">保存して新規登録</button>
+      <button type="button" class="sw-apply" id="swSaveNewBtn" onclick="swSaveAsNewSetting()" disabled style="background:#34c759;">保存して新規登録</button>
+      <button type="button" class="sw-apply" id="swBackBtn" onclick="closeStopwatch()" style="margin-top:8px;background:#3a3a3c;">← 戻る</button>
       <p style="font-size:11px;color:#8e8e93;text-align:center;margin-top:10px;">単位は秒です。ベストラップも自動で更新します。</p>
     </div>
   </div>
@@ -7714,14 +7715,8 @@
       swFromForm = !!fromForm;
       swLoadSignalSettings();
       document.getElementById('stopwatchOverlay').classList.add('active');
-      var applyBtn = document.getElementById('swApplyBtn');
       var saveBtn = document.getElementById('swSaveNewBtn');
       var hasTime = swLastMs > 0 || swLaps.length > 0;
-      if (applyBtn) {
-        // フォーム編集中は反映ボタン、それ以外も表示（反映はフォームが開いているとき有効）
-        applyBtn.style.display = '';
-        applyBtn.disabled = !hasTime || !(swFromForm || document.getElementById('modalOverlay').classList.contains('active'));
-      }
       if (saveBtn) {
         saveBtn.style.display = '';
         saveBtn.disabled = !hasTime;
@@ -7756,13 +7751,7 @@
       document.getElementById('swStopBtn').style.display = 'none';
       document.getElementById('swLapBtn').disabled = true;
       document.getElementById('swSub').textContent = '停止 · ' + formatSwSeconds(swLastMs) + ' 秒';
-      var applyBtn = document.getElementById('swApplyBtn');
       var saveBtn = document.getElementById('swSaveNewBtn');
-      var modalOpen = document.getElementById('modalOverlay').classList.contains('active');
-      if (applyBtn) {
-        applyBtn.disabled = !modalOpen && !swFromForm;
-        applyBtn.style.display = '';
-      }
       if (saveBtn) saveBtn.disabled = false;
     }
 
@@ -7791,7 +7780,6 @@
       document.getElementById('swStartBtn').textContent = 'スタート';
       document.getElementById('swStopBtn').style.display = 'none';
       document.getElementById('swLapBtn').disabled = true;
-      document.getElementById('swApplyBtn').disabled = true;
       var saveBtn = document.getElementById('swSaveNewBtn');
       if (saveBtn) saveBtn.disabled = true;
       renderSwLaps();
