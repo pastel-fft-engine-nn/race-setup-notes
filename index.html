@@ -500,6 +500,57 @@
     }
 
     .venues-view { display: none; padding: 8px 12px 28px; }
+
+    .venues-mode-tabs {
+      display: flex; gap: 6px; margin-bottom: 10px;
+    }
+    .venues-mode-tab {
+      flex: 1; padding: 10px 8px; border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      background: #e5e5ea; color: #3a3a3c;
+    }
+    .venues-mode-tab.active {
+      background: #007aff; color: #fff;
+    }
+    body.dark-mode .venues-mode-tab { background: #2c2c2e; color: #aeaeb2; }
+    body.dark-mode .venues-mode-tab.active { background: #0a84ff; color: #fff; }
+    .station-toolbar {
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;
+    }
+    .station-toolbar select, .station-toolbar input {
+      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #c7c7cc;
+      font-size: 14px; background: #fff; color: #1c1c1e;
+    }
+    body.dark-mode .station-toolbar select,
+    body.dark-mode .station-toolbar input {
+      background: #1c1c1e; color: #f2f2f7; border-color: #3a3a3c;
+    }
+    .station-card {
+      background: #fff; border: 1px solid #e5e5ea; border-radius: 12px;
+      padding: 12px; margin-bottom: 8px;
+    }
+    body.dark-mode .station-card { background: #1c1c1e; border-color: #2c2c2e; }
+    .station-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .station-pref {
+      display: inline-block; font-size: 11px; font-weight: 700; color: #007aff;
+      background: #e8f1ff; border-radius: 6px; padding: 2px 6px; margin-bottom: 6px;
+    }
+    body.dark-mode .station-pref { background: #1a2a40; color: #64b5ff; }
+    .station-addr { font-size: 12px; color: #3a3a3c; line-height: 1.4; margin-bottom: 4px; }
+    body.dark-mode .station-addr { color: #aeaeb2; }
+    .station-tags { font-size: 11px; color: #8e8e93; margin-bottom: 8px; line-height: 1.4; }
+    .station-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .station-actions button {
+      border: none; border-radius: 8px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+      background: #e5e5ea; color: #1c1c1e;
+    }
+    .station-actions button.primary { background: #007aff; color: #fff; }
+    body.dark-mode .station-actions button { background: #2c2c2e; color: #f2f2f7; }
+    body.dark-mode .station-actions button.primary { background: #0a84ff; }
+    .station-note {
+      font-size: 11px; color: #8e8e93; margin-top: 10px; line-height: 1.45;
+    }
+
     .venues-view.active { display: block; }
     .japan-map-toolbar {
       display: flex;
@@ -1048,6 +1099,76 @@
     body.dark-mode .gallery-caption { background: #1c1c1e; color: #aeaeb2; }
     body.dark-mode input[type="range"] { accent-color: #0a84ff; }
 
+    .celebrate-toast {
+      display: none; position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
+      z-index: 600; max-width: min(420px, calc(100vw - 24px)); width: max-content;
+      background: linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%); color: #fff;
+      padding: 14px 18px; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.28);
+      font-size: 14px; font-weight: 600; line-height: 1.45; text-align: center;
+      opacity: 0; transition: opacity 0.25s ease, transform 0.25s ease; pointer-events: none;
+    }
+    .celebrate-toast.show {
+      display: block; opacity: 1; transform: translateX(-50%) translateY(0);
+    }
+    .celebrate-toast .ct-emoji { font-size: 22px; display: block; margin-bottom: 4px; }
+    .celebrate-toast .ct-sub { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.7); margin-top: 4px; }
+
+
+    /* 差分・楽しさUI */
+    .diff-card {
+      margin: 0 0 12px; padding: 12px; border-radius: 12px;
+      background: linear-gradient(135deg, #eef5ff 0%, #f7f0ff 100%);
+      border: 1px solid #d6e4ff;
+    }
+    body.dark-mode .diff-card {
+      background: linear-gradient(135deg, #1a2333 0%, #241c33 100%);
+      border-color: #2c3a4a;
+    }
+    .diff-card-title {
+      font-size: 13px; font-weight: 700; margin-bottom: 6px; color: #1c1c1e;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    body.dark-mode .diff-card-title { color: #f2f2f7; }
+    .diff-card-sub { font-size: 11px; color: #8e8e93; margin-bottom: 8px; line-height: 1.4; }
+    .diff-row {
+      display: flex; align-items: baseline; gap: 8px; padding: 5px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 12px;
+    }
+    body.dark-mode .diff-row { border-bottom-color: rgba(255,255,255,0.06); }
+    .diff-row:last-child { border-bottom: none; }
+    .diff-label { width: 72px; flex-shrink: 0; color: #8e8e93; font-weight: 600; }
+    .diff-old { color: #8e8e93; text-decoration: line-through; }
+    .diff-arrow { color: #8e8e93; }
+    .diff-new { color: #007aff; font-weight: 700; }
+    body.dark-mode .diff-new { color: #0a84ff; }
+    .diff-same-note { font-size: 12px; color: #34c759; font-weight: 600; }
+    .fun-strip {
+      display: flex; gap: 8px; overflow-x: auto; padding: 0 0 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .fun-chip {
+      flex: 0 0 auto; min-width: 96px; padding: 8px 10px; border-radius: 12px;
+      background: #fff; border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    body.dark-mode .fun-chip { background: #1c1c1e; border-color: #2c2c2e; }
+    .fun-chip .fc-label { font-size: 10px; color: #8e8e93; margin-bottom: 2px; }
+    .fun-chip .fc-val { font-size: 15px; font-weight: 700; color: #1c1c1e; }
+    body.dark-mode .fun-chip .fc-val { color: #f2f2f7; }
+    .fun-chip.good .fc-val { color: #34c759; }
+    .fun-chip.hot .fc-val { color: #ff9f0a; }
+    .fun-msg {
+      font-size: 12px; color: #3a3a3c; background: #fff8e6; border-radius: 10px;
+      padding: 8px 10px; margin-bottom: 8px; line-height: 1.45;
+    }
+    body.dark-mode .fun-msg { background: #2c2618; color: #f2e6c8; }
+    .best-badge {
+      display: inline-block; font-size: 10px; font-weight: 700; color: #fff;
+      background: linear-gradient(135deg, #ff9f0a, #ff3b30); border-radius: 6px;
+      padding: 2px 6px; margin-left: 4px; vertical-align: middle;
+    }
+
+
     /* データ管理・テンプレート・グラフ・大会パッケージ */
     .data-tools-overlay {
       display: none; position: fixed; inset: 0; z-index: 500;
@@ -1534,6 +1655,7 @@
     </div>
   </div>
 
+  <div class="celebrate-toast" id="celebrateToast" role="status" aria-live="polite"></div>
   <button class="fab" onclick="openAddModal()">＋</button>
 
   <div class="modal-overlay" id="modalOverlay">
@@ -2347,12 +2469,13 @@
       var events = getEventsForDate(key);
       var countEl = document.getElementById('selectedDayCount');
       if (countEl) countEl.textContent = events.length ? (events.length + '件') : '';
+      var head = isToday ? funStripHtml() : '';
       if (events.length === 0) {
-        list.innerHTML = '<div class="empty-state" style="padding:24px 0"><p>' +
+        list.innerHTML = head + '<div class="empty-state" style="padding:24px 0"><p>' +
           (isToday ? '今日の予定はありません' : 'この日の予定はありません') + '</p></div>';
         return;
       }
-      list.innerHTML = events.map(function(ev) { return eventCardHtml(ev, { showDup: true }); }).join('');
+      list.innerHTML = head + events.map(function(ev) { return eventCardHtml(ev, { showDup: true }); }).join('');
     }
 
     function renderWeek() {
@@ -2519,7 +2642,7 @@
       var summaryParts = [];
       if (ev.machineName) summaryParts.push(ev.machineName);
       if (m4.speed != null && m4.speed !== '') summaryParts.push(m4.speed + ' km/h');
-      if (m4.lapTime) summaryParts.push(m4.lapTime + '秒');
+      if (m4.lapTime) summaryParts.push(m4.lapTime + '秒' + (isPersonalBestLap(ev) ? ' 🏆' : ''));
       if (m4.tireDiameter != null && m4.tireDiameter !== '') summaryParts.push('タイヤ ' + m4.tireDiameter + 'mm');
       if (m4.weight != null && m4.weight !== '') summaryParts.push(m4.weight + 'g');
       var summaryHtml = summaryParts.length
@@ -2894,6 +3017,226 @@
 
     var viewingEventId = null;
 
+
+    // ===== 前回同じセットとの差分 & 楽しさ指標 =====
+    function sameSetKey(ev) {
+      if (!ev) return '';
+      var m4 = ev.m4 || {};
+      var machine = (ev.machineName || '').trim();
+      var motor = (m4.motorType || '').trim();
+      var mno = (m4.motorNumber || '').trim();
+      if (machine) return 'm:' + machine;
+      if (motor) return 't:' + motor + '|' + mno;
+      return '';
+    }
+
+    function eventTimeScore(ev) {
+      return (ev.updatedAt || ev.createdAt || 0);
+    }
+
+    function findPreviousSameSet(ev) {
+      if (!ev) return null;
+      var key = sameSetKey(ev);
+      if (!key) return null;
+      var list = getEvents().filter(function(e) {
+        if (!e || e.id === ev.id) return false;
+        if (sameSetKey(e) !== key) return false;
+        // 同じ日より前、または同日でも作成が前
+        var ed = e.date || '';
+        var vd = ev.date || '';
+        if (ed && vd) {
+          if (ed > vd) return false;
+          if (ed === vd && eventTimeScore(e) >= eventTimeScore(ev)) return false;
+        } else if (eventTimeScore(e) >= eventTimeScore(ev)) {
+          return false;
+        }
+        return true;
+      });
+      list.sort(function(a, b) {
+        if ((a.date || '') !== (b.date || '')) return (b.date || '').localeCompare(a.date || '');
+        return eventTimeScore(b) - eventTimeScore(a);
+      });
+      return list[0] || null;
+    }
+
+    function fmtDiffVal(key, v) {
+      if (v == null || v === '') return '（なし）';
+      if (key === 'voltage') return v + ' V';
+      if (key === 'tireDiameter') return v + ' mm';
+      if (key === 'weight') return v + ' g';
+      if (key === 'speed') return v + ' km/h';
+      if (key === 'rpm') return v + ' rpm';
+      if (key === 'lapTime' || key === 'bestLap') return v + ' 秒';
+      if (key === 'temperature') return v + ' ℃';
+      return String(v);
+    }
+
+    function buildDiffHtml(curr, prev) {
+      if (!curr || !prev) return '';
+      var a = curr.m4 || {};
+      var b = prev.m4 || {};
+      var fields = [
+        ['result', '結果'],
+        ['voltage', '電圧'],
+        ['gearRatio', 'ギヤ比'],
+        ['tireDiameter', 'タイヤ'],
+        ['weight', '車重'],
+        ['rpm', 'RPM'],
+        ['speed', '時速'],
+        ['lapTime', 'タイム'],
+        ['bestLap', 'ベスト'],
+        ['batteryType', '電池'],
+        ['motorType', 'モーター'],
+        ['motorNumber', 'M.No.'],
+        ['weather', '天気'],
+        ['temperature', '気温'],
+        ['classType', 'クラス'],
+        ['eventType', '種別'],
+        ['round', 'ラウンド']
+      ];
+      var rows = [];
+      fields.forEach(function(pair) {
+        var k = pair[0], label = pair[1];
+        var va = a[k];
+        var vb = b[k];
+        var sa = (va == null || va === '') ? '' : String(va);
+        var sb = (vb == null || vb === '') ? '' : String(vb);
+        if (sa === sb) return;
+        rows.push({ label: label, old: fmtDiffVal(k, vb), neu: fmtDiffVal(k, va) });
+      });
+      // 場所・マシン名・メモ
+      if ((curr.address || '') !== (prev.address || '')) {
+        rows.push({ label: '場所', old: prev.address || '（なし）', neu: curr.address || '（なし）' });
+      }
+      if ((curr.machineName || '') !== (prev.machineName || '')) {
+        rows.push({ label: 'マシン', old: prev.machineName || '（なし）', neu: curr.machineName || '（なし）' });
+      }
+      if ((curr.content || '') !== (prev.content || '')) {
+        rows.push({
+          label: 'メモ',
+          old: (prev.content || '（なし）').slice(0, 24),
+          neu: (curr.content || '（なし）').slice(0, 24)
+        });
+      }
+
+      var prevDate = prev.date || '';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(prevDate)) {
+        var p = prevDate.split('-');
+        prevDate = p[0] + '/' + parseInt(p[1], 10) + '/' + parseInt(p[2], 10);
+      }
+      var keyLabel = (curr.machineName && curr.machineName.trim())
+        ? curr.machineName.trim()
+        : (((curr.m4 || {}).motorType || '') + (((curr.m4 || {}).motorNumber) ? ' #' + (curr.m4 || {}).motorNumber : ''));
+      if (!keyLabel) keyLabel = '同系統';
+
+      var html = '<div class="diff-card">';
+      html += '<div class="diff-card-title">🔁 前回同じセットとの差分</div>';
+      html += '<div class="diff-card-sub">比較元: ' + escapeHtml(keyLabel) +
+        (prevDate ? '（' + escapeHtml(prevDate) + '）' : '') +
+        ' <span style="color:#007aff;cursor:pointer;font-weight:600;" onclick="openDetailModal(\'' + escapeAttr(prev.id) + '\')">前回を見る</span></div>';
+      if (!rows.length) {
+        html += '<div class="diff-same-note">主要項目は前回と同じです</div>';
+      } else {
+        rows.forEach(function(r) {
+          html += '<div class="diff-row"><div class="diff-label">' + escapeHtml(r.label) + '</div>' +
+            '<span class="diff-old">' + escapeHtml(r.old) + '</span>' +
+            '<span class="diff-arrow">→</span>' +
+            '<span class="diff-new">' + escapeHtml(r.neu) + '</span></div>';
+        });
+      }
+      // 結果が良くなった／タイム更新
+      var tip = '';
+      if ((a.result === '完走') && (b.result === 'コースアウト' || b.result === '失格')) {
+        tip = '🎉 前回アウトから完走に変わりました！';
+      } else if ((a.result === 'コースアウト' || a.result === '失格') && b.result === '完走') {
+        tip = '📝 前回は完走。条件の差分を要チェック';
+      } else if (a.lapTime && b.lapTime) {
+        var na = parseFloat(a.lapTime), nb = parseFloat(b.lapTime);
+        if (!isNaN(na) && !isNaN(nb) && na < nb) {
+          tip = '⚡ タイム更新！ ' + (nb - na).toFixed(3) + ' 秒短縮';
+        }
+      }
+      if (tip) html += '<div class="fun-msg" style="margin-top:8px;margin-bottom:0;">' + escapeHtml(tip) + '</div>';
+      html += '</div>';
+      return html;
+    }
+
+    function isPersonalBestLap(ev) {
+      var t = ev && ev.m4 && ev.m4.lapTime;
+      if (t == null || t === '') return false;
+      var cur = parseFloat(t);
+      if (isNaN(cur) || cur <= 0) return false;
+      var key = sameSetKey(ev);
+      var best = cur;
+      getEvents().forEach(function(e) {
+        if (!e || e.id === ev.id) return;
+        if (key && sameSetKey(e) !== key) return;
+        var lt = e.m4 && e.m4.lapTime;
+        if (lt == null || lt === '') return;
+        var n = parseFloat(lt);
+        if (!isNaN(n) && n > 0 && n < best) best = n;
+      });
+      return best === cur;
+    }
+
+    function buildFunStats() {
+      var all = getEvents();
+      var now = new Date();
+      var ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+      var monthEvents = all.filter(function(e) { return (e.date || '').indexOf(ym) === 0; });
+      var resulted = monthEvents.filter(function(e) {
+        var r = e.m4 && e.m4.result;
+        return r === '完走' || r === 'コースアウト' || r === '失格';
+      });
+      var finish = resulted.filter(function(e) { return e.m4.result === '完走'; }).length;
+      var rate = resulted.length ? (finish / resulted.length * 100) : null;
+      // 連続完走（日付の新しい結果付きから）
+      var sorted = resulted.slice().sort(function(a, b) {
+        return (b.date || '').localeCompare(a.date || '') || (b.createdAt || 0) - (a.createdAt || 0);
+      });
+      var streak = 0;
+      for (var i = 0; i < sorted.length; i++) {
+        if (sorted[i].m4 && sorted[i].m4.result === '完走') streak++;
+        else break;
+      }
+      var bestTimes = all.map(function(e) {
+        var t = e.m4 && e.m4.lapTime;
+        var n = t != null && t !== '' ? parseFloat(t) : NaN;
+        return isNaN(n) ? null : n;
+      }).filter(function(n) { return n != null && n > 0; });
+      var pb = bestTimes.length ? Math.min.apply(null, bestTimes) : null;
+
+      var msg = '';
+      if (rate != null && rate >= 70 && resulted.length >= 3) msg = '🔥 今月の完走率が高めです。この調子！';
+      else if (streak >= 3) msg = '✨ 連続完走 ' + streak + ' 本中。流れがいいです';
+      else if (monthEvents.length === 0) msg = '🛠️ 今月まだ記録がありません。練習ログを1本残してみましょう';
+      else if (rate != null && rate < 40 && resulted.length >= 3) msg = '🧩 今月は苦戦気味。差分表示で「変えた点」を振り返ると前進しやすいです';
+      else msg = '📝 記録するほど、差分と比較が賢くなります';
+
+      return {
+        monthCount: monthEvents.length,
+        rate: rate,
+        streak: streak,
+        pb: pb,
+        msg: msg
+      };
+    }
+
+    function funStripHtml() {
+      var s = buildFunStats();
+      var html = '<div class="fun-strip">';
+      html += '<div class="fun-chip"><div class="fc-label">今月の記録</div><div class="fc-val">' + s.monthCount + '件</div></div>';
+      html += '<div class="fun-chip' + (s.rate != null && s.rate >= 60 ? ' good' : '') + '"><div class="fc-label">今月完走率</div><div class="fc-val">' +
+        (s.rate != null ? s.rate.toFixed(0) + '%' : '—') + '</div></div>';
+      html += '<div class="fun-chip' + (s.streak >= 2 ? ' hot' : '') + '"><div class="fc-label">連続完走</div><div class="fc-val">' + s.streak + '</div></div>';
+      html += '<div class="fun-chip good"><div class="fc-label">自己ベスト</div><div class="fc-val">' +
+        (s.pb != null ? s.pb.toFixed(3) + 's' : '—') + '</div></div>';
+      html += '</div>';
+      if (s.msg) html += '<div class="fun-msg">' + escapeHtml(s.msg) + '</div>';
+      return html;
+    }
+
+
     function openDetailModal(id) {
       var ev = getEvents().find(function(e) { return e.id === id; });
       if (!ev) return;
@@ -2912,6 +3255,12 @@
       }
       var timeStr = (ev.start || '') + (ev.end ? ' – ' + ev.end : '');
       var html = '';
+      var prevSet = findPreviousSameSet(ev);
+      if (prevSet) html += buildDiffHtml(ev, prevSet);
+      else if (sameSetKey(ev)) {
+        html += '<div class="diff-card"><div class="diff-card-title">🔁 前回同じセットとの差分</div>' +
+          '<div class="diff-card-sub">このマシン／モーターの過去記録がまだありません。2回目以降に差分が出ます。</div></div>';
+      }
       html += '<div class="detail-section-label">日時・場所</div><div class="detail-group">';
       html += row('日付', dateLabel);
       html += row('時間', timeStr);
@@ -2944,7 +3293,7 @@
       if (m4.voltage != null) html += row('電圧', m4.voltage + ' V');
       if (m4.speed != null) html += row('時速', m4.speed + ' km/h');
       if (m4.rpm != null) html += row('回転数', m4.rpm + ' rpm');
-      if (m4.lapTime) html += row('タイム', m4.lapTime + ' 秒');
+      if (m4.lapTime) html += row('タイム', m4.lapTime + ' 秒' + (isPersonalBestLap(ev) ? ' 🏆PB' : ''));
       if (m4.bestLap) html += row('ベストラップ', m4.bestLap + ' 秒');
       html += row('結果', m4.result);
       html += '</div>';
@@ -3132,6 +3481,55 @@
       if (content) return content.slice(0, 20) + (content.length > 20 ? '…' : '');
       return 'セッティング';
     }
+
+    // ===== 大会・完走時のランダム祝福コメント =====
+    var FINISH_CELEBRATE_COMMENTS = [
+      { e: '🎉', t: 'やるじゃん！' },
+      { e: '⚡', t: '電圧もうちょいあげちゃえ！' },
+      { e: '🔩', t: 'ビスの緩み平気？' },
+      { e: '🔧', t: 'シャフト曲がってない？' },
+      { e: '🏆', t: 'おめでとう！' },
+      { e: '🔋', t: '電池の正負あってる？' },
+      { e: '🎯', t: '次の目標は？' },
+      { e: '💨', t: 'ギヤの噛み、異音出てない？' },
+      { e: '🧠', t: '何が効いたか、メモ1行残そう。' },
+      { e: '📏', t: 'マスダンの高さ、前回と同じ？' },
+      { e: '🌀', t: 'ベアリング回しはスムーズ？' },
+      { e: '🏁', t: '次もこのメンテ状態をキープ！' },
+      { e: '💪', t: 'マシンが応えてくれた完走だ。' },
+      { e: '🧪', t: '電圧だけ変えてもう一本、どう？' },
+      { e: '👀', t: 'レーン特性、次も活かせる？' },
+      { e: '🧼', t: 'タイヤのゴミ、取ってから次戦！' },
+      { e: '📦', t: 'スペアシャフト、カバンにある？' },
+      { e: '🙌', t: 'ピットの自分を褒めたげて' },
+      { e: '🔁', t: '再現できたら強い' },
+      { e: '🛑', t: 'ブレーキ位置OK?' },
+      { e: '🚀', t: 'LC余裕でしょ' },
+      { e: '✨', t: '完走ナイス！' },
+      { e: '😊', t: 'なにげに嬉しいよね' },
+      { e: '💡', t: '迷ったら最初の案を！' },
+      { e: '🌟', t: '完璧にハマってた' }
+    ];
+    var _celebrateTimer = null;
+    function showFinishCelebration(m4) {
+      if (!m4 || m4.result !== '完走') return;
+      // 大会での完走を優先（練習完走は控えめに出してもよいが、要望どおり大会中心）
+      if (m4.eventType && m4.eventType !== '大会') return;
+      var list = FINISH_CELEBRATE_COMMENTS;
+      var pick = list[Math.floor(Math.random() * list.length)];
+      var el = document.getElementById('celebrateToast');
+      if (!el) return;
+      el.innerHTML = '<span class="ct-emoji">' + pick.e + '</span>' +
+        escapeHtml(pick.t) +
+        '<div class="ct-sub">完走おめでとう · マシンの調子もチェック</div>';
+      el.classList.add('show');
+      if (_celebrateTimer) clearTimeout(_celebrateTimer);
+      _celebrateTimer = setTimeout(function() {
+        el.classList.remove('show');
+      }, 4200);
+    }
+
+
     function saveEvent(options) {
       options = options || {};
       var keepOpenForNext = !!options.keepOpenForNext;
@@ -3223,6 +3621,7 @@
             populateSearchFilters();
             runSearch();
           }
+          try { showFinishCelebration(m4); } catch (e) {}
           return true;
         }
         closeModal();
@@ -3235,6 +3634,7 @@
           selectedDate = new Date(date + 'T12:00:00');
           renderDay();
         }
+        try { showFinishCelebration(m4); } catch (e) {}
         return true;
       });
     }
@@ -4375,6 +4775,190 @@
       body.innerHTML = html;
     }
 
+
+    // ===== ミニ四駆ステーション内蔵リスト（公式ショップリスト参考・関東中心＋主要店） =====
+    // GPS日本地図とは独立。更新は公式 https://www.tamiya.com/japan/mini4wd/mini4wdstation を確認
+    var venuesPageMode = 'gps'; // 'gps' | 'station'
+    var STATION_SHOPS = [
+      // 東京
+      { pref: '東京都', name: 'TAMIYA PLAMODEL FACTORY TOKYO', address: '東京都江東区青海1-1-10 ダイバーシティ東京 プラザ7F', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 三鷹店', address: '東京都三鷹市下連雀3-37-22', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 西東京店', address: '東京都西東京市芝久保町3-2-22', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 成城店', address: '東京都世田谷区成城6-12-10', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '東京都', name: 'コジマ×ビックカメラ ベルクスモール浮間舟渡店', address: '東京都板橋区舟渡1-6-22', tags: 'ステーション サーキット設置', tel: '03-6454-5522' },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 井草店', address: '東京都杉並区上井草3-37-20', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 善福寺店', address: '東京都杉並区善福寺1-14-10', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '東京都', name: 'コジマ×ビックカメラ 東大和店', address: '東京都東大和市高木3-378-3', tags: 'ステーション サーキット設置', tel: '042-562-6711' },
+      { pref: '東京都', name: 'ヨドバシカメラ マルチメディア錦糸町', address: '東京都墨田区江東橋3-9-10', tags: '販売・取扱', tel: '' },
+      { pref: '東京都', name: 'ヨドバシカメラ 新宿西口本店', address: '東京都新宿区西新宿1-11-1', tags: 'ミニ四駆販売', tel: '03-3346-1010' },
+      { pref: '東京都', name: 'ホビー サン星', address: '東京都中野区上高田2-53-5 クレセント村松1F', tags: 'ステーション', tel: '03-3385-5038' },
+      { pref: '東京都', name: 'おもちゃのぶんぶく', address: '東京都豊島区南長崎5-26-14', tags: 'ステーション サーキット設置', tel: '03-3952-7530' },
+      { pref: '東京都', name: 'Robotma.com', address: '東京都板橋区蓮沼町34-1 innovation Garage', tags: 'ステーション サーキット設置', tel: '03-6807-9191' },
+      { pref: '東京都', name: 'フジヤ', address: '東京都板橋区常盤台2-27-9', tags: 'ステーション サーキット設置', tel: '03-3960-2829' },
+      { pref: '東京都', name: 'えのもとサーキット', address: '東京都八王子市高尾町1529-3', tags: 'ステーション サーキット設置', tel: '042-664-3249' },
+      { pref: '東京都', name: 'Mini4wd Geeks', address: '東京都', tags: 'サーキット・コミュニティ', tel: '' },
+      { pref: '東京都', name: 'もりや', address: '東京都東大和市向原5-1024-35', tags: '販売', tel: '042-561-0922' },
+      // 神奈川
+      { pref: '神奈川県', name: 'タミヤプラモデルファクトリー トレッサ横浜店', address: '神奈川県横浜市港北区師岡町700 トレッサ横浜南棟1F', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 梶ヶ谷店', address: '神奈川県川崎市高津区梶ヶ谷2-2-3', tags: 'ステーション サーキット設置', tel: '044-860-2411' },
+      { pref: '神奈川県', name: 'エディオン 横浜西口本店', address: '神奈川県横浜市西区南幸2丁目16-1', tags: 'ステーション サーキット設置', tel: '045-410-2511' },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 横浜大口店', address: '神奈川県横浜市神奈川区神之木町3-3', tags: 'ステーション サーキット設置', tel: '045-439-3255' },
+      { pref: '神奈川県', name: 'ラジコンカー練習場･元気っ子さん', address: '神奈川県横浜市神奈川区松本町5-38-1 ボンジョルノ三ツ沢2F', tags: 'ステーション サーキット設置', tel: '045-294-8154' },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 海老名店', address: '神奈川県海老名市中央2-4-1', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 東海大学前店', address: '神奈川県秦野市', tags: 'ステーション', tel: '' },
+      { pref: '神奈川県', name: 'コジマ×ビックカメラ 横須賀店', address: '神奈川県横須賀市', tags: 'ステーション', tel: '' },
+      { pref: '神奈川県', name: '滝口模型', address: '神奈川県横浜市都筑区大熊町138', tags: 'ステーション サーキット設置', tel: '045-473-0957' },
+      { pref: '神奈川県', name: 'HOBBY SHOP たからばこ', address: '神奈川県横浜市青葉区すすき野3-7-1 根岸ビル1F', tags: 'ステーション サーキット設置', tel: '045-507-5820' },
+      { pref: '神奈川県', name: 'アンドロメダ屋模型店 鴨居店', address: '神奈川県横浜市緑区鴨居1-11-2', tags: 'ステーション サーキット設置', tel: '045-934-3881' },
+      { pref: '神奈川県', name: 'サムカワサーキット', address: '神奈川県', tags: 'サーキット', tel: '' },
+      { pref: '神奈川県', name: 'HP CIRCUIT CLUB', address: '神奈川県', tags: 'サーキット', tel: '' },
+      { pref: '神奈川県', name: 'ミニ四駆サーキットKINJIRO BASE', address: '神奈川県', tags: 'サーキット', tel: '' },
+      // 埼玉
+      { pref: '埼玉県', name: 'イエローサブマリン 大宮本店', address: '埼玉県さいたま市北区宮原町3-561', tags: 'ステーション サーキット設置', tel: '048-652-7977' },
+      { pref: '埼玉県', name: 'タムタム大宮店', address: '埼玉県さいたま市見沼区春野2-8 Patria東大宮3F', tags: 'ステーション サーキット設置', tel: '048-688-9666' },
+      { pref: '埼玉県', name: 'コジマ×ビックカメラ 鳩ヶ谷店', address: '埼玉県川口市里1585-1', tags: 'ステーション サーキット設置', tel: '048-288-9100' },
+      { pref: '埼玉県', name: 'コジマ×ビックカメラ 春日部店', address: '埼玉県春日部市', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '埼玉県', name: 'コジマ×ビックカメラ 越谷店', address: '埼玉県越谷市', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '埼玉県', name: '埼玉レジャーランド 春日部店', address: '埼玉県春日部市', tags: 'サーキット', tel: '' },
+      { pref: '埼玉県', name: 'ホビーゾーンイオンモール浦和美園店', address: '埼玉県さいたま市緑区美園5丁目50-1-3階', tags: 'ステーション サーキット設置', tel: '050-3626-1547' },
+      { pref: '埼玉県', name: 'ホビーゾーン イオンレイクタウンmori店', address: '埼玉県越谷市レイクタウン3-1-1', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '埼玉県', name: 'TSUNOI Mini4WD Site', address: '埼玉県八潮市緑町5丁目29-26', tags: 'ステーション サーキット設置', tel: '048-997-6336' },
+      { pref: '埼玉県', name: 'ヨドバシカメラ マルチメディアさいたま新都心駅前店', address: '埼玉県さいたま市中央区新都心3-1', tags: '販売', tel: '' },
+      { pref: '埼玉県', name: '精文堂', address: '埼玉県', tags: '販売・取扱', tel: '' },
+      // 千葉
+      { pref: '千葉県', name: 'コジマ×ビックカメラ 柏店', address: '千葉県柏市', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '千葉県', name: 'らじこんひろば', address: '千葉県', tags: 'サーキット', tel: '' },
+      { pref: '千葉県', name: 'ホビーショップ橘花', address: '千葉県', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '千葉県', name: '太陽模型 君津本店', address: '千葉県君津市', tags: '販売・サーキット', tel: '' },
+      // 茨城
+      { pref: '茨城県', name: '水戸鑑定団', address: '茨城県水戸市', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '茨城県', name: 'ジョイフル本田 ニューポートひたちなか店', address: '茨城県ひたちなか市', tags: 'ステーション', tel: '' },
+      { pref: '茨城県', name: 'HOBBY ZONE イオンモール水戸内原店', address: '茨城県水戸市', tags: 'ステーション', tel: '' },
+      { pref: '茨城県', name: '勝田ラジコン模型', address: '茨城県ひたちなか市', tags: '販売', tel: '' },
+      // 栃木
+      { pref: '栃木県', name: 'コジマ×ビックカメラ 宇都宮本店', address: '栃木県宇都宮市', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ さくら店', address: '栃木県さくら市', tags: 'ステーション', tel: '' },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ 日光店', address: '栃木県日光市', tags: 'ステーション', tel: '' },
+      { pref: '栃木県', name: 'コジマ×ビックカメラ 栃木店', address: '栃木県栃木市', tags: 'ステーション', tel: '' },
+      { pref: '栃木県', name: 'おもちゃのマンネンヤ', address: '栃木県', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '栃木県', name: 'ガラクタ鑑定団小山総本店', address: '栃木県小山市', tags: 'ステーション', tel: '' },
+      // 群馬
+      { pref: '群馬県', name: 'コジマ×ビックカメラ 高崎店', address: '群馬県高崎市', tags: 'ステーション', tel: '' },
+      { pref: '群馬県', name: 'タカサキハンズ', address: '群馬県高崎市', tags: 'ステーション サーキット設置', tel: '' },
+      { pref: '群馬県', name: 'コジマ×ビックカメラ 足利店', address: '栃木県足利市', tags: 'ステーション', tel: '' },
+      // 主要・他地域（抜粋）
+      { pref: '静岡県', name: 'タミヤ本社・ホビースクエア関連', address: '静岡県静岡市', tags: '公式・イベント拠点', tel: '' },
+      { pref: '大阪府', name: 'ヨドバシカメラ マルチメディア梅田', address: '大阪府大阪市', tags: '販売', tel: '' },
+      { pref: '北海道', name: 'コジマ×ビックカメラ 新さっぽろデュオ店', address: '北海道札幌市', tags: 'ステーション', tel: '' },
+      { pref: '愛知県', name: 'タム･タム 豊橋店', address: '愛知県豊橋市下地町字境田100 オートバックスとよはし店2階', tags: 'ステーション サーキット設置', tel: '0532-57-5300' }
+    ];
+
+    function setVenuesPageMode(mode) {
+      venuesPageMode = mode === 'station' ? 'station' : 'gps';
+      renderVenuesMap();
+    }
+
+    function stationPrefs() {
+      var set = {};
+      STATION_SHOPS.forEach(function(s) { if (s.pref) set[s.pref] = true; });
+      return Object.keys(set).sort(function(a, b) { return a.localeCompare(b, 'ja'); });
+    }
+
+    function filteredStationShops() {
+      var prefEl = document.getElementById('stationPrefFilter');
+      var qEl = document.getElementById('stationSearch');
+      var pref = prefEl ? prefEl.value : '';
+      var q = qEl ? qEl.value.trim().toLowerCase() : '';
+      return STATION_SHOPS.filter(function(s) {
+        if (pref && s.pref !== pref) return false;
+        if (!q) return true;
+        var blob = (s.name + ' ' + s.address + ' ' + s.pref + ' ' + (s.tags || '')).toLowerCase();
+        return blob.indexOf(q) !== -1;
+      });
+    }
+
+    function renderStationListHtml() {
+      var prefs = stationPrefs();
+      var prefEl = document.getElementById('stationPrefFilter');
+      var qEl = document.getElementById('stationSearch');
+      var curPref = prefEl ? prefEl.value : '東京都';
+      if (!curPref) curPref = '東京都';
+      var curQ = qEl ? qEl.value : '';
+      // temporary filter state via globals for first paint
+      if (!window._stationPrefInit) {
+        window._stationPrefInit = true;
+        window._stationPref = '東京都';
+        window._stationQ = '';
+      }
+      if (prefEl) window._stationPref = prefEl.value;
+      if (qEl) window._stationQ = qEl.value;
+
+      var pref = (typeof window._stationPref === 'string') ? window._stationPref : '東京都';
+      var q = (typeof window._stationQ === 'string') ? window._stationQ.trim().toLowerCase() : '';
+
+      var list = STATION_SHOPS.filter(function(s) {
+        if (pref && s.pref !== pref) return false;
+        if (!q) return true;
+        var blob = (s.name + ' ' + s.address + ' ' + s.pref + ' ' + (s.tags || '')).toLowerCase();
+        return blob.indexOf(q) !== -1;
+      });
+
+      var html = '';
+      html += '<div class="station-toolbar">';
+      html += '<select id="stationPrefFilter" onchange="window._stationPref=this.value;renderVenuesMap()">';
+      html += '<option value="">都道府県（すべて）</option>';
+      prefs.forEach(function(p) {
+        html += '<option value="' + escapeAttr(p) + '"' + (p === pref ? ' selected' : '') + '>' + escapeHtml(p) + '</option>';
+      });
+      html += '</select>';
+      html += '<input type="search" id="stationSearch" placeholder="店名・住所で検索" value="' + escapeAttr(qEl ? qEl.value : (window._stationQ || '')) + '" oninput="window._stationQ=this.value;renderVenuesMap()" />';
+      html += '</div>';
+      html += '<p style="font-size:12px;color:#8e8e93;margin:0 0 10px;">公式のミニ四駆ステーション情報を参考にした内蔵リストです（' + STATION_SHOPS.length + '件）。営業・設置状況は店舗・公式で確認してください。GPS地図とは別データです。</p>';
+
+      if (!list.length) {
+        html += '<div class="analysis-card"><p style="text-align:center;color:#8e8e93;padding:20px 0;">該当する店舗がありません</p></div>';
+      } else {
+        list.forEach(function(s, idx) {
+          html += '<div class="station-card">';
+          html += '<div class="station-pref">' + escapeHtml(s.pref) + '</div>';
+          html += '<div class="station-name">' + escapeHtml(s.name) + '</div>';
+          html += '<div class="station-addr">📍 ' + escapeHtml(s.address || '住所未登録') + '</div>';
+          if (s.tags) html += '<div class="station-tags">' + escapeHtml(s.tags) + (s.tel ? ' · TEL ' + escapeHtml(s.tel) : '') + '</div>';
+          html += '<div class="station-actions">';
+          html += '<button type="button" class="primary" data-st-map="' + idx + '">Googleマップ</button>';
+          html += '<button type="button" data-st-use="' + idx + '">場所名に使う</button>';
+          html += '</div></div>';
+        });
+      }
+      html += '<div class="station-note">出典の目安: タミヤ「ミニ四駆ステーション ショップリスト」。リストはアプリ内蔵のため、閉店・移転があっても自動更新されません。<a href="https://www.tamiya.com/japan/mini4wd/mini4wdstation" target="_blank" rel="noopener">公式一覧を開く</a></div>';
+      return html;
+    }
+
+    function bindStationListActions(list) {
+      var body = document.getElementById('venuesMapContent');
+      if (!body) return;
+      body.querySelectorAll('[data-st-map]').forEach(function(btn) {
+        btn.onclick = function() {
+          var s = list[parseInt(btn.getAttribute('data-st-map'), 10)];
+          if (!s) return;
+          var q = (s.address && String(s.address).length >= 6) ? (s.name + ' ' + s.address) : (s.name + ' ' + (s.pref || ''));
+          window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q || s.name), '_blank');
+        };
+      });
+      body.querySelectorAll('[data-st-use]').forEach(function(btn) {
+        btn.onclick = function() {
+          var s = list[parseInt(btn.getAttribute('data-st-use'), 10)];
+          if (!s) return;
+          openAddModal();
+          setTimeout(function() {
+            var a = document.getElementById('eventAddress');
+            if (a) a.value = s.name;
+          }, 50);
+        };
+      });
+    }
+
+
     // ===== 会場マップ =====
     function loadVenueNotes() {
       try {
@@ -4645,7 +5229,34 @@
       var notes = loadVenueNotes();
       var html = '';
 
-      // 日本地図（拡大・パン対応）
+      // モード切替（GPS地図は従来どおり触らない）
+      html += '<div class="venues-mode-tabs">';
+      html += '<button type="button" class="venues-mode-tab' + (venuesPageMode === 'gps' ? ' active' : '') + '" onclick="setVenuesPageMode(\'gps\')">GPSピン地図</button>';
+      html += '<button type="button" class="venues-mode-tab' + (venuesPageMode === 'station' ? ' active' : '') + '" onclick="setVenuesPageMode(\'station\')">ステーション一覧</button>';
+      html += '</div>';
+
+      if (venuesPageMode === 'station') {
+        // フィルタ用に現在の入力を保持したまま描画
+        var pref = (typeof window._stationPref === 'string') ? window._stationPref : '東京都';
+        var q = (typeof window._stationQ === 'string') ? window._stationQ.trim().toLowerCase() : '';
+        var list = STATION_SHOPS.filter(function(s) {
+          if (pref && s.pref !== pref) return false;
+          if (!q) return true;
+          var blob = (s.name + ' ' + s.address + ' ' + s.pref + ' ' + (s.tags || '')).toLowerCase();
+          return blob.indexOf(q) !== -1;
+        });
+        html += renderStationListHtml();
+        body.innerHTML = html;
+        // re-bind filter values
+        var prefEl = document.getElementById('stationPrefFilter');
+        var qEl = document.getElementById('stationSearch');
+        if (prefEl) prefEl.value = pref;
+        if (qEl && typeof window._stationQ === 'string') qEl.value = window._stationQ;
+        bindStationListActions(list);
+        return;
+      }
+
+      // 日本地図（拡大・パン対応）※GPSピン専用・従来仕様のまま
       html += '<div class="japan-map-toolbar">';
       html += '<button type="button" onclick="japanMapZoomOut()" title="縮小">−</button>';
       html += '<span class="japan-map-zoom-label" id="japanMapZoomLabel">' + Math.round(japanMapZoom * 100) + '%</span>';
