@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>memory</title>
+  <!--
+    【AdSense を使う場合】下のコメントを外して、自分の publisher ID に書き換えてください。
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+         crossorigin="anonymous"></script>
+  -->
   <style>
     * {
       margin: 0; padding: 0; box-sizing: border-box;
@@ -341,8 +346,64 @@
       background: #6BAFD6; color: #fff; border: none; font-size: 28px;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 4px 14px rgba(107, 175, 214, 0.4); cursor: pointer; z-index: 50; line-height: 1;
+      transition: bottom 0.2s ease, transform 0.12s ease, box-shadow 0.12s ease;
     }
     .fab:active { transform: scale(0.92); }
+
+    /* ===== 広告枠（下部固定） ===== */
+    #ad-bottom-slot {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 45;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      min-height: 50px;
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-top: 0.5px solid rgba(0, 0, 0, 0.08);
+      box-sizing: border-box;
+    }
+    #ad-bottom-slot.has-ad {
+      display: flex;
+    }
+    body.dark-mode #ad-bottom-slot {
+      background: rgba(28, 28, 30, 0.94);
+      border-top-color: rgba(255, 255, 255, 0.1);
+    }
+    @media (min-width: 600px) {
+      #ad-bottom-slot {
+        max-width: 430px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+      }
+    }
+    /* 広告表示時：FABとコンテンツの余白を確保 */
+    body.ad-visible .fab {
+      bottom: 78px;
+    }
+    body.ad-visible .today-section {
+      padding-bottom: 140px;
+    }
+    body.ad-visible .day-view,
+    body.ad-visible .search-view,
+    body.ad-visible .analysis-view {
+      padding-bottom: 140px;
+    }
+    body.ad-visible .venues-view {
+      padding-bottom: 100px;
+    }
+    body.ad-visible .analysis-body {
+      padding-bottom: 100px;
+    }
+    body.ad-visible .events-list {
+      padding-bottom: 100px;
+    }
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: 200;
       display: none; align-items: flex-end; justify-content: center;
@@ -1951,6 +2012,24 @@
 
   <button type="button" id="themeToggleBtn" onclick="toggleTheme()" style="display:none" aria-hidden="true"></button>
   <div class="celebrate-toast" id="celebrateToast" role="status" aria-live="polite"></div>
+
+  <!-- 広告枠：AdSenseコードを下に貼ると自動で表示されます -->
+  <div id="ad-bottom-slot" class="ad-slot" aria-label="広告">
+    <!--
+      【ここに AdSense の広告ユニットコードを貼ってください】
+      例:
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="YYYYYYYYYY"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+           (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    -->
+  </div>
+
   <button class="fab" onclick="openAddModal()">＋</button>
 
   <div class="modal-overlay" id="modalOverlay">
@@ -4329,6 +4408,7 @@
       if (!body) return;
       if (helpGuidePage === 'memory') body.innerHTML = buildMemoryHelpHtml();
       else if (helpGuidePage === 'analyzer') body.innerHTML = buildAnalyzerHelpHtml();
+      else if (helpGuidePage === 'legal') body.innerHTML = buildLegalHelpHtml();
       else body.innerHTML = buildHelpHomeHtml();
       body.querySelectorAll('.help-sec-h').forEach(function(btn) {
         btn.onclick = function() {
@@ -4344,6 +4424,10 @@
           try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
         };
       });
+      // 規約ページは最初から開いておく
+      if (helpGuidePage === 'legal') {
+        body.querySelectorAll('.help-sec').forEach(function(sec) { sec.classList.add('open'); });
+      }
       body.scrollTop = 0;
     }
     function helpSec(id, icon, title, inner) {
@@ -4367,6 +4451,10 @@
       h += '<button type="button" class="help-tool" onclick="closeHelpGuide();toggleTheme()"><span>🌙</span>表示切替</button>';
       h += '<button type="button" class="help-tool" onclick="closeHelpGuide();openDataTools()"><span>💾</span>データ管理</button>';
       h += '<button type="button" class="help-tool" onclick="closeHelpGuide();openSearchView()"><span>🔍</span>検索</button>';
+      h += '</div>';
+      h += '<div class="help-tools-title" style="margin-top:18px;">その他</div>';
+      h += '<div class="help-tools" style="grid-template-columns:1fr;">';
+      h += '<button type="button" class="help-tool" style="flex-direction:row;justify-content:center;gap:8px;padding:14px 12px;" onclick="showHelpPage(\'legal\')"><span>📜</span> 利用規約・プライバシーポリシー</button>';
       h += '</div>';
       h += '<div class="help-ok" style="margin-top:14px;">測るのが Analyzer、残して分析するのが memory です。</div>';
       return h;
@@ -4473,6 +4561,78 @@
       h += '<p style="text-align:center;color:#8e8e93;font-size:11px;margin:16px 0 8px;">memory · 操作ガイド</p>';
       return h;
     }
+
+    function buildLegalHelpHtml() {
+      var sec = helpSec;
+      var h = '';
+      h += '<button type="button" class="help-back" onclick="showHelpPage(\'home\')">← アプリ選択に戻る</button>';
+      h += '<div class="help-hero"><h2>利用規約・プライバシーポリシー</h2><p>本アプリ「memory」の利用条件と、データの取り扱いについて記載しています。</p></div>';
+      h += '<div class="help-toc">' +
+        '<button type="button" data-help-jump="legal-tos">利用規約</button>' +
+        '<button type="button" data-help-jump="legal-privacy">プライバシー</button>' +
+        '</div>';
+
+      h += sec('legal-tos', '📜', '利用規約',
+        '<p style="margin-bottom:8px;"><strong>本アプリ「memory」（以下「本サービス」）は、ミニ四駆のセッティング・走行記録を個人が趣味として管理するための非公式ツールです。</strong></p>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">1. 提供形態</p>' +
+        '<p>本サービスは現状有姿で提供されます。動作・精度・継続性について一切保証しません。</p>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">2. データの取り扱い</p>' +
+        '<ul>' +
+        '<li>すべての記録・写真・設定は利用者の端末内（ブラウザのIndexedDBおよびlocalStorage）にのみ保存されます。</li>' +
+        '<li>運営者は利用者のデータにアクセスできません。</li>' +
+        '<li>端末の変更、ブラウザのキャッシュ削除、別ブラウザでの利用などによりデータが消失する場合があります。バックアップは利用者自身の責任で行ってください。</li>' +
+        '</ul>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">3. カメラ機能について</p>' +
+        '<p>撮影した写真・動画は端末内で処理され、サーバーへ送信されることはありません。</p>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">4. 禁止事項</p>' +
+        '<ul>' +
+        '<li>本サービスを利用した不正行為</li>' +
+        '<li>過度な負荷をかける行為</li>' +
+        '<li>商用目的での無断利用・再配布</li>' +
+        '</ul>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">5. 免責事項</p>' +
+        '<ul>' +
+        '<li>本サービスで表示されるRPM・速度・完走率などの数値は参考値です。公式記録や機器の精度を保証するものではありません。</li>' +
+        '<li>本サービスの利用により生じた損害について、運営者は一切の責任を負いません。</li>' +
+        '</ul>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">6. 規約の変更</p>' +
+        '<p>本規約は予告なく変更する場合があります。変更後の利用をもって同意したものとみなします。</p>' +
+        '<p style="margin-top:12px;font-size:12px;color:#8e8e93;">最終更新日：2026年8月13日</p>');
+
+      h += sec('legal-privacy', '🔒', 'プライバシーポリシー',
+        '<p style="margin-bottom:8px;"><strong>本アプリ「memory」では、以下の通り情報の取り扱いを定めます。</strong></p>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">1. 収集する情報</p>' +
+        '<ul>' +
+        '<li>本サービスはアカウント登録を必要とせず、氏名・住所・電話番号・メールアドレスなどの個人を特定できる情報を収集しません。</li>' +
+        '<li>記録データ（セッティング・写真・メモなど）はすべて利用者の端末内にのみ保存されます。</li>' +
+        '</ul>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">2. カメラ・メディアについて</p>' +
+        '<ul>' +
+        '<li>カメラで撮影した写真・動画は端末内で処理され、サーバーに送信されることはありません。</li>' +
+        '<li>写真データは利用者が明示的にバックアップファイルを書き出した場合を除き、端末外に出ることはありません。</li>' +
+        '</ul>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">3. 端末内に保存される情報</p>' +
+        '<ul>' +
+        '<li>セッティング記録、写真、会場メモ、テンプレート、表示設定（ダークモードなど）</li>' +
+        '<li>これらの情報はブラウザのIndexedDBおよびlocalStorageに保存されます。</li>' +
+        '</ul>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">4. 外部サービスとの連携</p>' +
+        '<p>RPM Analyzerなど、別タブ・別ツールとの連携はlocalStorageやpostMessageを通じて行われます。連携先の取り扱いについては各ツールのポリシーに従ってください。</p>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">5. 広告について</p>' +
+        '<p>本サービスでは第三者配信の広告サービス（Google AdSense等）を利用する場合があります。<br>' +
+        'その際、広告配信事業者はCookie等を使用して、利用者の興味に応じた広告を表示することがあります。<br>' +
+        '広告配信事業者のプライバシーポリシーは各社のサイトをご確認ください。<br>' +
+        'Cookieの無効化はブラウザの設定から可能です。</p>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">6. アクセス解析について</p>' +
+        '<p>現時点で外部のアクセス解析ツールは使用していません。<br>（将来導入する場合は本ポリシーを更新します）</p>' +
+        '<p style="font-weight:700;margin:10px 0 4px;">7. お問い合わせ</p>' +
+        '<p>本ポリシーに関するお問い合わせは、運営者までご連絡ください。</p>' +
+        '<p style="margin-top:12px;font-size:12px;color:#8e8e93;">最終更新日：2026年8月13日</p>');
+
+      h += '<p style="text-align:center;color:#8e8e93;font-size:11px;margin:16px 0 8px;">memory · 利用規約・プライバシーポリシー</p>';
+      return h;
+    }
+
     function buildAnalyzerHelpHtml() {
       var sec = helpSec;
       var h = '';
@@ -8333,10 +8493,50 @@
     }
 
 
+    // ===== 広告枠の表示制御 =====
+    // #ad-bottom-slot 内に <ins class="adsbygoogle"> など実コンテンツが入ったら自動で表示
+    function refreshAdSlotVisibility() {
+      var slot = document.getElementById('ad-bottom-slot');
+      if (!slot) return;
+      var hasContent = !!slot.querySelector('ins, iframe, .adsbygoogle, [data-ad-client]');
+      if (!hasContent) {
+        var children = Array.prototype.slice.call(slot.childNodes);
+        hasContent = children.some(function(n) {
+          if (n.nodeType === 1) return true;
+          if (n.nodeType === 3 && n.textContent && n.textContent.trim()) return true;
+          return false;
+        });
+      }
+      if (hasContent) {
+        slot.classList.add('has-ad');
+        document.body.classList.add('ad-visible');
+        slot.setAttribute('aria-hidden', 'false');
+      } else {
+        slot.classList.remove('has-ad');
+        document.body.classList.remove('ad-visible');
+        slot.setAttribute('aria-hidden', 'true');
+      }
+    }
+    function enableAdSlot() {
+      var slot = document.getElementById('ad-bottom-slot');
+      if (!slot) return;
+      slot.classList.add('has-ad');
+      document.body.classList.add('ad-visible');
+      slot.setAttribute('aria-hidden', 'false');
+    }
+    function disableAdSlot() {
+      var slot = document.getElementById('ad-bottom-slot');
+      if (!slot) return;
+      slot.classList.remove('has-ad');
+      document.body.classList.remove('ad-visible');
+      slot.setAttribute('aria-hidden', 'true');
+    }
+
     initEventsStorage().then(function() {
       bindSearchFilterEvents();
       populateTemplateSelect();
       switchView('month');
+      refreshAdSlotVisibility();
     });
 
     /* ピンチイン・アウト / ダブルタップズーム禁止 */
