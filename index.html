@@ -4409,6 +4409,8 @@
       if (helpGuidePage === 'memory') body.innerHTML = buildMemoryHelpHtml();
       else if (helpGuidePage === 'analyzer') body.innerHTML = buildAnalyzerHelpHtml();
       else if (helpGuidePage === 'legal') body.innerHTML = buildLegalHelpHtml();
+      else if (helpGuidePage === 'about') body.innerHTML = buildAboutHelpHtml();
+      else if (helpGuidePage === 'contact') body.innerHTML = buildContactHelpHtml();
       else body.innerHTML = buildHelpHomeHtml();
       body.querySelectorAll('.help-sec-h').forEach(function(btn) {
         btn.onclick = function() {
@@ -4424,8 +4426,8 @@
           try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
         };
       });
-      // 規約ページは最初から開いておく
-      if (helpGuidePage === 'legal') {
+      // 規約・このサイトについては最初から開いておく
+      if (helpGuidePage === 'legal' || helpGuidePage === 'about' || helpGuidePage === 'contact') {
         body.querySelectorAll('.help-sec').forEach(function(sec) { sec.classList.add('open'); });
       }
       body.scrollTop = 0;
@@ -4454,6 +4456,8 @@
       h += '</div>';
       h += '<div class="help-tools-title" style="margin-top:18px;">その他</div>';
       h += '<div class="help-tools" style="grid-template-columns:1fr;">';
+      h += '<button type="button" class="help-tool" style="flex-direction:row;justify-content:center;gap:8px;padding:14px 12px;" onclick="showHelpPage(\'about\')"><span>ℹ️</span> このサイトについて</button>';
+      h += '<button type="button" class="help-tool" style="flex-direction:row;justify-content:center;gap:8px;padding:14px 12px;" onclick="showHelpPage(\'contact\')"><span>✉️</span> お問い合わせ</button>';
       h += '<button type="button" class="help-tool" style="flex-direction:row;justify-content:center;gap:8px;padding:14px 12px;" onclick="showHelpPage(\'legal\')"><span>📜</span> 利用規約・プライバシーポリシー</button>';
       h += '</div>';
       h += '<div class="help-ok" style="margin-top:14px;">測るのが Analyzer、残して分析するのが memory です。</div>';
@@ -4465,100 +4469,182 @@
       h += '<button type="button" class="help-back" onclick="showHelpPage(\'home\')">← アプリ選択に戻る</button>';
       h += '<div class="help-hero"><h2>memory の使い方</h2><p>ミニ四駆の記録をカレンダーに残して、あとから探す・比べるアプリです。<br>データはスマホの中に保存されます。</p></div>';
       h += '<div class="help-toc">' +
+        '<button type="button" data-help-jump="help-why">なぜ記録</button>' +
         '<button type="button" data-help-jump="help-basic">まずここ</button>' +
         '<button type="button" data-help-jump="help-header">ボタン</button>' +
         '<button type="button" data-help-jump="help-record">記録</button>' +
-        '<button type="button" data-help-jump="help-rpm">RPM</button>' +
+        '<button type="button" data-help-jump="help-search">分析</button>' +
         '<button type="button" data-help-jump="help-map">地図</button>' +
         '<button type="button" data-help-jump="help-data">バックアップ</button>' +
         '</div>';
+
+      h += sec('help-why', '💡', 'なぜセッティングを記録するのか',
+        '<p>ミニ四駆は、同じマシンでも<strong>コース・気温・モーター個体・バッテリー</strong>で結果が変わります。その場の感覚だけだと、「前回なぜ速かったのか」が残らないことが多いです。</p>' +
+        '<p style="margin-top:8px;">記録を残しておくと、次のような判断がしやすくなります。</p>' +
+        '<ul>' +
+        '<li>このコースではこのギヤ比が安定していた</li>' +
+        '<li>このモーター番号は完走率が高い／低い</li>' +
+        '<li>気温が高い日はタイヤ径をどうしたか</li>' +
+        '<li>大会のラウンドごとに何を変えたか</li>' +
+        '</ul>' +
+        '<p style="margin-top:8px;">memory は「速さを競うアプリ」ではなく、<strong>自分の実験ノート</strong>として使うことを想定しています。</p>');
+
       h += sec('help-basic', '📌', 'まず覚えておくこと',
         '<ul>' +
         '<li>データは<strong>この端末・このブラウザ</strong>にだけ残ります</li>' +
-        '<li>Safari と Chrome ではデータが別です</li>' +
-        '<li>大事な前に <span class="help-pill">💾</span> でバックアップ</li>' +
-        '<li>機種変更の前も必ず書き出してください</li>' +
+        '<li>Safari と Chrome ではデータが別です（同じスマホでも共有されません）</li>' +
+        '<li>大事な記録の前に <span class="help-pill">💾</span> でバックアップを取ってください</li>' +
+        '<li>機種変更・ブラウザ変更の前も、必ずJSONを書き出してください</li>' +
         '</ul>' +
-        '<div class="help-warn">履歴削除や別URLで開くと、データが見えなくなることがあります。</div>' +
-        '<div class="help-ok">写真が多いとバックアップファイルが大きくなります。</div>');
-      h += sec('help-header', '🧭', '上のボタンの意味',
-        '<div class="help-grid">' +
-        '<div class="help-mini"><b>🏠</b>月カレンダーへ</div>' +
-        '<div class="help-mini"><b>📊</b>完走率など分析</div>' +
-        '<div class="help-mini"><b>🗺️</b>会場マップ</div>' +
-        '<div class="help-mini"><b>⏱️</b>ストップウォッチ</div>' +
-        '<div class="help-mini"><b>🏎️</b>モーター計測（単独）</div>' +
-        '<div class="help-mini"><b>📷</b>写真一覧</div>' +
-        '<div class="help-mini"><b>❓</b>使い方・表示切替・保存・検索</div>' +
-        '</div>' +
-        '<div class="help-warn">🏎️ は測るだけ。memory には戻りません。記録にRPMを入れるときはフォーム内の「RPM Analyzerを開く」を使います。</div>');
-      h += sec('help-cal', '📅', 'カレンダー',
-        '<p><strong>月</strong> … 色ドットが記録あり。日付を押すとその日の一覧。</p>' +
-        '<p><strong>週</strong> … 時間つきの予定が見やすい。時刻を入れると表示されます。</p>' +
-        '<p><strong>日</strong> … その日のカード一覧。</p>' +
+        '<div class="help-warn">履歴削除や別URLで開くと、データが見えなくなることがあります。消えたように見えても、別のブラウザに残っている場合があります。</div>' +
+        '<div class="help-ok">写真・動画も含めて端末内だけで処理されます。サーバーへ送る処理はありません。</div>');
+
+      h += sec('help-header', '🔘', '上のボタンの意味',
         '<ul>' +
-        '<li>カードの短い文字は、場所 → マシン → モーターの順で決まります</li>' +
-        '<li>今日の画面では、今月の完走率などの小さなまとめも出ます</li>' +
-        '</ul>');
-      h += sec('help-record', '✍️', '記録する（＋ボタン）',
-        '<p>右下の <strong>＋</strong> から新規作成です。</p>' +
-        '<ul>' +
-        '<li><strong>テンプレ</strong> … よく使うセッティングを保存・呼び出し（写真は含みません）</li>' +
-        '<li><strong>場所</strong> … 名前は手入力。地図ピン用にGPSも取れます</li>' +
-        '<li><strong>結果</strong> … 完走／アウトを付けると分析に入ります</li>' +
-        '<li><strong>大会</strong> … 大会名・ラウンドを入れると大会まとめが使いやすくなります</li>' +
-        '<li><strong>写真</strong> … 端末のアルバムから入れるのがきれいです</li>' +
+        '<li><strong>🏠</strong> … 月ビュー（カレンダー）に戻る</li>' +
+        '<li><strong>📊</strong> … 分析（完走率・台帳・大会・負け傾向）</li>' +
+        '<li><strong>🗺️</strong> … 会場マップ（GPSピン／ステーション一覧）</li>' +
+        '<li><strong>⏱️</strong> … ストップウォッチ（タイム計測）</li>' +
+        '<li><strong>❓</strong> … 使い方・このサイトについて・お問い合わせ・規約</li>' +
         '</ul>' +
-        '<div class="help-ok">大会で完走保存すると、ときどき応援コメントが出ます。</div>' +
-        '<div class="help-warn">保存前に閉じると入力中の内容は消えます。</div>');
-      h += sec('help-detail', '🔍', '見る・比べる・コピー',
+        '<p style="margin-top:8px;">画面下の <strong>＋</strong> が新規記録です。既存のカードをタップすると詳細・編集に入れます。</p>');
+
+      h += sec('help-cal', '📅', 'カレンダーの見方',
+        '<p><strong>月</strong> … 日付を選ぶと、その日の記録一覧が下に出ます。ドットの色はイベントの種類の目安です。</p>' +
+        '<p><strong>週</strong> … 時間帯つきで並べて見られます。練習の時間帯を振り返るときに便利です。</p>' +
+        '<p><strong>日</strong> … 1日分を大きく表示します。カードを横にスワイプすると削除できます。</p>' +
+        '<div class="help-ok">祝日はカレンダー上で色分けされます。記録そのものの分類とは別です。</div>');
+
+      h += sec('help-record', '✏️', '記録する（＋ボタン）',
+        '<p>最低限入れると後で役立つ項目です。</p>' +
         '<ul>' +
-        '<li>カードを開くと<strong>詳細</strong>。そこから編集できます</li>' +
-        '<li>同じマシン／モーターの<strong>前回との差分</strong>が出ます</li>' +
-        '<li>タイムが自己ベストだと 🏆 が付きます</li>' +
-        '<li><strong>比較に追加</strong>で2件を並べて違いを見られます</li>' +
-        '<li>コピー（複製）では<strong>写真はコピーされません</strong></li>' +
-        '</ul>');
+        '<li><strong>日付・場所</strong> … 検索と会場マップの両方で使います</li>' +
+        '<li><strong>結果（完走／アウトなど）</strong> … 完走率の計算に入ります。空欄だと分析から除外されます</li>' +
+        '<li><strong>モーター種別・番号</strong> … 台帳（モーターごとの成績）で集計されます</li>' +
+        '<li><strong>ギヤ・タイヤ径・電圧</strong> … 条件比較の軸になります</li>' +
+        '<li><strong>タイム／ベスト</strong> … ストップウォッチから取り込めます</li>' +
+        '<li><strong>写真</strong> … マシンの状態やコースのメモ代わりに使えます</li>' +
+        '</ul>' +
+        '<p style="margin-top:8px;">大会のときは「大会モード」でラウンド・レーン・順位を残すと、あとから大会パッケージとして時系列で見られます。</p>' +
+        '<div class="help-warn">テンプレートは「いつものセット」を再利用する機能です。日付・場所・写真はテンプレートに含まれません。</div>');
+
+      h += sec('help-detail', '👀', '見る・比べる・コピー',
+        '<ul>' +
+        '<li>カードをタップ → 詳細表示。編集・削除もここから</li>' +
+        '<li><strong>コピー</strong> … 内容を複製して新規作成の下書きにします（写真はコピーされません）</li>' +
+        '<li>分析画面の台帳などでは、条件を絞って成績を比較できます</li>' +
+        '</ul>' +
+        '<p style="margin-top:8px;">「前回と何が違ったか」を残したいときは、メモ欄に短く書いておくだけでも十分効きます。</p>');
+
       h += sec('help-rpm', '🔊', 'RPMを取り込む',
         '<ol style="padding-left:1.2em;margin:6px 0 0;">' +
         '<li>記録画面で「RPM Analyzerを開く」</li>' +
-        '<li>計測する</li>' +
-        '<li>「memoryへ戻る」または「結果を取り込む」</li>' +
-        '<li><strong>最高RPM（MAX）</strong>が回転数に入ります</li>' +
+        '<li>マイク許可のうえ計測する</li>' +
+        '<li>「memoryへ戻る」または結果の取り込み</li>' +
+        '<li><strong>最高RPM（MAX）</strong>が回転数欄に入ります</li>' +
         '</ol>' +
-        '<div class="help-warn">マイク許可と https が必要です。CURRENT ではなく MAX が入ります。</div>');
-      h += sec('help-search', '🔎', '検索と分析',
-        '<p><strong>検索</strong> … 言葉とプルダウンで絞り込み。候補は「今の条件に合うデータだけ」出ます。</p>' +
-        '<p><strong>分析</strong></p>' +
+        '<div class="help-warn">マイク許可と https が必要です。表示の CURRENT ではなく MAX が渡されます。連携は「Analyzerを開いてからのセッション」中だけ有効です。</div>' +
+        '<div class="help-ok">マイク音声は端末上で処理する想定です。外部サーバーへ音を送る処理はありません。</div>');
+
+      h += sec('help-search', '🔎', '検索と分析の使い方',
+        '<p><strong>検索</strong><br>フリーワードとプルダウンで絞り込みます。候補は「いまの条件に合うデータ」だけ出るので、件数が増えても探しやすい構成です。</p>' +
+        '<p style="margin-top:10px;"><strong>分析タブの使い分け</strong></p>' +
         '<ul>' +
-        '<li>分析 … 条件ごとの完走率</li>' +
-        '<li>台帳 … モーター番号ごとの成績</li>' +
-        '<li>大会 … ラウンドやパッケージ</li>' +
-        '<li>負け … アウトの傾向</li>' +
+        '<li><strong>分析</strong> … 条件ごとの完走率。場所×モーター×ギヤなどの組み合わせを見ます</li>' +
+        '<li><strong>台帳</strong> … モーター番号ごとの成績。個体差の把握に向きます</li>' +
+        '<li><strong>大会</strong> … 大会名×場所でラウンドを時系列表示</li>' +
+        '<li><strong>負け</strong> … アウトや失格の傾向。改善のヒント用</li>' +
         '</ul>' +
-        '<div class="help-warn">結果を付けていない記録は、完走率の計算に入りません。</div>');
+        '<div class="help-warn">結果（完走／アウトなど）を付けていない記録は、完走率の母数に入りません。分析したいレースは結果を必ず入れてください。</div>');
+
       h += sec('help-map', '🗺️', '会場マップ',
         '<p>2つのモードがあります。</p>' +
         '<ul>' +
-        '<li><strong>GPSピン地図</strong> … 自分の記録の位置。武蔵野市あたりを基準にピン配置</li>' +
-        '<li><strong>ステーション一覧</strong> … お店リスト（全国内蔵）。サーキット設置店だけにも絞れます</li>' +
+        '<li><strong>GPSピン地図</strong> … 自分の記録に付いた位置をピン表示。基準位置のイメージは武蔵野市付近です</li>' +
+        '<li><strong>ステーション一覧</strong> … 内蔵の店舗リスト。都道府県やサーキット設置店で絞れます</li>' +
         '</ul>' +
-        '<div class="help-warn">GPSがない記録はピンに出ません。地図はイラストなので、近い店は拡大して選んでください。</div>');
+        '<p style="margin-top:8px;">記録時に位置情報を許可すると、あとから「どこで走ったか」を地図で振り返れます。GPSが取れなかった記録はピンに出ません。</p>' +
+        '<div class="help-warn">地図は正確な測量図ではなくイラスト寄りの表示です。近い店舗が重なる場合は拡大して選んでください。</div>');
+
       h += sec('help-data', '💾', 'バックアップと削除',
+        '<p>データは端末内だけなので、<strong>バックアップは利用者自身の作業</strong>になります。</p>' +
         '<ul>' +
-        '<li><strong>書き出し</strong> … JSONファイルを端末に保存</li>' +
-        '<li><strong>復元</strong> … 置き換え／マージを選べます</li>' +
-        '<li>記録の選択削除・全削除、写真だけ消す、などもここ</li>' +
+        '<li><strong>書き出し</strong> … JSONファイルを端末に保存。機種変更の前に必須級</li>' +
+        '<li><strong>復元</strong> … 「すべて置き換え」か「マージ」を選べます</li>' +
+        '<li>記録の選択削除・全削除、写真だけ消す、データだけ消して写真を残す、などもここ</li>' +
         '</ul>' +
-        '<div class="help-warn">消す前に必ずバックアップ。消したデータは戻しにくいです。</div>');
+        '<div class="help-warn">削除したデータは基本的に戻りません。消す前に書き出しを取ってください。</div>' +
+        '<div class="help-ok">バックアップJSONには記録・写真参照・メモ・テンプレートなどが含まれます。ファイルの取り扱いにも注意してください。</div>');
+
       h += sec('help-trouble-m', '🛠️', 'うまくいかないとき',
         '<ul>' +
-        '<li><strong>データがない</strong> … 別ブラウザ／別URL／履歴削除。バックアップは？</li>' +
-        '<li><strong>RPMが入らない</strong> … フォームの「開く」経由か。マイクは許可したか</li>' +
-        '<li><strong>GPSが取れない</strong> … 位置情報の許可、屋外かどうか</li>' +
-        '<li><strong>保存できない</strong> … 写真・動画が多すぎるかも</li>' +
-        '</ul>');
+        '<li><strong>データがない</strong> … 別ブラウザ／別URL／履歴削除を疑う。バックアップJSONは残っているか</li>' +
+        '<li><strong>RPMが入らない</strong> … フォームの「開く」経由か。マイク許可は済んだか。https か</li>' +
+        '<li><strong>GPSが取れない</strong> … 位置情報の許可、屋内・精度の問題</li>' +
+        '<li><strong>保存できない</strong> … 写真・動画が多すぎて容量を圧迫している可能性</li>' +
+        '<li><strong>表示がおかしい</strong> … いったん再読み込み。改善しない場合はお問い合わせへ</li>' +
+        '</ul>' +
+        '<p style="margin-top:8px;">不具合報告は <strong>✉️ お問い合わせ</strong> からどうぞ。端末名・ブラウザ名・操作の流れがあると調査しやすいです。</p>');
+
       h += '<p style="text-align:center;color:#8e8e93;font-size:11px;margin:16px 0 8px;">memory · 操作ガイド</p>';
+      return h;
+    }
+
+    function buildContactHelpHtml() {
+      var sec = helpSec;
+      var h = '';
+      h += '<button type="button" class="help-back" onclick="showHelpPage(\'home\')">← アプリ選択に戻る</button>';
+      h += '<div class="help-hero"><h2>お問い合わせ</h2><p>本アプリに関するご質問・ご意見は、以下のメールアドレスまでご連絡ください。</p></div>';
+
+      h += sec('contact-mail', '✉️', 'メールアドレス',
+        '<p style="font-size:15px;font-weight:700;word-break:break-all;margin-bottom:12px;">enginerace.setup.notes@gmail.com</p>' +
+        '<a href="mailto:enginerace.setup.notes@gmail.com?subject=memory%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6" ' +
+        'style="display:block;text-align:center;padding:14px 16px;border-radius:12px;background:#6BAFD6;color:#fff;font-weight:700;font-size:15px;text-decoration:none;">メールを作成する</a>' +
+        '<p style="font-size:12px;color:#8e8e93;margin-top:10px;line-height:1.45;">タップすると端末のメールアプリが開きます。件名は自動で入ります。</p>');
+
+      h += sec('contact-note', '📌', 'ご連絡の際に',
+        '<ul>' +
+        '<li>返信までに数日かかる場合があります</li>' +
+        '<li>不具合の場合は、端末・ブラウザ名・簡単な操作手順を書いていただけると助かります</li>' +
+        '<li>個人情報（氏名・住所など）は必要最低限にとどめてください</li>' +
+        '</ul>');
+
+      h += '<p style="text-align:center;color:#8e8e93;font-size:11px;margin:16px 0 8px;">memory · お問い合わせ</p>';
+      return h;
+    }
+
+    function buildAboutHelpHtml() {
+      var sec = helpSec;
+      var h = '';
+      h += '<button type="button" class="help-back" onclick="showHelpPage(\'home\')">← アプリ選択に戻る</button>';
+      h += '<div class="help-hero"><h2>このサイトについて</h2><p>memory は、ミニ四駆のセッティングや走行記録を、個人が端末の中で管理するためのツールです。</p></div>';
+
+      h += sec('about-what', '📌', 'このアプリでできること',
+        '<ul>' +
+        '<li>カレンダー形式でセッティングを記録する</li>' +
+        '<li>モーター・ギヤ・タイヤ・タイムなどの条件を残す</li>' +
+        '<li>写真を一緒に保存する</li>' +
+        '<li>完走率やモーターごとの成績をあとから分析する</li>' +
+        '<li>会場マップで記録した場所を振り返る</li>' +
+        '<li>データをJSONでバックアップ・復元する</li>' +
+        '</ul>');
+
+      h += sec('about-data', '💾', 'データの扱い',
+        '<p>記録・写真・設定はすべて利用者の端末内（ブラウザ）にのみ保存されます。<br>' +
+        'サーバーにアップロードされることはありません。</p>' +
+        '<p style="margin-top:8px;">機種変更やブラウザの変更でデータが見えなくなることがあるため、定期的なバックアップを推奨します。</p>' +
+        '<div class="help-ok">運営者は利用者のデータにアクセスできません。</div>');
+
+      h += sec('about-policy', '🧭', '運営方針',
+        '<p>本ツールは趣味の範囲で個人が提供している非公式のものです。<br>' +
+        '動作や数値の正確性を保証するものではありません。</p>' +
+        '<p style="margin-top:8px;">RPM・速度・完走率などは参考値としてご利用ください。</p>');
+
+      h += sec('about-related', '🔗', '関連ツール',
+        '<p>RPMの計測には別ツール「RPM Analyzer」との連携も可能です。</p>' +
+        '<div class="help-ok" style="margin-top:8px;">測るのが Analyzer、残して分析するのが memory です。</div>');
+
+      h += '<p style="text-align:center;color:#8e8e93;font-size:11px;margin:16px 0 8px;">最終更新：2026年8月</p>';
       return h;
     }
 
@@ -4626,7 +4712,7 @@
         '<p style="font-weight:700;margin:10px 0 4px;">6. アクセス解析について</p>' +
         '<p>現時点で外部のアクセス解析ツールは使用していません。<br>（将来導入する場合は本ポリシーを更新します）</p>' +
         '<p style="font-weight:700;margin:10px 0 4px;">7. お問い合わせ</p>' +
-        '<p>本ポリシーに関するお問い合わせは、運営者までご連絡ください。</p>' +
+        '<p>本ポリシーに関するお問い合わせは、<strong>enginerace.setup.notes@gmail.com</strong> までご連絡ください。</p>' +
         '<p style="margin-top:12px;font-size:12px;color:#8e8e93;">最終更新日：2026年8月13日</p>');
 
       h += '<p style="text-align:center;color:#8e8e93;font-size:11px;margin:16px 0 8px;">memory · 利用規約・プライバシーポリシー</p>';
@@ -8566,3 +8652,4 @@
   </script>
 </body>
 </html>
+
