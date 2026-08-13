@@ -1456,20 +1456,22 @@
     .sw-signal { background: #ff9f0a; color: #1c1c1e; }
     .sw-signal:disabled { opacity: 0.4; }
     .sw-signal-dots {
-      display: flex; justify-content: center; gap: 16px; padding: 12px 0 8px;
+      display: flex; justify-content: center; align-items: center;
+      gap: 3vw; padding: 8px 0 12px; width: 100%;
     }
     .sw-dot {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: #3a3a3c; border: 2px solid #636366;
-      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+      width: min(30vw, 120px); height: min(30vw, 120px);
+      border-radius: 50%; flex: 0 0 auto;
+      background: #3a3a3c; border: 3px solid #636366;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
     }
     .sw-dot.red {
-      background: #ff3b30; border-color: #ff6961; transform: scale(1.08);
-      box-shadow: 0 0 12px rgba(255,59,48,0.55);
+      background: #ff3b30; border-color: #ff6961; transform: scale(1.04);
+      box-shadow: 0 0 28px rgba(255,59,48,0.55);
     }
     .sw-dot.blue {
-      background: #6BAFD6; border-color: #9fd0ea; transform: scale(1.12);
-      box-shadow: 0 0 16px rgba(107,175,214,0.7);
+      background: #6BAFD6; border-color: #9fd0ea; transform: scale(1.06);
+      box-shadow: 0 0 36px rgba(107,175,214,0.75);
     }
     .sw-signal-flash {
       animation: swFlash 0.35s ease;
@@ -2337,7 +2339,7 @@
           <select id="swSignalTiming" onchange="swSaveSignalSettings()">
             <option value="normal" selected>通常（3→2→1→スタート）</option>
             <option value="delay5">固定ディレイ（5秒後にカウント開始）</option>
-            <option value="random">ランダムディレイ（2〜5秒後）</option>
+            <option value="random">ランダム（青点灯を2〜5秒のあいだでずらす）</option>
           </select>
         </label>
         <label>カスタム音（任意・端末内の音声ファイル）
@@ -7268,6 +7270,7 @@
     }
     function swPlayDefaultBeep(kind) {
       // kind: 'tick' | 'go'
+      // go: 約0.5秒・端末音量を基準に大きめ（ブラウザ上限内で約3倍相当）
       var ctx = swEnsureAudio();
       if (!ctx) return;
       try {
@@ -7279,8 +7282,10 @@
         o.connect(g);
         g.connect(ctx.destination);
         var now = ctx.currentTime;
-        var dur = kind === 'go' ? 0.28 : 0.12;
-        g.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+        var dur = kind === 'go' ? 0.5 : 0.12;
+        // tick 控えめ、go は約3倍の感度（上限クリップ防止で 0.85 程度）
+        var peak = kind === 'go' ? 0.85 : 0.28;
+        g.gain.exponentialRampToValueAtTime(peak, now + 0.02);
         g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
         o.start(now);
         o.stop(now + dur + 0.02);
@@ -7294,7 +7299,8 @@
         try {
           swCustomAudio.pause();
           swCustomAudio.currentTime = 0;
-          // go のとき少し大きく感じるよう再生（同一音源）
+          // HTMLAudio の volume 最大は 1.0（端末音量の上限）
+          swCustomAudio.volume = kind === 'go' ? 1.0 : 0.45;
           swCustomAudio.play().catch(function() { swPlayDefaultBeep(kind); });
           return;
         } catch (e) {
@@ -7363,49 +7369,56 @@
       swEnsureAudio();
 
       var timing = (document.getElementById('swSignalTiming') || {}).value || 'normal';
-      var delay = 0;
-      if (timing === 'delay5') delay = 5000;
-      else if (timing === 'random') delay = 2000 + Math.floor(Math.random() * 3000);
+      // 固定5秒はカウント前の待ち。ランダムは「青になる瞬間」を2〜5秒の範囲でずらす
+      var preDelay = timing === 'delay5' ? 5000 : 0;
+      var goExtra = 0;
+      if (timing === 'random') {
+        goExtra = 2000 + Math.floor(Math.random() * 3000); // 3つ目の赤のあと、青まで追加で2〜5秒
+      }
+
+      function fireGo() {
+        swSetDotState(3, true);
+        swPlaySignalSound('go');
+        swVibratePattern('go');
+        swFlashPanel();
+        if (sub) sub.textContent = 'スタート！';
+        swSignalBusy = false;
+        if (btn) btn.disabled = false;
+        swStart();
+        swSignalTimers.push(setTimeout(function() {
+          swResetDots();
+        }, 600));
+      }
 
       function runCountdown() {
         if (sub) sub.textContent = '合図中…';
-        // 3: first red
+        // 赤1
         swSetDotState(1, false);
         swPlaySignalSound('tick');
         swVibratePattern('tick');
-        // 2
+        // 赤2
         swSignalTimers.push(setTimeout(function() {
           swSetDotState(2, false);
           swPlaySignalSound('tick');
           swVibratePattern('tick');
         }, 1000));
-        // 1
+        // 赤3
         swSignalTimers.push(setTimeout(function() {
           swSetDotState(3, false);
           swPlaySignalSound('tick');
           swVibratePattern('tick');
+          if (goExtra > 0 && sub) {
+            sub.textContent = 'まもなく…';
+          }
         }, 2000));
-        // GO all blue + sound + start
-        swSignalTimers.push(setTimeout(function() {
-          swSetDotState(3, true);
-          swPlaySignalSound('go');
-          swVibratePattern('go');
-          swFlashPanel();
-          if (sub) sub.textContent = 'スタート！';
-          swSignalBusy = false;
-          if (btn) btn.disabled = false;
-          swStart();
-          // keep blue briefly then clear
-          swSignalTimers.push(setTimeout(function() {
-            if (!swRunning) swResetDots();
-            else swResetDots();
-          }, 600));
-        }, 3000));
+        // 青（通常は赤3の1秒後＝全体3秒、ランダム時はさらに goExtra）
+        var goAt = 3000 + goExtra;
+        swSignalTimers.push(setTimeout(fireGo, goAt));
       }
 
-      if (delay > 0) {
-        if (sub) sub.textContent = '待機中…（' + (delay / 1000).toFixed(1) + '秒）';
-        swSignalTimers.push(setTimeout(runCountdown, delay));
+      if (preDelay > 0) {
+        if (sub) sub.textContent = '待機中…（' + (preDelay / 1000).toFixed(1) + '秒）';
+        swSignalTimers.push(setTimeout(runCountdown, preDelay));
       } else {
         runCountdown();
       }
