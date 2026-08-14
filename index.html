@@ -6573,8 +6573,11 @@
         if (ev.date && (!row.lastDate || ev.date > row.lastDate)) row.lastDate = ev.date;
         var m4 = ev.m4 || {};
         if (m4.lat != null && m4.lng != null && m4.lat !== '' && m4.lng !== '') {
-          row.lat = Number(m4.lat);
-          row.lng = Number(m4.lng);
+          var la = Number(m4.lat), ln = Number(m4.lng);
+          if (!isNaN(la) && !isNaN(ln) && !(la === 0 && ln === 0)) {
+            row.lat = la;
+            row.lng = ln;
+          }
         }
         if (m4.motorType) {
           var mk = motorKey(ev);
@@ -6808,33 +6811,131 @@
     var venuesRegionId = null;
     var venuesPrefName = null;
 
-    function detectPrefFromPlace(place) {
-      if (!place) return '';
-      var s = String(place);
-      var prefs = PREF_ORDER.slice().sort(function(a, b) { return b.length - a.length; });
-      for (var i = 0; i < prefs.length; i++) {
-        if (s.indexOf(prefs[i]) !== -1) return prefs[i];
+    // 都道府県のざっくり範囲（住所に県名が無いときのGPS判定用）
+    var PREF_BOUNDS = [
+      { n: '北海道', a: 41.2, b: 45.6, c: 139.3, d: 145.9 },
+      { n: '青森県', a: 40.2, b: 41.6, c: 139.4, d: 141.8 },
+      { n: '岩手県', a: 38.7, b: 40.5, c: 140.6, d: 142.1 },
+      { n: '宮城県', a: 37.7, b: 39.1, c: 140.2, d: 141.8 },
+      { n: '秋田県', a: 38.8, b: 40.6, c: 139.4, d: 141.0 },
+      { n: '山形県', a: 37.7, b: 39.2, c: 139.5, d: 140.7 },
+      { n: '福島県', a: 36.7, b: 37.9, c: 139.1, d: 141.1 },
+      { n: '茨城県', a: 35.7, b: 36.9, c: 139.6, d: 140.9 },
+      { n: '栃木県', a: 36.2, b: 37.2, c: 139.3, d: 140.3 },
+      { n: '群馬県', a: 36.0, b: 37.0, c: 138.4, d: 139.6 },
+      { n: '埼玉県', a: 35.7, b: 36.3, c: 138.7, d: 139.9 },
+      { n: '千葉県', a: 34.9, b: 36.1, c: 139.7, d: 140.9 },
+      { n: '東京都', a: 35.5, b: 35.9, c: 138.9, d: 139.9 },
+      { n: '神奈川県', a: 35.1, b: 35.7, c: 138.9, d: 139.8 },
+      { n: '新潟県', a: 36.7, b: 38.6, c: 137.6, d: 139.9 },
+      { n: '富山県', a: 36.2, b: 36.9, c: 136.7, d: 137.8 },
+      { n: '石川県', a: 36.0, b: 37.9, c: 136.2, d: 137.4 },
+      { n: '福井県', a: 35.4, b: 36.3, c: 135.4, d: 136.9 },
+      { n: '山梨県', a: 35.1, b: 35.9, c: 138.3, d: 139.2 },
+      { n: '長野県', a: 35.2, b: 37.0, c: 137.3, d: 138.8 },
+      { n: '岐阜県', a: 35.1, b: 36.5, c: 136.3, d: 137.7 },
+      { n: '静岡県', a: 34.5, b: 35.7, c: 137.4, d: 139.2 },
+      { n: '愛知県', a: 34.5, b: 35.5, c: 136.6, d: 137.9 },
+      { n: '三重県', a: 33.7, b: 35.3, c: 135.8, d: 136.9 },
+      { n: '滋賀県', a: 34.8, b: 35.7, c: 135.7, d: 136.5 },
+      { n: '京都府', a: 34.7, b: 35.8, c: 134.8, d: 136.1 },
+      { n: '大阪府', a: 34.2, b: 35.1, c: 135.0, d: 135.8 },
+      { n: '兵庫県', a: 34.1, b: 35.7, c: 134.2, d: 135.5 },
+      { n: '奈良県', a: 33.8, b: 34.8, c: 135.5, d: 136.3 },
+      { n: '和歌山県', a: 33.4, b: 34.4, c: 135.0, d: 136.1 },
+      { n: '鳥取県', a: 35.1, b: 35.6, c: 133.1, d: 134.6 },
+      { n: '島根県', a: 34.3, b: 36.4, c: 131.6, d: 133.5 },
+      { n: '岡山県', a: 34.3, b: 35.4, c: 133.2, d: 134.5 },
+      { n: '広島県', a: 34.0, b: 35.1, c: 132.0, d: 133.5 },
+      { n: '山口県', a: 33.7, b: 34.8, c: 130.7, d: 132.3 },
+      { n: '徳島県', a: 33.5, b: 34.3, c: 133.6, d: 134.9 },
+      { n: '香川県', a: 34.0, b: 34.6, c: 133.4, d: 134.5 },
+      { n: '愛媛県', a: 32.9, b: 34.3, c: 132.0, d: 133.7 },
+      { n: '高知県', a: 32.7, b: 33.9, c: 132.4, d: 134.4 },
+      { n: '福岡県', a: 33.0, b: 34.0, c: 130.0, d: 131.3 },
+      { n: '佐賀県', a: 32.9, b: 33.6, c: 129.7, d: 130.6 },
+      { n: '長崎県', a: 32.6, b: 34.7, c: 128.6, d: 130.4 },
+      { n: '熊本県', a: 32.0, b: 33.3, c: 130.3, d: 131.3 },
+      { n: '大分県', a: 32.7, b: 33.7, c: 131.0, d: 132.1 },
+      { n: '宮崎県', a: 31.3, b: 32.9, c: 130.6, d: 131.9 },
+      { n: '鹿児島県', a: 27.0, b: 32.3, c: 128.4, d: 131.3 },
+      { n: '沖縄県', a: 24.0, b: 27.0, c: 122.9, d: 131.4 }
+    ];
+
+    function detectPrefFromLatLng(lat, lng) {
+      lat = Number(lat); lng = Number(lng);
+      if (isNaN(lat) || isNaN(lng)) return '';
+      var hits = [];
+      for (var i = 0; i < PREF_BOUNDS.length; i++) {
+        var b = PREF_BOUNDS[i];
+        if (lat >= b.a && lat <= b.b && lng >= b.c && lng <= b.d) hits.push(b);
       }
-      // 県なし表記の簡易対応
-      var shortMap = {
-        '東京': '東京都', '大阪': '大阪府', '京都': '京都府'
-      };
-      for (var k in shortMap) {
-        if (s.indexOf(k) !== -1) return shortMap[k];
+      if (!hits.length) return '';
+      if (hits.length === 1) return hits[0].n;
+      // 複数ヒット時は中心に近い方
+      var best = hits[0], bestD = Infinity;
+      hits.forEach(function(b) {
+        var cy = (b.a + b.b) / 2, cx = (b.c + b.d) / 2;
+        var d = (lat - cy) * (lat - cy) + (lng - cx) * (lng - cx);
+        if (d < bestD) { bestD = d; best = b; }
+      });
+      return best.n;
+    }
+
+    function detectPrefFromPlace(place, lat, lng) {
+      if (place) {
+        var s = String(place);
+        var prefs = PREF_ORDER.slice().sort(function(a, b) { return b.length - a.length; });
+        for (var i = 0; i < prefs.length; i++) {
+          if (s.indexOf(prefs[i]) !== -1) return prefs[i];
+        }
+        // よくある略称・都市名
+        var shortMap = [
+          ['北海道', '北海道'], ['札幌', '北海道'], ['サッポロ', '北海道'],
+          ['青森', '青森県'], ['岩手', '岩手県'], ['盛岡', '岩手県'],
+          ['宮城', '宮城県'], ['仙台', '宮城県'], ['秋田', '秋田県'],
+          ['山形', '山形県'], ['福島', '福島県'],
+          ['茨城', '茨城県'], ['栃木', '栃木県'], ['宇都宮', '栃木県'],
+          ['群馬', '群馬県'], ['前橋', '群馬県'], ['埼玉', '埼玉県'],
+          ['千葉', '千葉県'], ['東京', '東京都'], ['品川', '東京都'], ['武蔵野', '東京都'],
+          ['神奈川', '神奈川県'], ['横浜', '神奈川県'], ['川崎', '神奈川県'],
+          ['新潟', '新潟県'], ['富山', '富山県'], ['石川', '石川県'], ['金沢', '石川県'],
+          ['福井', '福井県'], ['山梨', '山梨県'], ['甲府', '山梨県'],
+          ['長野', '長野県'], ['岐阜', '岐阜県'], ['静岡', '静岡県'],
+          ['愛知', '愛知県'], ['名古屋', '愛知県'],
+          ['三重', '三重県'], ['滋賀', '滋賀県'], ['大津', '滋賀県'],
+          ['京都', '京都府'], ['大阪', '大阪府'], ['マイドーム', '大阪府'],
+          ['兵庫', '兵庫県'], ['神戸', '兵庫県'], ['奈良', '奈良県'], ['和歌山', '和歌山県'],
+          ['鳥取', '鳥取県'], ['島根', '島根県'], ['岡山', '岡山県'],
+          ['広島', '広島県'], ['山口', '山口県'],
+          ['徳島', '徳島県'], ['香川', '香川県'], ['高松', '香川県'],
+          ['愛媛', '愛媛県'], ['松山', '愛媛県'], ['高知', '高知県'],
+          ['福岡', '福岡県'], ['佐賀', '佐賀県'], ['長崎', '長崎県'],
+          ['熊本', '熊本県'], ['大分', '大分県'], ['宮崎', '宮崎県'],
+          ['鹿児島', '鹿児島県'], ['沖縄', '沖縄県'], ['那覇', '沖縄県']
+        ];
+        // 長いキーワード優先
+        shortMap.sort(function(a, b) { return b[0].length - a[0].length; });
+        for (var j = 0; j < shortMap.length; j++) {
+          if (s.indexOf(shortMap[j][0]) !== -1) return shortMap[j][1];
+        }
       }
+      if (lat != null && lng != null) return detectPrefFromLatLng(lat, lng);
       return '';
     }
 
     function buildGpsPlacesByPref() {
       var byPref = {};
       PREF_ORDER.forEach(function(p) { byPref[p] = []; });
+      byPref['__other__'] = [];
       var rows = buildVenuesData().filter(function(r) {
-        return r.lat != null && r.lng != null && !isNaN(Number(r.lat)) && !isNaN(Number(r.lng));
+        var la = Number(r.lat), ln = Number(r.lng);
+        return r.lat != null && r.lng != null && r.lat !== '' && r.lng !== '' && !isNaN(la) && !isNaN(ln);
       });
       rows.forEach(function(row) {
-        var pref = detectPrefFromPlace(row.place);
-        if (!pref || !byPref[pref]) return;
-        byPref[pref].push(row);
+        var pref = detectPrefFromPlace(row.place, row.lat, row.lng);
+        if (pref && byPref[pref]) byPref[pref].push(row);
+        else byPref['__other__'].push(row);
       });
       return byPref;
     }
@@ -6923,7 +7024,25 @@
             '</button>';
         });
         html += '</div>';
-        html += '<p style="font-size:12px;color:#8e8e93;line-height:1.5;">GPS付きの記録がある場所を、地方→都道府県の順で選べます。件数はGPS付きの場所数です。</p>';
+        var otherN = (byPref['__other__'] || []).length;
+        var allGps = 0;
+        Object.keys(byPref).forEach(function(k) { if (k !== '__other__') allGps += (byPref[k] || []).length; });
+        allGps += otherN;
+        html += '<p style="font-size:12px;color:#8e8e93;line-height:1.5;margin-bottom:10px;">GPS付き場所: <strong style="color:#6BAFD6;">' + allGps + '</strong> 件（地方→都道府県の順で選べます）</p>';
+        if (otherN > 0) {
+          html += '<div class="analysis-card" style="margin-top:8px;">';
+          html += '<div class="analysis-card-title">都道府県を判定できなかった場所（' + otherN + '）</div>';
+          (byPref['__other__'] || []).forEach(function(row) {
+            html += '<div style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);font-size:13px;">';
+            html += '<div style="font-weight:600;">' + escapeHtml(row.place) + '</div>';
+            html += '<div style="font-size:11px;color:#8e8e93;">' +
+              Number(row.lat).toFixed(4) + ', ' + Number(row.lng).toFixed(4) + '</div>';
+            html += '<button type="button" class="venue-btn-map" style="margin-top:6px;" data-place="' + escapeAttr(row.place) +
+              '" data-lat="' + row.lat + '" data-lng="' + row.lng + '">Googleマップで開く</button>';
+            html += '</div>';
+          });
+          html += '</div>';
+        }
       } else if (!venuesPrefName) {
         // 都道府県一覧
         html += '<div class="pref-grid">';
