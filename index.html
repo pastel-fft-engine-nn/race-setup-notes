@@ -1,7 +1,9 @@
-<html lang="ja"><head>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="google-site-verification" content="1Ra9Ed4iWGVHuO2JVzi-W2dcXJXjmyE73oLY2dZXrUI">
+  <meta name="google-site-verification" content="1Ra9Ed4iWGVHuO2JVzi-W2dcXJXjmyE73oLY2dZXrUI" />
   <meta name="description" content="ミニ四駆のセッティングや走行記録をカレンダーで管理するツール。完走率・モーター台帳の分析、会場マップ、写真付きバックアップに対応。データは端末内のみに保存されます。">
   <title>memory｜ミニ四駆セッティング・RPM記録・分析ツール</title>
   <!--
@@ -1824,14 +1826,14 @@
       <div class="weekday">金</div>
       <div class="weekday sat">土</div>
     </div>
-    <div class="calendar-grid" id="calendarGrid"><div class="day-cell other-month sunday"><div class="day-number">26</div></div><div class="day-cell other-month"><div class="day-number">27</div></div><div class="day-cell other-month"><div class="day-number">28</div></div><div class="day-cell other-month"><div class="day-number">29</div></div><div class="day-cell other-month"><div class="day-number">30</div></div><div class="day-cell other-month"><div class="day-number">31</div></div><div class="day-cell saturday"><div class="day-number">1</div></div><div class="day-cell sunday"><div class="day-number">2</div></div><div class="day-cell"><div class="day-number">3</div></div><div class="day-cell"><div class="day-number">4</div></div><div class="day-cell"><div class="day-number">5</div></div><div class="day-cell"><div class="day-number">6</div></div><div class="day-cell"><div class="day-number">7</div></div><div class="day-cell saturday"><div class="day-number">8</div></div><div class="day-cell sunday"><div class="day-number">9</div></div><div class="day-cell"><div class="day-number">10</div></div><div class="day-cell holiday"><div class="day-number">11</div><div class="day-event-dots"><span class="day-event-dot holiday"></span></div></div><div class="day-cell"><div class="day-number">12</div></div><div class="day-cell"><div class="day-number">13</div></div><div class="day-cell today selected"><div class="day-number">14</div></div><div class="day-cell saturday"><div class="day-number">15</div></div><div class="day-cell sunday"><div class="day-number">16</div></div><div class="day-cell"><div class="day-number">17</div></div><div class="day-cell"><div class="day-number">18</div></div><div class="day-cell"><div class="day-number">19</div></div><div class="day-cell"><div class="day-number">20</div></div><div class="day-cell"><div class="day-number">21</div></div><div class="day-cell saturday"><div class="day-number">22</div></div><div class="day-cell sunday"><div class="day-number">23</div></div><div class="day-cell"><div class="day-number">24</div></div><div class="day-cell"><div class="day-number">25</div></div><div class="day-cell"><div class="day-number">26</div></div><div class="day-cell"><div class="day-number">27</div></div><div class="day-cell"><div class="day-number">28</div></div><div class="day-cell saturday"><div class="day-number">29</div></div><div class="day-cell sunday"><div class="day-number">30</div></div><div class="day-cell"><div class="day-number">31</div></div><div class="day-cell other-month"><div class="day-number">1</div></div><div class="day-cell other-month"><div class="day-number">2</div></div><div class="day-cell other-month"><div class="day-number">3</div></div><div class="day-cell other-month"><div class="day-number">4</div></div><div class="day-cell other-month saturday"><div class="day-number">5</div></div></div>
+    <div class="calendar-grid" id="calendarGrid"></div>
     <div class="today-section">
       <div class="today-section-title">
-        <span id="selectedDayTitle">今日の予定</span>
-        <span id="todayDateLabel">8月14日（金）</span>
+        <span id="selectedDayTitle">選択日の予定</span>
+        <span id="todayDateLabel"></span>
         <span class="sel-count" id="selectedDayCount"></span>
       </div>
-      <div id="todayEventsList"><div class="fun-strip"><button type="button" class="fun-chip" onclick="setFunFilter('month')"><div class="fc-label">今月の記録</div><div class="fc-val">0件</div></button><button type="button" class="fun-chip" onclick="setFunFilter('finish')"><div class="fc-label">今月完走率</div><div class="fc-val">—</div></button><button type="button" class="fun-chip" onclick="setFunFilter('streak')"><div class="fc-label">連続完走</div><div class="fc-val">0</div></button><button type="button" class="fun-chip good" onclick="setFunFilter('pb')"><div class="fc-label">自己ベスト</div><div class="fc-val">—</div></button></div><div class="empty-state" style="padding:24px 0"><p>今日の予定はありません</p></div></div>
+      <div id="todayEventsList"></div>
     </div>
   </div>
 
@@ -2039,7 +2041,9 @@
       <div class="search-freeword-item">
         <label class="search-freeword-label" for="sfFreeword">フリーワード検索</label>
         <div class="search-freeword-row">
-          <input type="search" class="search-freeword-input" id="sfFreeword" placeholder="タイトル・メモ・場所・モーターなど" enterkeyhint="search" autocomplete="off">
+          <input type="search" class="search-freeword-input" id="sfFreeword"
+            placeholder="タイトル・メモ・場所・モーターなど" enterkeyhint="search"
+            autocomplete="off" />
           <button type="button" class="search-freeword-clear" onclick="clearFreeword()">クリア</button>
         </div>
       </div>
@@ -2151,7 +2155,7 @@
   <div class="celebrate-toast" id="celebrateToast" role="status" aria-live="polite"></div>
 
   <!-- 広告枠：AdSenseコードを下に貼ると自動で表示されます -->
-  <div id="ad-bottom-slot" class="ad-slot" aria-label="広告" aria-hidden="true">
+  <div id="ad-bottom-slot" class="ad-slot" aria-label="広告">
     <!--
       【ここに AdSense の広告ユニットコードを貼ってください】
       例:
@@ -2178,7 +2182,9 @@
       </div>
       
       <div class="tpl-bar" id="templateBar">
-        <select id="templateSelect" aria-label="テンプレート"><option value="">テンプレートを選ぶ</option></select>
+        <select id="templateSelect" aria-label="テンプレート">
+          <option value="">テンプレートを選ぶ</option>
+        </select>
         <button type="button" class="primary" onclick="applySelectedTemplate()">適用</button>
         <button type="button" onclick="saveCurrentAsTemplate()">現在を保存</button>
         <button type="button" onclick="deleteSelectedTemplate()">削除</button>
@@ -2203,12 +2209,18 @@
         </div>
         <div class="form-row">
           <div class="form-label">GPS</div>
-          <div style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+          <div style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;">
             <span id="m4GpsStatus" style="font-size:12px;color:#8e8e93;">未取得</span>
-            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="getM4GPS()">取得</button>
+            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="getM4GPS()">現在地を取得</button>
           </div>
-          <input type="hidden" id="m4Lat" value="">
-          <input type="hidden" id="m4Lng" value="">
+        </div>
+        <div class="form-row">
+          <div class="form-label">緯度</div>
+          <input type="number" class="form-input" id="m4Lat" placeholder="例 35.7056" step="any" inputmode="decimal" oninput="onM4GpsManualInput()">
+        </div>
+        <div class="form-row">
+          <div class="form-label">経度</div>
+          <input type="number" class="form-input" id="m4Lng" placeholder="例 139.4797" step="any" inputmode="decimal" oninput="onM4GpsManualInput()">
         </div>
       </div>
 
@@ -2431,7 +2443,7 @@
         </div>
         <div class="form-row">
           <div class="form-label">ベストラップ</div>
-          <input type="text" class="form-input" id="m4BestLap" placeholder="自動入力可" inputmode="decimal" readonly="" style="opacity:0.85;">
+          <input type="text" class="form-input" id="m4BestLap" placeholder="自動入力可" inputmode="decimal" readonly style="opacity:0.85;">
         </div>
         <div class="form-row">
           <div class="form-label"></div>
@@ -2458,9 +2470,9 @@
           </div>
         </div>
         <div class="media-preview" id="mediaPreview"></div>
-        <input type="file" id="fileInput" accept="image/*,video/*" multiple="" style="display:none" onchange="handleFiles(event)">
-        <input type="file" id="fileInputImage" accept="image/*" multiple="" style="display:none" onchange="handleFiles(event)">
-        <input type="file" id="fileInputVideo" accept="video/*" multiple="" style="display:none" onchange="handleFiles(event)">
+        <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none" onchange="handleFiles(event)">
+        <input type="file" id="fileInputImage" accept="image/*" multiple style="display:none" onchange="handleFiles(event)">
+        <input type="file" id="fileInputVideo" accept="video/*" multiple style="display:none" onchange="handleFiles(event)">
       </div>
       <button class="modal-save-bottom" id="saveBtnBottom" onclick="saveEvent()">保存</button>
       <button class="modal-save-bottom" id="saveNextRoundBtn" onclick="saveEventAndNextRound()" style="display:none;background:#af52de;margin-top:0;">保存して次のラウンド</button>
@@ -2501,7 +2513,7 @@
   <div class="compare-bar" id="compareBar">
     <div class="cmp-info" id="compareBarInfo">比較用に選択中</div>
     <button type="button" class="cmp-clear" onclick="clearCompareSelection()">解除</button>
-    <button type="button" class="cmp-go" id="compareGoBtn" onclick="openCompareModal()" disabled="">比較</button>
+    <button type="button" class="cmp-go" id="compareGoBtn" onclick="openCompareModal()" disabled>比較</button>
   </div>
 
   <div class="modal-overlay gallery-modal" id="galleryOverlay">
@@ -2554,7 +2566,7 @@
   <!-- getUserMedia 高解像度撮影 -->
   <div class="camera-overlay" id="cameraOverlay">
     <div class="camera-video-wrap">
-      <video id="cameraPreviewVideo" autoplay="" playsinline="" muted=""></video>
+      <video id="cameraPreviewVideo" autoplay playsinline muted></video>
     </div>
     <div class="camera-toolbar">
       <button type="button" class="camera-tool-btn" onclick="switchCameraFacing()">切替</button>
@@ -2601,7 +2613,7 @@
         <button type="button" class="sw-signal" id="swSignalBtn" onclick="swStartWithSignal()">合図＋計測</button>
         <button type="button" class="sw-signal-only" id="swSignalOnlyBtn" onclick="swSignalOnly()">シグナルのみ</button>
         <button type="button" class="sw-stop" id="swStopBtn" onclick="swStop()" style="display:none;">ストップ</button>
-        <button type="button" class="sw-lap" id="swLapBtn" onclick="swLap()" disabled="">ラップ</button>
+        <button type="button" class="sw-lap" id="swLapBtn" onclick="swLap()" disabled>ラップ</button>
         <button type="button" class="sw-reset" onclick="swReset()">リセット</button>
       </div>
       <details class="sw-signal-settings" id="swSignalSettings">
@@ -2610,32 +2622,33 @@
           <select id="swSignalMode" onchange="swSaveSignalSettings()">
             <option value="off">合図なし（即スタート）</option>
             <option value="visual">カウントダウンのみ</option>
-            <option value="sound" selected="">カウントダウン＋音</option>
+            <option value="sound" selected>カウントダウン＋音</option>
           </select>
         </label>
         <div class="sw-signal-row">
-          <label><input type="checkbox" id="swSignalBeep" checked="" onchange="swSaveSignalSettings()"> 音声ビープ</label>
-          <label><input type="checkbox" id="swSignalVibrate" checked="" onchange="swSaveSignalSettings()"> 振動</label>
-          <label><input type="checkbox" id="swSignalFlash" checked="" onchange="swSaveSignalSettings()"> 画面フラッシュ</label>
+          <label><input type="checkbox" id="swSignalBeep" checked onchange="swSaveSignalSettings()" /> 音声ビープ</label>
+          <label><input type="checkbox" id="swSignalVibrate" checked onchange="swSaveSignalSettings()" /> 振動</label>
+          <label><input type="checkbox" id="swSignalFlash" checked onchange="swSaveSignalSettings()" /> 画面フラッシュ</label>
         </div>
         <label>開始タイミング
           <select id="swSignalTiming" onchange="swSaveSignalSettings()">
-            <option value="normal" selected="">通常（3→2→1→スタート）</option>
+            <option value="normal" selected>通常（3→2→1→スタート）</option>
             <option value="delay5">固定ディレイ（5秒後にカウント開始）</option>
             <option value="random">ランダム（青点灯を1〜2.5秒のあいだでずらす）</option>
           </select>
         </label>
         <label>カスタム音（任意・端末内の音声ファイル）
-          <input type="file" id="swSignalFile" accept="audio/*" onchange="swLoadCustomSound(this)">
+          <input type="file" id="swSignalFile" accept="audio/*" onchange="swLoadCustomSound(this)" />
         </label>
         <p style="margin-top:8px;color:#8e8e93;font-size:11px;line-height:1.4;">
           デフォルトは自作音（短:1100Hz / 長:3700Hz）です。カスタム音を選ぶと上書きされます（この端末のブラウザ内だけ）。
           スタート＝すぐ計測／合図＋計測＝この画面のまま合図後に計測／シグナルのみ＝大画面合図だけ（計測しない）。
+          振動は Android 等の対応ブラウザのみ動作します。iPhone の Safari は仕様上バイブ非対応です。
         </p>
       </details>
       <div class="stopwatch-laps" id="swLaps"></div>
-      <button type="button" class="sw-apply" id="swApplyFormBtn" onclick="swApplyToForm()" disabled="" style="background:#6BAFD6;display:none;">タイムを登録画面に反映</button>
-      <button type="button" class="sw-apply" id="swSaveNewBtn" onclick="swSaveAsNewSetting()" disabled="" style="background:#34c759;margin-top:8px;">保存して新規登録</button>
+      <button type="button" class="sw-apply" id="swApplyFormBtn" onclick="swApplyToForm()" disabled style="background:#6BAFD6;display:none;">タイムを登録画面に反映</button>
+      <button type="button" class="sw-apply" id="swSaveNewBtn" onclick="swSaveAsNewSetting()" disabled style="background:#34c759;margin-top:8px;">保存して新規登録</button>
       <button type="button" class="sw-apply" id="swBackBtn" onclick="closeStopwatch()" style="margin-top:8px;background:#3a3a3c;">← 戻る</button>
       <p style="font-size:11px;color:#8e8e93;text-align:center;margin-top:10px;">単位は秒です。ベストラップも自動で更新します。</p>
     </div>
@@ -3200,6 +3213,7 @@
       var m4 = ev.m4 || {};
       var badges = '';
       if (m4.eventType) badges += '<span class="m4-badge' + (m4.eventType === '大会' ? ' race' : '') + '">' + escapeHtml(m4.eventType) + '</span>';
+      if (m4.raceName) badges += '<span class="m4-badge race">' + escapeHtml(m4.raceName) + '</span>';
       if (m4.round) badges += '<span class="m4-badge race">' + escapeHtml(m4.round) + '</span>';
       if (m4.raceLane) badges += '<span class="m4-badge">' + escapeHtml(m4.raceLane) + 'L</span>';
       if (m4.rank) badges += '<span class="m4-badge">' + escapeHtml(m4.rank) + '位</span>';
@@ -3233,7 +3247,7 @@
         (badges ? '<div style="margin:4px 0 2px;">' + badges + '</div>' : '') +
         addressHtml +
         summaryHtml +
-        (ev.content ? '<div class="event-content">' + escapeHtml(ev.content) + '</div>' : '') +
+        (function(){ var memo=(ev.content||'').trim(); if(!memo) return ''; var short=memo.length>10?memo.slice(0,10)+'…':memo; return '<div class="event-content">'+escapeHtml(short)+'</div>'; })() +
         (mediaHtml ? '<div class="event-media">' + mediaHtml + '</div>' : '') +
         '</div>';
     }
@@ -3243,21 +3257,36 @@
       var lab = document.getElementById(labelId);
       if (el && lab) lab.textContent = Number(el.value).toFixed(digits == null ? 1 : digits);
     }
+    function updateM4GpsStatusText() {
+      var status = document.getElementById('m4GpsStatus');
+      if (!status) return;
+      var lat = document.getElementById('m4Lat');
+      var lng = document.getElementById('m4Lng');
+      var la = lat && lat.value !== '' ? Number(lat.value) : NaN;
+      var ln = lng && lng.value !== '' ? Number(lng.value) : NaN;
+      if (!isNaN(la) && !isNaN(ln)) status.textContent = la.toFixed(4) + ', ' + ln.toFixed(4);
+      else if ((lat && lat.value) || (lng && lng.value)) status.textContent = '入力中';
+      else status.textContent = '未取得';
+    }
+    function onM4GpsManualInput() { updateM4GpsStatusText(); }
     function getM4GPS() {
       var status = document.getElementById('m4GpsStatus');
       if (!navigator.geolocation) {
-        status.textContent = '非対応';
+        if (status) status.textContent = '非対応（手入力可）';
         return;
       }
-      status.textContent = '取得中...';
+      if (status) status.textContent = '取得中...';
       navigator.geolocation.getCurrentPosition(function(pos) {
-        document.getElementById('m4Lat').value = pos.coords.latitude;
-        document.getElementById('m4Lng').value = pos.coords.longitude;
-        status.textContent = pos.coords.latitude.toFixed(4) + ', ' + pos.coords.longitude.toFixed(4);
+        var latEl = document.getElementById('m4Lat');
+        var lngEl = document.getElementById('m4Lng');
+        if (latEl) latEl.value = pos.coords.latitude;
+        if (lngEl) lngEl.value = pos.coords.longitude;
+        updateM4GpsStatusText();
       }, function() {
-        status.textContent = '取得失敗';
+        if (status) status.textContent = '取得失敗（手入力可）';
       }, { enableHighAccuracy: true, timeout: 10000 });
     }
+    window.onM4GpsManualInput = onM4GpsManualInput;
     function readM4FromForm() {
       function val(id) {
         var el = document.getElementById(id);
@@ -3331,6 +3360,7 @@
       set('m4BestLap', m4.bestLap != null ? m4.bestLap : '');
       set('m4Lat', m4.lat != null ? m4.lat : '');
       set('m4Lng', m4.lng != null ? m4.lng : '');
+      try { updateM4GpsStatusText(); } catch (eGps) {}
       var st = document.getElementById('m4GpsStatus');
       if (m4.lat != null && m4.lng != null) {
         st.textContent = Number(m4.lat).toFixed(4) + ', ' + Number(m4.lng).toFixed(4);
@@ -8249,13 +8279,30 @@
       }
       swPlayDefaultBeep(kind);
     }
+    function swCanVibrate() {
+      try { return !!(navigator.vibrate || navigator.webkitVibrate); } catch (e) { return false; }
+    }
+    function swDoVibrate(pattern) {
+      try {
+        var fn = navigator.vibrate || navigator.webkitVibrate;
+        if (typeof fn === 'function') return fn.call(navigator, pattern);
+      } catch (e) {}
+      return false;
+    }
     function swVibratePattern(kind) {
       if (!(document.getElementById('swSignalVibrate') || {}).checked) return;
-      if (!navigator.vibrate) return;
+      if (!swCanVibrate()) return;
       try {
-        if (kind === 'go') navigator.vibrate([40, 40, 80]);
-        else navigator.vibrate(30);
+        swDoVibrate(0);
+        if (kind === 'go') swDoVibrate([50, 40, 50, 40, 120]);
+        else if (kind === 'arm') swDoVibrate(20);
+        else swDoVibrate(35);
       } catch (e) {}
+    }
+    function swPrimeVibrate() {
+      if (!(document.getElementById('swSignalVibrate') || {}).checked) return;
+      if (!swCanVibrate()) return;
+      try { swDoVibrate(1); } catch (e) {}
     }
     function swFlashPanel() {
       if (!(document.getElementById('swSignalFlash') || {}).checked) return;
@@ -8375,6 +8422,7 @@
       }
 
       swSignalBusy = true;
+      try { swPrimeVibrate(); } catch (ePrime) {}
       var btn = document.getElementById('swSignalBtn');
       var onlyBtn = document.getElementById('swSignalOnlyBtn');
       if (btn) btn.disabled = true;
@@ -9266,6 +9314,5 @@
       if (!isEditableTarget(e.target)) e.preventDefault();
     });
   </script>
-
-
-<div id="funToast" class="fun-toast">🛠️ 今月まだ記録がありません。練習ログを1本残してみましょう</div></body></html>
+</body>
+</html>
