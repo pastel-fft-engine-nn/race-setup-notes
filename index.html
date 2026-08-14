@@ -6689,18 +6689,18 @@
     window.japanMapZoomReset = japanMapZoomReset;
 
 
-    // 日本地図上の位置（3点アフィン校正）
-    // 品川シーサイド駅 (35.609785, 139.749645) → left 62.06% / top 68.42%（ユーザー指定の黄丸）
-    // マイドーム大阪   (34.685257, 135.511291) → left 49.0%  / top 61.0%
-    // 札幌（形状維持用）(43.062, 141.354)      → left 78.0%  / top 18.0%
+    // 日本地図上の位置（3点アフィン校正・画像上の色丸実測）
+    // 黄: 品川シーサイド駅 (35.609785, 139.749645)
+    // 青: マイドーム大阪   (34.685257, 135.511291)
+    // 緑: シャトレーゼガトーキングダムサッポロ (43.171448, 141.355769)
     function japanMapPercent(lat, lng) {
       lat = Number(lat);
       lng = Number(lng);
       if (isNaN(lat) || isNaN(lng)) return { left: 50, top: 50 };
-      var left = 2.74364996 * lng + 1.54829286 * lat - 376.4984839;
-      var top  = 3.38551074 * lng - 7.49462528 * lat - 137.82193168;
-      left = Math.max(2, Math.min(98, left));
-      top = Math.max(2, Math.min(98, top));
+      var left = 3.824240924097 * lng + 0.40977816414622 * lat + -486.24094737264;
+      var top  = 0.58180131648699 * lng + -6.4509361411205 * lat + 218.27898967284;
+      left = Math.max(1, Math.min(99, left));
+      top = Math.max(1, Math.min(99, top));
       return { left: left, top: top };
     }
 
