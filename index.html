@@ -291,28 +291,28 @@
     }
     .event-card.swiping { transition: none; }
     .event-card:active { /* scale handled carefully with swipe */ }
-    .event-time { font-size: 12px; color: #8e8e93; margin-bottom: 2px; }
-    .event-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; padding-right: 56px; }
+    .event-time { font-size: 11px; color: #8e8e93; margin-bottom: 1px; }
+    .event-title { font-size: 13px; font-weight: 600; margin-bottom: 1px; padding-right: 52px; }
     .event-address {
-      font-size: 14px; color: #6BAFD6; margin-bottom: 2px;
-      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      font-size: 12px; color: #6BAFD6; margin-bottom: 1px;
+      display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
     }
     .event-address .addr-text { flex: 1; min-width: 0; word-break: break-all; }
     .addr-copy-btn {
       flex-shrink: 0; border: none; background: #f2f2f7; color: #6BAFD6;
-      font-size: 11px; font-weight: 500; padding: 4px 8px; border-radius: 6px; cursor: pointer;
+      font-size: 10px; font-weight: 500; padding: 3px 7px; border-radius: 6px; cursor: pointer;
     }
     .addr-copy-btn:active { background: #e5e5ea; }
     .addr-copy-btn.copied { background: #e8f5e9; color: #34c759; }
-    .event-content { font-size: 14px; color: #3a3a3c; margin-top: 6px; line-height: 1.4; }
-    .event-media { display: flex; gap: 8px; margin-top: 10px; overflow-x: auto; }
+    .event-content { font-size: 12px; color: #3a3a3c; margin-top: 4px; line-height: 1.35; }
+    .event-media { display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; }
     .event-media img, .event-media video {
-      width: 72px; height: 72px; object-fit: cover; border-radius: 8px; flex-shrink: 0;
+      width: 60px; height: 60px; object-fit: cover; border-radius: 7px; flex-shrink: 0;
     }
     .copy-btn, .dup-btn {
-      position: absolute; top: 12px; right: 12px;
+      position: absolute; top: 8px; right: 8px;
       background: #f2f2f7; border: none; color: #6BAFD6;
-      font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 8px; cursor: pointer; z-index: 2;
+      font-size: 11px; font-weight: 500; padding: 4px 8px; border-radius: 7px; cursor: pointer; z-index: 2;
     }
     .copy-btn:active, .dup-btn:active { background: #e5e5ea; }
     .detail-section-label {
@@ -866,6 +866,7 @@
       gap: 8px;
       margin: 0 auto 8px;
       max-width: 480px;
+      flex-wrap: wrap;
     }
     .japan-map-toolbar button {
       min-width: 40px;
@@ -2555,9 +2556,9 @@
       <video id="cameraPreviewVideo" autoplay="" playsinline="" muted=""></video>
     </div>
     <div class="camera-toolbar">
-      <button type="button" class="camera-tool-btn" onclick="closeHiResCamera()">キャンセル</button>
-      <button type="button" class="camera-shutter" onclick="takeHiResPhoto()" aria-label="撮影"></button>
       <button type="button" class="camera-tool-btn" onclick="switchCameraFacing()">切替</button>
+      <button type="button" class="camera-shutter" onclick="takeHiResPhoto()" aria-label="撮影"></button>
+      <button type="button" class="camera-tool-btn" onclick="closeHiResCamera()">閉じる</button>
     </div>
   </div>
 
@@ -3810,7 +3811,7 @@
       _funToastTimer = setTimeout(function() {
         el.classList.remove('show');
         _funToastTimer = null;
-      }, 3200);
+      }, 1800);
     }
 
     function getMonthYm() {
@@ -5335,9 +5336,19 @@
       if (rp) rp.style.display = analysisSubTab === 'race' ? '' : 'none';
       if (lp) lp.style.display = analysisSubTab === 'loss' ? '' : 'none';
       if (analysisSubTab === 'parts') renderPartsLedger();
-      else if (analysisSubTab === 'race') renderRaceAnalysis();
-      else if (analysisSubTab === 'loss') renderLossPatterns();
-      else renderAnalysis();
+      else if (analysisSubTab === 'race') {
+        renderRaceAnalysis();
+        try {
+          var rp = document.getElementById('raceTabPanel');
+          if (rp) bindAnalysisAccordions(rp, { forceClosed: true });
+        } catch (e) {}
+      } else if (analysisSubTab === 'loss') {
+        renderLossPatterns();
+        try {
+          var lp = document.getElementById('lossTabPanel');
+          if (lp) bindAnalysisAccordions(lp, { forceClosed: true });
+        } catch (e2) {}
+      } else renderAnalysis();
       updatePeriodLabel();
     }
 
@@ -5741,6 +5752,11 @@
       html += '</div>';
       html += racePackagesHtml(list);
       body.innerHTML = html;
+      try { bindAnalysisAccordions(body, { forceClosed: true }); } catch (e) {}
+      try {
+        var rp = document.getElementById('raceTabPanel');
+        if (rp) bindAnalysisAccordions(rp, { forceClosed: true });
+      } catch (e2) {}
     }
 
     /** アウトの共通条件を抽出 */
@@ -5916,7 +5932,7 @@
       }
       html += '</div>';
 
-      body.innerHTML = html;
+      body.innerHTML = html; try { bindAnalysisAccordions(body, { forceClosed: true }); } catch (eAcc) {} try { var lp = document.getElementById('lossTabPanel'); if (lp) bindAnalysisAccordions(lp, { forceClosed: true }); } catch (eAcc2) {}
     }
 
 
@@ -6680,10 +6696,7 @@
       var html = '';
 
       // モード切替（GPS地図は従来どおり触らない）
-            html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">';
-      html += '<button type="button" class="search-action-btn gray" style="flex:1;padding:9px 8px;" onclick="closeVenuesView()">閉じる</button>';
-      html += '</div>';
-html += '<div class="venues-mode-tabs">';
+      html += '<div class="venues-mode-tabs">';
       html += '<button type="button" class="venues-mode-tab' + (venuesPageMode === 'gps' ? ' active' : '') + '" onclick="setVenuesPageMode(\'gps\')">GPSピン地図</button>';
       html += '<button type="button" class="venues-mode-tab' + (venuesPageMode === 'station' ? ' active' : '') + '" onclick="setVenuesPageMode(\'station\')">ステーション一覧</button>';
       html += '</div>';
@@ -6715,6 +6728,7 @@ html += '<div class="venues-mode-tabs">';
       html += '<button type="button" onclick="japanMapZoomOut()" title="縮小">−</button>';
       html += '<span class="japan-map-zoom-label" id="japanMapZoomLabel">' + Math.round(japanMapZoom * 100) + '%</span>';
       html += '<button type="button" onclick="japanMapZoomIn()" title="拡大">＋</button>';
+      html += '<button type="button" class="search-action-btn gray" style="margin-left:auto;padding:6px 10px;font-size:12px;" onclick="closeVenuesView()">閉じる</button>';
       html += '<button type="button" onclick="japanMapZoomReset()" title="リセット" style="font-size:12px;font-weight:600;">リセット</button>';
       html += '</div>';
       html += '<div class="japan-map-wrap" id="japanMapWrap">';
@@ -7055,15 +7069,18 @@ html += '<div class="venues-mode-tabs">';
     }
 
 
-    function bindAnalysisAccordions(root) {
+    function bindAnalysisAccordions(root, opts) {
       root = root || document;
+      opts = opts || {};
+      var forceClosed = !!opts.forceClosed;
       var cards = root.querySelectorAll ? root.querySelectorAll('.analysis-card') : [];
       cards.forEach(function(card) {
         var title = card.querySelector('.analysis-card-title');
         if (!title) return;
         card.classList.add('acc');
-        // 絞り込みカードは初期オープン、結果カードは閉じる
-        if (/絞り込み|条件を指定/.test(title.textContent || '')) {
+        card.classList.remove('open');
+        // 分析タブの絞り込みのみ初期オープン（大会・負けはすべて閉じる）
+        if (!forceClosed && /絞り込み|条件を指定/.test(title.textContent || '')) {
           card.classList.add('open');
         }
         title.onclick = function(e) {
