@@ -1884,9 +1884,10 @@
               <select id="anLapTime" onchange="onAnalysisComboChange()"></select>
             </div>
             <div class="analysis-combo-item full">
-              <div style="display:flex;gap:8px;">
-                <button type="button" class="search-action-btn gray" style="flex:1;padding:9px 8px;" onclick="resetAnalysisCombo()">条件リセット</button>
-                <button type="button" class="search-action-btn gray" style="flex:1;padding:9px 8px;" onclick="closeAnalysisView()">閉じる</button>
+              <div style="display:flex;gap:6px;">
+                <button type="button" class="search-action-btn gray" style="flex:1;padding:9px 6px;" onclick="resetAnalysisCombo()">条件リセット</button>
+                <button type="button" class="search-action-btn" style="flex:1;padding:9px 6px;background:#6BAFD6;color:#fff;" onclick="openAnalysisResults()">開く</button>
+                <button type="button" class="search-action-btn gray" style="flex:1;padding:9px 6px;" onclick="closeAnalysisView()">閉じる</button>
               </div>
             </div>
           </div>
@@ -1930,7 +1931,7 @@
                 <option value="練習">練習</option>
               </select>
             </div>
-            <div class="analysis-combo-item full"><div style="display:flex;gap:8px;"><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 8px;" onclick="resetPartsFilters()">条件リセット</button><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 8px;" onclick="closeAnalysisView()">閉じる</button></div></div>
+            <div class="analysis-combo-item full"><div style="display:flex;gap:6px;"><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 6px;" onclick="resetPartsFilters()">条件リセット</button><button type="button" class="search-action-btn" style="flex:1;padding:9px 6px;background:#6BAFD6;color:#fff;" onclick="openAnalysisResults()">開く</button><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 6px;" onclick="closeAnalysisView()">閉じる</button></div></div>
           </div>
         </div>
         <div id="partsLedgerContent"></div>
@@ -1973,7 +1974,7 @@
               <label>タイム</label>
               <select id="raceLapTime" onchange="onRaceFilterChange()"></select>
             </div>
-            <div class="analysis-combo-item full"><div style="display:flex;gap:8px;"><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 8px;" onclick="resetRaceFilters()">条件リセット</button><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 8px;" onclick="closeAnalysisView()">閉じる</button></div></div>
+            <div class="analysis-combo-item full"><div style="display:flex;gap:6px;"><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 6px;" onclick="resetRaceFilters()">条件リセット</button><button type="button" class="search-action-btn" style="flex:1;padding:9px 6px;background:#6BAFD6;color:#fff;" onclick="openAnalysisResults()">開く</button><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 6px;" onclick="closeAnalysisView()">閉じる</button></div></div>
           </div>
         </div>
 
@@ -2017,7 +2018,7 @@
                 <option value="練習">練習</option>
               </select>
             </div>
-            <div class="analysis-combo-item full"><div style="display:flex;gap:8px;"><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 8px;" onclick="resetLossFilters()">条件リセット</button><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 8px;" onclick="closeAnalysisView()">閉じる</button></div></div>
+            <div class="analysis-combo-item full"><div style="display:flex;gap:6px;"><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 6px;" onclick="resetLossFilters()">条件リセット</button><button type="button" class="search-action-btn" style="flex:1;padding:9px 6px;background:#6BAFD6;color:#fff;" onclick="openAnalysisResults()">開く</button><button type="button" class="search-action-btn gray" style="flex:1;padding:9px 6px;" onclick="closeAnalysisView()">閉じる</button></div></div>
           </div>
         </div>
 
@@ -2849,6 +2850,10 @@
     }
 
     function switchView(view) {
+      // ページ遷移時は分析アコーディオンをリセット（閉じる）
+      if (currentView === 'analysis' && view !== 'analysis') {
+        try { resetAnalysisAccordionsClosed(); } catch (e) {}
+      }
       currentView = view;
       document.querySelectorAll('.view-tab').forEach(function(t) {
         t.classList.toggle('active', t.dataset.view === view);
@@ -5310,6 +5315,7 @@
       switchView('analysis');
     }
     function closeAnalysisView() {
+      try { resetAnalysisAccordionsClosed(); } catch (e) {}
       switchView('month');
     }
     function openVenuesView() {
@@ -5335,20 +5341,16 @@
       if (pp) pp.style.display = analysisSubTab === 'parts' ? '' : 'none';
       if (rp) rp.style.display = analysisSubTab === 'race' ? '' : 'none';
       if (lp) lp.style.display = analysisSubTab === 'loss' ? '' : 'none';
+      // タブ切替時は結果カードを閉じた状態に戻す
       if (analysisSubTab === 'parts') renderPartsLedger();
-      else if (analysisSubTab === 'race') {
-        renderRaceAnalysis();
-        try {
-          var rp = document.getElementById('raceTabPanel');
-          if (rp) bindAnalysisAccordions(rp, { forceClosed: true });
-        } catch (e) {}
-      } else if (analysisSubTab === 'loss') {
-        renderLossPatterns();
-        try {
-          var lp = document.getElementById('lossTabPanel');
-          if (lp) bindAnalysisAccordions(lp, { forceClosed: true });
-        } catch (e2) {}
-      } else renderAnalysis();
+      else if (analysisSubTab === 'race') renderRaceAnalysis();
+      else if (analysisSubTab === 'loss') renderLossPatterns();
+      else renderAnalysis();
+      try {
+        var panel = getActiveAnalysisPanel();
+        if (panel) bindAnalysisAccordions(panel);
+        resetAnalysisAccordionsClosed(panel || document.getElementById('analysisView'));
+      } catch (e3) {}
       updatePeriodLabel();
     }
 
@@ -7069,26 +7071,84 @@
     }
 
 
+    function isAnalysisFilterCard(card) {
+      var title = card && card.querySelector && card.querySelector('.analysis-card-title');
+      if (!title) return false;
+      var t = title.textContent || '';
+      return /絞り込み|条件を指定/.test(t);
+    }
+
     function bindAnalysisAccordions(root, opts) {
       root = root || document;
       opts = opts || {};
-      var forceClosed = !!opts.forceClosed;
       var cards = root.querySelectorAll ? root.querySelectorAll('.analysis-card') : [];
       cards.forEach(function(card) {
         var title = card.querySelector('.analysis-card-title');
         if (!title) return;
-        card.classList.add('acc');
-        card.classList.remove('open');
-        // 分析タブの絞り込みのみ初期オープン（大会・負けはすべて閉じる）
-        if (!forceClosed && /絞り込み|条件を指定/.test(title.textContent || '')) {
-          card.classList.add('open');
+        // 絞り込み条件カードは折りたたまない（常時表示）
+        if (isAnalysisFilterCard(card)) {
+          card.classList.remove('acc');
+          card.classList.remove('open');
+          title.onclick = null;
+          title.style.cursor = '';
+          return;
         }
+        card.classList.add('acc');
+        // 結果カードは初期閉じ。開くボタンで展開
+        card.classList.remove('open');
+        title.style.cursor = 'pointer';
         title.onclick = function(e) {
           e.preventDefault();
           card.classList.toggle('open');
         };
       });
     }
+
+    function getActiveAnalysisPanel() {
+      var map = {
+        analysis: 'analysisTabPanel',
+        parts: 'partsTabPanel',
+        race: 'raceTabPanel',
+        loss: 'lossTabPanel'
+      };
+      var id = map[analysisSubTab] || 'analysisTabPanel';
+      return document.getElementById(id);
+    }
+
+    /** 条件選択後：結果カードをまとめて開く */
+    function openAnalysisResults() {
+      var panel = getActiveAnalysisPanel();
+      if (!panel) return;
+      // 最新の結果を描画してから開く
+      try {
+        if (analysisSubTab === 'parts') renderPartsLedger();
+        else if (analysisSubTab === 'race') renderRaceAnalysis();
+        else if (analysisSubTab === 'loss') renderLossPatterns();
+        else renderAnalysis();
+      } catch (e) {}
+      panel = getActiveAnalysisPanel() || panel;
+      var cards = panel.querySelectorAll('.analysis-card.acc');
+      cards.forEach(function(card) {
+        if (isAnalysisFilterCard(card)) return;
+        card.classList.add('open');
+      });
+      // 結果エリアへスクロール
+      try {
+        var first = panel.querySelector('.analysis-card.acc.open');
+        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (e2) {}
+    }
+
+    function resetAnalysisAccordionsClosed(root) {
+      root = root || document.getElementById('analysisView') || document;
+      var cards = root.querySelectorAll ? root.querySelectorAll('.analysis-card.acc') : [];
+      cards.forEach(function(card) {
+        if (isAnalysisFilterCard(card)) return;
+        card.classList.remove('open');
+      });
+    }
+
+    window.openAnalysisResults = openAnalysisResults;
 
     function renderAnalysis() {
       var all = getResultedEvents();
