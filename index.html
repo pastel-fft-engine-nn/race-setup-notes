@@ -6928,14 +6928,71 @@
       var byPref = {};
       PREF_ORDER.forEach(function(p) { byPref[p] = []; });
       byPref['__other__'] = [];
-      var rows = buildVenuesData().filter(function(r) {
-        var la = Number(r.lat), ln = Number(r.lng);
-        return r.lat != null && r.lng != null && r.lat !== '' && r.lng !== '' && !isNaN(la) && !isNaN(ln);
+
+      // 小数4桁の緯度経度が同じ場所は1つにまとめる
+      var byGps = {};
+      getEvents().forEach(function(ev) {
+        var m4 = ev.m4 || {};
+        if (m4.lat == null || m4.lng == null || m4.lat === '' || m4.lng === '') return;
+        var la = Number(m4.lat), ln = Number(m4.lng);
+        if (isNaN(la) || isNaN(ln) || (la === 0 && ln === 0)) return;
+        var key = la.toFixed(4) + ',' + ln.toFixed(4);
+        if (!byGps[key]) {
+          byGps[key] = {
+            place: '',
+            placeNames: {},
+            total: 0,
+            finish: 0,
+            out: 0,
+            lastDate: '',
+            lat: Number(la.toFixed(4)),
+            lng: Number(ln.toFixed(4)),
+            motors: {},
+            gpsKey: key
+          };
+        }
+        var row = byGps[key];
+        var place = (ev.address && String(ev.address).trim()) || '';
+        if (place) {
+          row.placeNames[place] = (row.placeNames[place] || 0) + 1;
+        }
+        row.total++;
+        var r = m4.result || '';
+        if (r === '完走') row.finish++;
+        else if (r === 'コースアウト') row.out++;
+        if (ev.date && (!row.lastDate || ev.date > row.lastDate)) row.lastDate = ev.date;
+        if (m4.motorType) {
+          var mk = motorKey(ev);
+          row.motors[mk] = (row.motors[mk] || 0) + 1;
+        }
       });
-      rows.forEach(function(row) {
+
+      Object.keys(byGps).forEach(function(key) {
+        var row = byGps[key];
+        // 代表の場所名：出現回数が最も多いもの
+        var names = Object.keys(row.placeNames).sort(function(a, b) {
+          return row.placeNames[b] - row.placeNames[a] || a.localeCompare(b, 'ja');
+        });
+        row.place = names[0] || ('GPS ' + key);
+        if (names.length > 1) {
+          row.placeAliases = names.slice(1);
+        }
         var pref = detectPrefFromPlace(row.place, row.lat, row.lng);
+        // 別名からも県を推定
+        if (!pref && names.length) {
+          for (var i = 0; i < names.length; i++) {
+            pref = detectPrefFromPlace(names[i], row.lat, row.lng);
+            if (pref) break;
+          }
+        }
+        if (!pref) pref = detectPrefFromLatLng(row.lat, row.lng);
         if (pref && byPref[pref]) byPref[pref].push(row);
         else byPref['__other__'].push(row);
+      });
+
+      // 件数の多い順
+      Object.keys(byPref).forEach(function(p) {
+        byPref[p].sort(function(a, b) { return b.total - a.total; });
       });
       return byPref;
     }
@@ -7078,6 +7135,10 @@
               : 'GPSなし';
             html += '<div class="venue-card" data-place="' + escapeAttr(row.place) + '">';
             html += '<div class="venue-name">' + escapeHtml(row.place) + '</div>';
+            if (row.placeAliases && row.placeAliases.length) {
+              html += '<div style="font-size:11px;color:#8e8e93;margin:2px 0 4px;">別名: ' +
+                escapeHtml(row.placeAliases.join(' · ')) + '</div>';
+            }
             html += '<div class="parts-meta">';
             html += '<div class="parts-meta-item"><div class="n">' + row.total + '</div><div class="l">訪問</div></div>';
             html += '<div class="parts-meta-item"><div class="n" style="color:#34c759">' + row.finish + '</div><div class="l">完走</div></div>';
