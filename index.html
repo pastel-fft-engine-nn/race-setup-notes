@@ -621,6 +621,19 @@
       flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
       padding: 12px 12px 28px;
     }
+    /* ヘルプ内の太字を標準の太さに（確認用） */
+    .help-body,
+    .help-body strong,
+    .help-body b,
+    .help-sec-h,
+    .help-title,
+    .help-hero h2,
+    .help-tools-title,
+    .help-pick-btn,
+    .help-pill {
+      font-weight: 400 !important;
+    }
+
 
 
     .help-tools-title {
@@ -740,15 +753,17 @@
     body.dark-mode .venues-mode-tab.active { background: #7EC0E0; color: #fff; }
     
     .station-circuit-filter {
-      display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
-      color: #3a3a3c; padding: 10px 12px; background: #fff; border-radius: 10px;
-      border: 1px solid #c7c7cc; cursor: pointer; user-select: none;
-      width: 100%; box-sizing: border-box; min-height: 44px;
+      display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500;
+      color: #3a3a3c; padding: 0; background: transparent; border-radius: 0;
+      border: none; cursor: pointer; user-select: none;
+      width: auto; box-sizing: border-box; min-height: 0; margin: 2px 0 4px;
     }
     body.dark-mode .station-circuit-filter {
-      background: #1c1c1e; color: #f2f2f7; border-color: #3a3a3c;
+      background: transparent; color: #f2f2f7; border: none;
     }
-    .station-circuit-filter input { width: 18px; height: 18px; accent-color: #6BAFD6; }
+    .station-circuit-filter input {
+      width: 16px; height: 16px; accent-color: #6BAFD6; flex-shrink: 0;
+    }
 
     .station-toolbar {
       display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;
@@ -2280,7 +2295,7 @@
         <div class="form-row" style="flex-wrap:wrap;gap:8px;">
           <div class="form-label">RPM連携</div>
           <div style="flex:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;">
-            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzerForImport()">RPM Analyzerを開く</button>
+            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzerForImport()">RPM計測する</button>
             <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="importRpmFromAnalyzer()">結果を取り込む</button>
           </div>
         </div>
@@ -4533,7 +4548,7 @@
 
       h += sec('help-rpm', '🔊', 'RPMを取り込む',
         '<ol style="padding-left:1.2em;margin:6px 0 0;">' +
-        '<li>記録画面で「RPM Analyzerを開く」</li>' +
+        '<li>記録画面で「RPM計測する」</li>' +
         '<li>マイク許可のうえ計測する</li>' +
         '<li>「memoryへ戻る」または結果の取り込み</li>' +
         '<li><strong>最高RPM（MAX）</strong>が回転数欄に入ります</li>' +
@@ -4807,7 +4822,7 @@
 
       h += sec('ra-link', '🔗', 'memory との連携',
         '<div class="help-grid">' +
-        '<div class="help-mini"><b>RPM Analyzerを開く</b>MAXをmemoryへ</div>' +
+        '<div class="help-mini"><b>RPM計測する</b>MAXをmemoryへ</div>' +
         '<div class="help-mini"><b>🏎️ 単独</b>書き戻さない</div>' +
         '</div>' +
         '<ul>' +
@@ -6018,10 +6033,52 @@
       renderVenuesMap();
     }
 
+    var PREF_ORDER = [
+      '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県',
+      '茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県',
+      '新潟県','富山県','石川県','福井県','山梨県','長野県',
+      '岐阜県','静岡県','愛知県','三重県',
+      '滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県',
+      '鳥取県','島根県','岡山県','広島県','山口県',
+      '徳島県','香川県','愛媛県','高知県',
+      '福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'
+    ];
+    function normalizePrefName(p) {
+      if (!p) return '';
+      p = String(p).trim();
+      // 表記ゆれを公式47に寄せる
+      var map = {
+        '東京': '東京都', '東京都': '東京都',
+        '大阪': '大阪府', '大阪府': '大阪府',
+        '京都': '京都府', '京都府': '京都府',
+        '北海道': '北海道'
+      };
+      if (map[p]) return map[p];
+      if (p === '北海道') return p;
+      if (/[都府県]$/.test(p)) return p;
+      return p + '県';
+    }
     function stationPrefs() {
       var set = {};
-      STATION_SHOPS.forEach(function(s) { if (s.pref) set[s.pref] = true; });
-      return Object.keys(set).sort(function(a, b) { return a.localeCompare(b, 'ja'); });
+      STATION_SHOPS.forEach(function(s) {
+        if (!s.pref) return;
+        var n = normalizePrefName(s.pref);
+        set[n] = true;
+        // 元データも同一視できるように保持
+        s.pref = n;
+      });
+      var ordered = [];
+      PREF_ORDER.forEach(function(p) {
+        if (set[p]) {
+          ordered.push(p);
+          delete set[p];
+        }
+      });
+      // 万一リスト外があれば末尾に
+      Object.keys(set).sort(function(a, b) { return a.localeCompare(b, 'ja'); }).forEach(function(p) {
+        ordered.push(p);
+      });
+      return ordered;
     }
 
     function filteredStationShops() {
@@ -7244,19 +7301,43 @@
         sessionStorage.removeItem('memory_rpm_restore_modal');
         var editId = sessionStorage.getItem('memory_rpm_editing_id') || '';
         sessionStorage.removeItem('memory_rpm_editing_id');
+        var draftRaw = sessionStorage.getItem('memory_form_draft');
+        var draft = null;
+        try { draft = draftRaw ? JSON.parse(draftRaw) : null; } catch (e0) { draft = null; }
+        sessionStorage.removeItem('memory_form_draft');
+
         var overlay = document.getElementById('modalOverlay');
-        if (overlay && overlay.classList.contains('active')) return;
-        if (editId && typeof openEditModal === 'function') {
-          try { openEditModal(editId); return; } catch (e) {}
+        var alreadyOpen = overlay && overlay.classList.contains('active');
+
+        if (!alreadyOpen) {
+          if (editId && typeof openEditModal === 'function') {
+            try { openEditModal(editId); } catch (e1) {
+              if (typeof openAddModal === 'function') openAddModal();
+            }
+          } else if (typeof openAddModal === 'function') {
+            openAddModal();
+          }
         }
-        if (typeof openAddModal === 'function') openAddModal();
+        // 下書きを戻す（openAddModal が空で上書きしたあとに適用）
+        if (draft) {
+          setTimeout(function() {
+            applyFormDraft(draft);
+            // RPM が URL/storage から入っている場合は下書きの古いRPMより新しい値を優先
+            try {
+              var found = typeof readRpmFromStorage === 'function' ? readRpmFromStorage() : null;
+              if (found && found.parsed && found.parsed.rpm) {
+                applyRpmValue(found.parsed.rpm, found.parsed);
+              }
+            } catch (e2) {}
+          }, 60);
+        }
       } catch (e) {}
     }
 
     function applyRpmValue(rpm, meta) {
-      // 「RPM Analyzerを開く」から始めたときだけ、新規登録の回転数枠へ反映
+      // 「RPM計測する」から始めたときだけ、新規登録の回転数枠へ反映
       if (!isRpmImportSession()) {
-        setRpmLinkStatus('取り込みは「RPM Analyzerを開く」経由のみです', false);
+        setRpmLinkStatus('取り込みは「RPM計測する」経由のみです', false);
         return false;
       }
       rpm = Number(rpm);
@@ -7359,14 +7440,108 @@
     }
 
     // 新規登録の回転数取り込み用（この経路のときだけ m4Rpm に反映）
+    function collectFormDraft() {
+      function gv(id) {
+        var el = document.getElementById(id);
+        return el ? el.value : '';
+      }
+      return {
+        editingEventId: editingEventId || null,
+        isCopying: !!isCopying,
+        date: gv('eventDate'),
+        start: gv('eventStart'),
+        end: gv('eventEnd'),
+        address: gv('eventAddress'),
+        machineName: gv('eventMachineName'),
+        content: gv('eventContent'),
+        m4EventType: gv('m4EventType'),
+        m4Class: gv('m4Class'),
+        m4Indoor: gv('m4Indoor'),
+        m4Weather: gv('m4Weather'),
+        m4Result: gv('m4Result'),
+        m4Lanes: gv('m4Lanes'),
+        m4RaceLane: gv('m4RaceLane'),
+        m4Round: gv('m4Round'),
+        m4Rank: gv('m4Rank'),
+        m4RaceName: gv('m4RaceName'),
+        m4Temp: gv('m4Temp'),
+        m4Motor: gv('m4Motor'),
+        m4MotorNo: gv('m4MotorNo'),
+        m4Gear: gv('m4Gear'),
+        m4Battery: gv('m4Battery'),
+        m4Rpm: gv('m4Rpm'),
+        m4Tire: gv('m4Tire'),
+        m4Weight: gv('m4Weight'),
+        m4Voltage: gv('m4Voltage'),
+        m4Speed: gv('m4Speed'),
+        m4LapTime: gv('m4LapTime'),
+        m4BestLap: gv('m4BestLap')
+        // 写真は容量が大きいため下書きに含めない
+      };
+    }
+    function applyFormDraft(d) {
+      if (!d) return;
+      function sv(id, v) {
+        var el = document.getElementById(id);
+        if (!el || v == null) return;
+        el.value = v;
+        try {
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        } catch (e) {}
+      }
+      sv('eventDate', d.date);
+      sv('eventStart', d.start);
+      sv('eventEnd', d.end);
+      sv('eventAddress', d.address);
+      sv('eventMachineName', d.machineName);
+      sv('eventContent', d.content);
+      sv('m4EventType', d.m4EventType);
+      sv('m4Class', d.m4Class);
+      sv('m4Indoor', d.m4Indoor);
+      sv('m4Weather', d.m4Weather);
+      sv('m4Result', d.m4Result);
+      sv('m4Lanes', d.m4Lanes);
+      sv('m4RaceLane', d.m4RaceLane);
+      sv('m4Round', d.m4Round);
+      sv('m4Rank', d.m4Rank);
+      sv('m4RaceName', d.m4RaceName);
+      sv('m4Temp', d.m4Temp);
+      sv('m4Motor', d.m4Motor);
+      sv('m4MotorNo', d.m4MotorNo);
+      sv('m4Gear', d.m4Gear);
+      sv('m4Battery', d.m4Battery);
+      sv('m4Rpm', d.m4Rpm);
+      sv('m4Tire', d.m4Tire);
+      sv('m4Weight', d.m4Weight);
+      sv('m4Voltage', d.m4Voltage);
+      sv('m4Speed', d.m4Speed);
+      sv('m4LapTime', d.m4LapTime);
+      sv('m4BestLap', d.m4BestLap);
+      try { if (typeof updateRaceModeUI === 'function') updateRaceModeUI(); } catch (e) {}
+      try {
+        ['m4Temp','m4Tire','m4Weight','m4Voltage','m4Speed'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          var lab = id + 'Val';
+          if (typeof updateSliderLabel === 'function') {
+            try { updateSliderLabel(id, lab, id === 'm4Temp' || id === 'm4Tire' || id === 'm4Voltage' || id === 'm4Speed' ? 1 : 0); } catch (e2) {}
+          }
+        });
+      } catch (e3) {}
+    }
+
     function openRpmAnalyzerForImport() {
       beginRpmImportSession();
-      // 新規登録画面から開いたことを覚え、戻り後にモーダルを復元する
+      // 入力中の内容を下書き保存（戻り後に復元）
       try {
         var modalOpen = document.getElementById('modalOverlay') &&
           document.getElementById('modalOverlay').classList.contains('active');
         sessionStorage.setItem('memory_rpm_restore_modal', modalOpen ? '1' : '0');
         sessionStorage.setItem('memory_rpm_editing_id', editingEventId ? String(editingEventId) : '');
+        if (modalOpen) {
+          sessionStorage.setItem('memory_form_draft', JSON.stringify(collectFormDraft()));
+        }
       } catch (e) {}
       var returnUrl = location.href.split('#')[0];
       // 連携版: mini-4wd-rperm（from=memory で「memoryへ戻る」表示）
@@ -7449,7 +7624,7 @@
 
     function importRpmFromAnalyzer() {
       if (!isRpmImportSession()) {
-        setRpmLinkStatus('「RPM Analyzerを開く」から計測したときだけ取り込めます', false);
+        setRpmLinkStatus('「RPM計測する」から計測したときだけ取り込めます', false);
         return;
       }
       // 1) 今回の計測で保存された最高RPM
