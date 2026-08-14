@@ -752,18 +752,58 @@
     body.dark-mode .venues-mode-tab { background: #2c2c2e; color: #aeaeb2; }
     body.dark-mode .venues-mode-tab.active { background: #7EC0E0; color: #fff; }
     
+    .station-circuit-row {
+      display: block;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .station-circuit-row label {
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #3a3a3c;
+      line-height: 1.3;
+      white-space: nowrap;
+      writing-mode: horizontal-tb !important;
+      width: auto !important;
+      max-width: 100%;
+      padding: 4px 0;
+      margin: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      user-select: none;
+    }
+    body.dark-mode .station-circuit-row label { color: #f2f2f7; }
+    .station-circuit-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      flex-shrink: 0;
+      accent-color: #6BAFD6;
+    }
+    /* 旧クラスが残っても縦並び・巨大化しないように */
     .station-circuit-filter {
-      display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500;
-      color: #3a3a3c; padding: 0; background: transparent; border-radius: 0;
-      border: none; cursor: pointer; user-select: none;
-      width: auto; box-sizing: border-box; min-height: 0; margin: 2px 0 4px;
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center;
+      gap: 8px;
+      width: auto !important;
+      min-height: 0 !important;
+      padding: 4px 0 !important;
+      margin: 0 !important;
+      border: none !important;
+      background: transparent !important;
+      writing-mode: horizontal-tb !important;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 500;
     }
-    body.dark-mode .station-circuit-filter {
-      background: transparent; color: #f2f2f7; border: none;
-    }
-    .station-circuit-filter input {
-      width: 16px; height: 16px; accent-color: #6BAFD6; flex-shrink: 0;
-    }
+    .station-circuit-filter input { width: 16px; height: 16px; flex-shrink: 0; }
 
     .station-toolbar {
       display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;
@@ -6131,9 +6171,11 @@
         html += '<option value="' + escapeAttr(p) + '"' + (p === pref ? ' selected' : '') + '>' + escapeHtml(p) + '</option>';
       });
       html += '</select>';
-      html += '<label class="station-circuit-filter"><input type="checkbox" id="stationCircuitOnly" ' +
+      html += '<div class="station-circuit-row"><label for="stationCircuitOnly">' +
+        '<input type="checkbox" id="stationCircuitOnly" ' +
         (window._stationCircuitOnly ? 'checked ' : '') +
-        'onchange="window._stationCircuitOnly=this.checked;renderVenuesMap()" /> サーキット設置店だけ</label>';
+        'onchange="window._stationCircuitOnly=this.checked;renderVenuesMap()" />' +
+        '<span>サーキット設置店だけ</span></label></div>';
       html += '<input type="search" id="stationSearch" placeholder="店名・住所で検索" value="' + escapeAttr(qEl ? qEl.value : (window._stationQ || '')) + '" oninput="window._stationQ=this.value;renderVenuesMap()" />';
       html += '</div>';
       html += '<p style="font-size:12px;color:#8e8e93;margin:0 0 10px;">タミヤ公式ショップリスト（全国）を内蔵。サーキット設置店フィルタ対応（' + STATION_SHOPS.length + '件）。営業・設置状況は店舗・公式で確認してください。GPS地図とは別データです。</p>';
@@ -7256,9 +7298,28 @@
       el.style.color = ok ? '#34c759' : '#8e8e93';
     }
 
+    // ※ sessionStorage はタブごとに別物。Analyzerを別タブで開くと下書きが消えるため localStorage を使う
+    function rpmStoreGet(k) {
+      try { return localStorage.getItem(k); } catch (e) { return null; }
+    }
+    function rpmStoreSet(k, v) {
+      try { localStorage.setItem(k, v); } catch (e) {}
+    }
+    function rpmStoreDel(k) {
+      try { localStorage.removeItem(k); } catch (e) {}
+    }
+
     function isRpmImportSession() {
       try {
-        return sessionStorage.getItem('memory_rpm_import_session') === '1';
+        if (rpmStoreGet('memory_rpm_import_session') !== '1') return false;
+        var ts = Number(rpmStoreGet('memory_rpm_import_ts') || 0) || 0;
+        // 2時間で失効
+        if (ts && Date.now() - ts > 2 * 60 * 60 * 1000) {
+          rpmStoreDel('memory_rpm_import_session');
+          rpmStoreDel('memory_rpm_import_ts');
+          return false;
+        }
+        return true;
       } catch (e) {
         return false;
       }
@@ -7266,7 +7327,7 @@
 
     function getRpmImportSessionStart() {
       try {
-        return Number(sessionStorage.getItem('memory_rpm_import_ts') || 0) || 0;
+        return Number(rpmStoreGet('memory_rpm_import_ts') || 0) || 0;
       } catch (e) {
         return 0;
       }
@@ -7282,29 +7343,26 @@
 
     function beginRpmImportSession() {
       clearRpmStorageKeys();
-      try {
-        sessionStorage.setItem('memory_rpm_import_session', '1');
-        sessionStorage.setItem('memory_rpm_import_ts', String(Date.now()));
-      } catch (e) {}
+      rpmStoreSet('memory_rpm_import_session', '1');
+      rpmStoreSet('memory_rpm_import_ts', String(Date.now()));
     }
 
     function endRpmImportSession() {
-      try {
-        sessionStorage.removeItem('memory_rpm_import_session');
-        sessionStorage.removeItem('memory_rpm_import_ts');
-      } catch (e) {}
+      rpmStoreDel('memory_rpm_import_session');
+      rpmStoreDel('memory_rpm_import_ts');
     }
 
     function restoreModalAfterRpmReturn() {
       try {
-        if (sessionStorage.getItem('memory_rpm_restore_modal') !== '1') return;
-        sessionStorage.removeItem('memory_rpm_restore_modal');
-        var editId = sessionStorage.getItem('memory_rpm_editing_id') || '';
-        sessionStorage.removeItem('memory_rpm_editing_id');
-        var draftRaw = sessionStorage.getItem('memory_form_draft');
+        var need = rpmStoreGet('memory_rpm_restore_modal') === '1' || !!rpmStoreGet('memory_form_draft');
+        if (!need) return;
+        rpmStoreDel('memory_rpm_restore_modal');
+        var editId = rpmStoreGet('memory_rpm_editing_id') || '';
+        rpmStoreDel('memory_rpm_editing_id');
+        var draftRaw = rpmStoreGet('memory_form_draft');
         var draft = null;
         try { draft = draftRaw ? JSON.parse(draftRaw) : null; } catch (e0) { draft = null; }
-        sessionStorage.removeItem('memory_form_draft');
+        rpmStoreDel('memory_form_draft');
 
         var overlay = document.getElementById('modalOverlay');
         var alreadyOpen = overlay && overlay.classList.contains('active');
@@ -7318,19 +7376,27 @@
             openAddModal();
           }
         }
-        // 下書きを戻す（openAddModal が空で上書きしたあとに適用）
-        if (draft) {
-          setTimeout(function() {
-            applyFormDraft(draft);
-            // RPM が URL/storage から入っている場合は下書きの古いRPMより新しい値を優先
-            try {
-              var found = typeof readRpmFromStorage === 'function' ? readRpmFromStorage() : null;
-              if (found && found.parsed && found.parsed.rpm) {
-                applyRpmValue(found.parsed.rpm, found.parsed);
+        setTimeout(function() {
+          if (draft) applyFormDraft(draft);
+          try {
+            var found = typeof readRpmFromStorage === 'function' ? readRpmFromStorage() : null;
+            if (found && found.parsed && found.parsed.rpm) {
+              // セッションが切れていても、戻り直後は反映を許可
+              if (!isRpmImportSession()) {
+                beginRpmImportSession();
               }
-            } catch (e2) {}
-          }, 60);
-        }
+              applyRpmValue(found.parsed.rpm, found.parsed);
+            }
+          } catch (e2) {}
+          try {
+            var params = new URLSearchParams(location.search);
+            var rpmQ = params.get('import_max_rpm') || params.get('import_rpm');
+            if (rpmQ) {
+              if (!isRpmImportSession()) beginRpmImportSession();
+              applyRpmValue(rpmQ, { rpm: Number(rpmQ), maxRpm: Number(rpmQ) });
+            }
+          } catch (e3) {}
+        }, 80);
       } catch (e) {}
     }
 
@@ -7537,11 +7603,12 @@
       try {
         var modalOpen = document.getElementById('modalOverlay') &&
           document.getElementById('modalOverlay').classList.contains('active');
-        sessionStorage.setItem('memory_rpm_restore_modal', modalOpen ? '1' : '0');
-        sessionStorage.setItem('memory_rpm_editing_id', editingEventId ? String(editingEventId) : '');
-        if (modalOpen) {
-          sessionStorage.setItem('memory_form_draft', JSON.stringify(collectFormDraft()));
-        }
+        rpmStoreSet('memory_rpm_restore_modal', modalOpen ? '1' : '0');
+        rpmStoreSet('memory_rpm_editing_id', editingEventId ? String(editingEventId) : '');
+        // モーダルが開いていなくても、可能な範囲で下書きを残す
+        try {
+          rpmStoreSet('memory_form_draft', JSON.stringify(collectFormDraft()));
+        } catch (eDraft) {}
       } catch (e) {}
       var returnUrl = location.href.split('#')[0];
       // 連携版: mini-4wd-rperm（from=memory で「memoryへ戻る」表示）
@@ -7559,7 +7626,7 @@
           location.href = url;
         } else {
           endRpmImportSession();
-          try { sessionStorage.removeItem('memory_rpm_restore_modal'); } catch (e2) {}
+          try { rpmStoreDel('memory_rpm_restore_modal'); rpmStoreDel('memory_form_draft'); } catch (e2) {}
           setRpmLinkStatus('キャンセルしました', false);
         }
         return;
@@ -8838,6 +8905,9 @@
       populateTemplateSelect();
       switchView('month');
       refreshAdSlotVisibility();
+      // 別タブから戻った直後の復元（localStorage 下書き）
+      try { restoreModalAfterRpmReturn(); } catch (e) {}
+      try { consumeImportRpmFromUrl(); } catch (e2) {}
     });
 
     /* ピンチイン・アウト / ダブルタップズーム禁止 */
