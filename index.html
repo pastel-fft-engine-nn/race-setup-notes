@@ -652,25 +652,31 @@
     body.dark-mode .help-tool { background: #1c1c1e; color: #f2f2f7; }
 
     .help-pick {
-      display: flex; flex-direction: column; gap: 10px; margin-top: 4px;
+      display: flex; flex-direction: row; gap: 8px; margin: 4px 0 12px;
+      padding: 6px; border-radius: 12px; background: #eef1f4;
     }
+    body.dark-mode .help-pick { background: #2c2c2e; }
     .help-pick-btn {
-      display: block; width: 100%; text-align: left; border: none; cursor: pointer;
-      border-radius: 16px; padding: 16px; color: #fff; font-weight: 700;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; border: none; cursor: pointer;
+      border-radius: 10px; padding: 12px 8px; font-weight: 600;
+      background: #fff; color: #3a3a3c;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      min-height: 56px;
     }
-    .help-pick-btn.memory {
-      background: linear-gradient(180deg, #fff0f5 0%, #ffe8f0 100%);
-      color: #8a5a6e;
-      box-shadow: 0 2px 10px rgba(200,140,160,0.18);
-    }
+    body.dark-mode .help-pick-btn { background: #1c1c1e; color: #f2f2f7; }
+    .help-pick-btn.memory,
     .help-pick-btn.analyzer {
-      background: linear-gradient(180deg, #fff0f5 0%, #ffe8f0 100%);
-      color: #8a5a6e;
-      box-shadow: 0 2px 10px rgba(200,140,160,0.18);
+      background: #fff;
+      color: #3a3a3c;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
-    .help-pick-btn .hp-title { font-size: 18px; margin-bottom: 4px; }
-    .help-pick-btn .hp-desc { font-size: 12px; font-weight: 500; opacity: 0.95; line-height: 1.45; }
+    body.dark-mode .help-pick-btn.memory,
+    body.dark-mode .help-pick-btn.analyzer {
+      background: #1c1c1e; color: #f2f2f7;
+    }
+    .help-pick-btn .hp-title { font-size: 14px; margin-bottom: 2px; line-height: 1.3; }
+    .help-pick-btn .hp-desc { font-size: 10px; font-weight: 400; opacity: 0.75; line-height: 1.35; }
     .help-back {
       border: none; background: #e5e5ea; color: #1c1c1e; border-radius: 999px;
       padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer; margin-bottom: 10px;
@@ -1165,12 +1171,40 @@
     .gallery-item {
       border-radius: 8px; overflow: hidden; background: #e5e5ea; cursor: pointer; position: relative;
     }
+    .gallery-thumb-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: #e5e5ea;
+    }
     .gallery-item img, .gallery-item video {
-      width: 100%; aspect-ratio: 1; object-fit: cover; display: block;
+      width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; display: block;
     }
     .gallery-item .vid-badge {
       position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.55);
-      color: #fff; font-size: 10px; padding: 2px 5px; border-radius: 4px;
+      color: #fff; font-size: 10px; padding: 2px 5px; border-radius: 4px; z-index: 2;
+    }
+    .gallery-open-setting {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      border: 1.5px solid #f5b8c8;
+      background: rgba(255, 245, 248, 0.92);
+      color: #8a5a6e;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1.2;
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+    .gallery-open-setting:active {
+      transform: translate(-50%, -50%) scale(0.96);
     }
     .gallery-caption {
       font-size: 10px; color: #3a3a3c; padding: 4px 4px 6px; line-height: 1.3;
@@ -1661,8 +1695,20 @@
     }
     .sw-signal-settings summary {
       cursor: pointer; font-weight: 700; color: #e5e5ea; list-style: none;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
     }
     .sw-signal-settings summary::-webkit-details-marker { display: none; }
+    .sw-signal-settings summary::after {
+      content: '▼';
+      font-size: 11px;
+      color: #aeaeb2;
+      transition: transform 0.15s ease;
+      flex-shrink: 0;
+    }
+    .sw-signal-settings[open] summary::after {
+      content: '▲';
+      color: #e5e5ea;
+    }
     .sw-signal-settings label {
       display: flex; align-items: center; gap: 8px; margin: 8px 0 0; color: #aeaeb2;
     }
@@ -4489,28 +4535,22 @@
     }
     function buildHelpHomeHtml() {
       var h = '';
-      h += '<div class="help-hero"><h2>使い方ガイド</h2><p>説明を見たいアプリを選んでください。</p></div>';
+      h += '<div class="help-hero"><h2>使い方ガイド</h2></div>';
       h += '<div class="help-pick">';
       h += '<button type="button" class="help-pick-btn memory" onclick="showHelpPage(\'memory\')">' +
         '<div class="hp-title">📅 memory</div>' +
-        '<div class="hp-desc">セッティング記録・カレンダー・分析・会場マップ・バックアップ</div></button>';
+        '<div class="hp-desc">記録・分析</div></button>';
       h += '<button type="button" class="help-pick-btn analyzer" onclick="showHelpPage(\'analyzer\')">' +
-        '<div class="hp-title">🏎️ RPM Analyzer</div>' +
-        '<div class="hp-desc">マイクで回転数を測る・比較表・履歴・memory連携</div></button>';
+        '<div class="hp-title">🏎️ Analyzer</div>' +
+        '<div class="hp-desc">RPM計測</div></button>';
       h += '</div>';
-      h += '<div class="help-tools-title">よく使う操作</div>';
-      h += '<div class="help-tools">';
-      h += '<button type="button" class="help-tool" onclick="closeHelpGuide();toggleTheme()"><span>🌙</span>表示切替</button>';
-      h += '<button type="button" class="help-tool" onclick="closeHelpGuide();openDataTools()"><span>💾</span>データ管理</button>';
-      h += '<button type="button" class="help-tool" onclick="closeHelpGuide();openSearchView()"><span>🔍</span>検索</button>';
-      h += '</div>';
-      h += '<div class="help-tools-title" style="margin-top:18px;">その他</div>';
+      h += '<div class="help-ok" style="margin:0 0 14px;">測るのが Analyzer、残して分析するのが memory です。</div>';
+      h += '<div class="help-tools-title">その他</div>';
       h += '<div class="help-tools" style="grid-template-columns:1fr;">';
       h += '<button type="button" class="help-tool" style="flex-direction:row;justify-content:center;gap:8px;padding:14px 12px;" onclick="showHelpPage(\'about\')"><span>ℹ️</span> このサイトについて</button>';
       h += '<button type="button" class="help-tool" style="flex-direction:row;justify-content:center;gap:8px;padding:14px 12px;" onclick="showHelpPage(\'contact\')"><span>✉️</span> お問い合わせ</button>';
       h += '<button type="button" class="help-tool" style="flex-direction:row;justify-content:center;gap:8px;padding:14px 12px;" onclick="showHelpPage(\'legal\')"><span>📜</span> 利用規約・プライバシーポリシー</button>';
       h += '</div>';
-      h += '<div class="help-ok" style="margin-top:14px;">測るのが Analyzer、残して分析するのが memory です。</div>';
       return h;
     }
     function buildMemoryHelpHtml() {
@@ -5018,11 +5058,13 @@
         var caption = formatGalleryDate(it.date);
         if (it.place) caption += (caption ? ' · ' : '') + it.place;
         html += '<div class="gallery-item" data-gidx="' + gidx + '">' +
+          '<div class="gallery-thumb-wrap">' +
           (it.type === 'image'
             ? '<img src="' + it.dataUrl + '" alt="" loading="lazy">'
             : '<video src="' + it.dataUrl + '" muted playsinline></video><span class="vid-badge">動画</span>') +
-          (caption ? '<div class="gallery-caption">' + escapeHtml(caption) + '</div>' : '') +
           (it.eventId ? '<button type="button" class="gallery-open-setting" data-eid="' + escapeAttr(it.eventId) + '">セッティングを開く</button>' : '') +
+          '</div>' +
+          (caption ? '<div class="gallery-caption">' + escapeHtml(caption) + '</div>' : '') +
           '</div>';
       });
       html += '</div>';
@@ -7352,51 +7394,78 @@
       rpmStoreDel('memory_rpm_import_ts');
     }
 
+    var _rpmRestoreDone = false;
     function restoreModalAfterRpmReturn() {
       try {
-        var need = rpmStoreGet('memory_rpm_restore_modal') === '1' || !!rpmStoreGet('memory_form_draft');
-        if (!need) return;
-        rpmStoreDel('memory_rpm_restore_modal');
-        var editId = rpmStoreGet('memory_rpm_editing_id') || '';
-        rpmStoreDel('memory_rpm_editing_id');
+        if (_rpmRestoreDone) return;
+        var params = new URLSearchParams(location.search || '');
+        var urlBack = params.get('rpm_back') === '1' || params.get('from_rpm') === '1';
         var draftRaw = rpmStoreGet('memory_form_draft');
+        var flag = rpmStoreGet('memory_rpm_restore_modal') === '1';
+        if (!urlBack && !flag && !draftRaw) return;
+
+        var editId = rpmStoreGet('memory_rpm_editing_id') || '';
         var draft = null;
         try { draft = draftRaw ? JSON.parse(draftRaw) : null; } catch (e0) { draft = null; }
-        rpmStoreDel('memory_form_draft');
 
         var overlay = document.getElementById('modalOverlay');
-        var alreadyOpen = overlay && overlay.classList.contains('active');
+        if (!overlay) return; // DOM未準備なら後で再試行
 
+        var alreadyOpen = overlay.classList.contains('active');
         if (!alreadyOpen) {
-          if (editId && typeof openEditModal === 'function') {
-            try { openEditModal(editId); } catch (e1) {
-              if (typeof openAddModal === 'function') openAddModal();
+          try {
+            if (editId && typeof openEditModal === 'function') {
+              openEditModal(editId);
+            } else if (typeof openAddModal === 'function') {
+              openAddModal();
             }
-          } else if (typeof openAddModal === 'function') {
-            openAddModal();
+          } catch (e1) {
+            return; // 失敗したら下書きを消さず再試行に任せる
           }
         }
-        setTimeout(function() {
-          if (draft) applyFormDraft(draft);
+
+        // 成功したのでフラグだけ先に消す（下書きは適用後に消す）
+        rpmStoreDel('memory_rpm_restore_modal');
+        _rpmRestoreDone = true;
+
+        function finishApply() {
+          try {
+            if (draft) applyFormDraft(draft);
+          } catch (e2) {}
           try {
             var found = typeof readRpmFromStorage === 'function' ? readRpmFromStorage() : null;
             if (found && found.parsed && found.parsed.rpm) {
-              // セッションが切れていても、戻り直後は反映を許可
-              if (!isRpmImportSession()) {
-                beginRpmImportSession();
-              }
+              if (!isRpmImportSession()) beginRpmImportSession();
+              // restore 再入を避けるため一時的にフラグ
+              var prev = _rpmRestoreDone;
               applyRpmValue(found.parsed.rpm, found.parsed);
+              _rpmRestoreDone = prev;
             }
-          } catch (e2) {}
+          } catch (e3) {}
           try {
-            var params = new URLSearchParams(location.search);
             var rpmQ = params.get('import_max_rpm') || params.get('import_rpm');
             if (rpmQ) {
               if (!isRpmImportSession()) beginRpmImportSession();
               applyRpmValue(rpmQ, { rpm: Number(rpmQ), maxRpm: Number(rpmQ) });
             }
-          } catch (e3) {}
-        }, 80);
+          } catch (e4) {}
+          // 下書き削除・URL掃除
+          rpmStoreDel('memory_form_draft');
+          rpmStoreDel('memory_rpm_editing_id');
+          try {
+            if (params.has('rpm_back') || params.has('from_rpm') || params.has('import_rpm') || params.has('import_max_rpm')) {
+              params.delete('rpm_back');
+              params.delete('from_rpm');
+              params.delete('import_rpm');
+              params.delete('import_max_rpm');
+              params.delete('import_ts');
+              var clean = location.pathname + (params.toString() ? '?' + params.toString() : '') + (location.hash || '');
+              history.replaceState(null, '', clean);
+            }
+          } catch (e5) {}
+        }
+        setTimeout(finishApply, 50);
+        setTimeout(finishApply, 250);
       } catch (e) {}
     }
 
@@ -7442,7 +7511,6 @@
         }
       }
       setRpmLinkStatus('取り込み済 MAX: ' + rpm + ' rpm', true);
-      try { restoreModalAfterRpmReturn(); } catch (e) {}
       return true;
     }
 
@@ -7599,39 +7667,49 @@
 
     function openRpmAnalyzerForImport() {
       beginRpmImportSession();
-      // 入力中の内容を下書き保存（戻り後に復元）
+      // 入力中の内容を下書き保存（戻り後に復元）※Safariは別タブでsessionが切れるため localStorage
       try {
-        var modalOpen = document.getElementById('modalOverlay') &&
-          document.getElementById('modalOverlay').classList.contains('active');
-        rpmStoreSet('memory_rpm_restore_modal', modalOpen ? '1' : '0');
+        rpmStoreSet('memory_rpm_restore_modal', '1');
         rpmStoreSet('memory_rpm_editing_id', editingEventId ? String(editingEventId) : '');
-        // モーダルが開いていなくても、可能な範囲で下書きを残す
-        try {
-          rpmStoreSet('memory_form_draft', JSON.stringify(collectFormDraft()));
-        } catch (eDraft) {}
+        rpmStoreSet('memory_form_draft', JSON.stringify(collectFormDraft()));
       } catch (e) {}
+
+      // 戻り先URLに復元マーカーを付与
       var returnUrl = location.href.split('#')[0];
-      // 連携版: mini-4wd-rperm（from=memory で「memoryへ戻る」表示）
+      try {
+        var u = new URL(returnUrl, location.href);
+        u.searchParams.set('rpm_back', '1');
+        returnUrl = u.toString();
+      } catch (e2) {
+        returnUrl += (returnUrl.indexOf('?') >= 0 ? '&' : '?') + 'rpm_back=1';
+      }
+
       var base = RPM_ANALYZER_IMPORT_URL;
       var url = base +
         (base.indexOf('?') >= 0 ? '&' : '?') +
         'from=memory&callback=1&return=' + encodeURIComponent(returnUrl);
+
+      // Safari / iOS は別タブだと戻りが不安定なため、同一タブで開く
+      var ua = navigator.userAgent || '';
+      var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+      if (isIOS || isSafari) {
+        setRpmLinkStatus('計測後、Analyzerの「memoryへ戻る」で復帰します', false);
+        location.href = url;
+        return;
+      }
+
       try {
         rpmAnalyzerWin = window.open(url, 'memory_rpm_analyzer');
-      } catch (e) {
+      } catch (e3) {
         rpmAnalyzerWin = null;
       }
       if (!rpmAnalyzerWin) {
-        if (confirm('RPM Analyzer をこのタブで開きますか？\n計測後「memoryへ」で戻れます（連携版の場合）。')) {
-          location.href = url;
-        } else {
-          endRpmImportSession();
-          try { rpmStoreDel('memory_rpm_restore_modal'); rpmStoreDel('memory_form_draft'); } catch (e2) {}
-          setRpmLinkStatus('キャンセルしました', false);
-        }
+        setRpmLinkStatus('計測後、Analyzerの「memoryへ戻る」で復帰します', false);
+        location.href = url;
         return;
       }
-      setRpmLinkStatus('計測後、Analyzerの「memoryへ」で戻る', false);
+      setRpmLinkStatus('計測後、Analyzerの「memoryへ戻る」で復帰します', false);
     }
 
     // モーターチェック単独（memory には一切作用しない）
@@ -7681,8 +7759,7 @@
       }
     }
     // 起動時・表示時にチェック
-    try { consumeImportRpmFromUrl(); } catch (e) {}
-    try { restoreModalAfterRpmReturn(); } catch (e) {}
+    // 復元は init 後と pageshow で行う（下書きを早すぎるタイミングで消さない）
     window.addEventListener('pageshow', function() {
       try { consumeImportRpmFromUrl(); } catch (e) {}
       try { restoreModalAfterRpmReturn(); } catch (e2) {}
@@ -8905,9 +8982,15 @@
       populateTemplateSelect();
       switchView('month');
       refreshAdSlotVisibility();
-      // 別タブから戻った直後の復元（localStorage 下書き）
-      try { restoreModalAfterRpmReturn(); } catch (e) {}
-      try { consumeImportRpmFromUrl(); } catch (e2) {}
+      // Safari: ストレージ準備後に複数回リトライして登録画面を復元
+      function tryRestore(n) {
+        try { consumeImportRpmFromUrl(); } catch (e0) {}
+        try { restoreModalAfterRpmReturn(); } catch (e1) {}
+        if (n > 0 && !_rpmRestoreDone) {
+          setTimeout(function() { tryRestore(n - 1); }, 200);
+        }
+      }
+      tryRestore(5);
     });
 
     /* ピンチイン・アウト / ダブルタップズーム禁止 */
