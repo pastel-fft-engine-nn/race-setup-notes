@@ -925,138 +925,6 @@
     }
 
     .venues-view.active { display: block; }
-    .japan-map-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin: 0 auto 8px;
-      max-width: 480px;
-      flex-wrap: wrap;
-    }
-    .japan-map-toolbar button {
-      min-width: 40px;
-      height: 36px;
-      border-radius: 10px;
-      border: none;
-      background: #e5e5ea;
-      color: #1c1c1e;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-      padding: 0 12px;
-    }
-    .japan-map-toolbar button:active { transform: scale(0.94); }
-    body.dark-mode .japan-map-toolbar button { background: #2c2c2e; color: #f2f2f7; }
-    .japan-map-zoom-label {
-      font-size: 12px;
-      color: #8e8e93;
-      min-width: 48px;
-      text-align: center;
-    }
-    .japan-map-wrap {
-      position: relative;
-      width: 100%;
-      max-width: 480px;
-      margin: 0 auto 12px;
-      background:
-        radial-gradient(ellipse 40% 20% at 20% 15%, rgba(255,255,255,0.55), transparent 70%),
-        radial-gradient(ellipse 35% 18% at 80% 20%, rgba(255,255,255,0.4), transparent 70%),
-        linear-gradient(180deg, #9ad0ff 0%, #6eb6f0 40%, #5aa8e8 70%, #4a9ad9 100%);
-      border-radius: 18px;
-      border: 2px solid #7eb8e8;
-      overflow: hidden;
-      aspect-ratio: 3 / 3.4;
-      box-shadow: inset 0 -20px 40px rgba(255,255,255,0.15), 0 8px 20px rgba(74, 154, 217, 0.2);
-      touch-action: none;
-      cursor: grab;
-    }
-    .japan-map-wrap.panning { cursor: grabbing; }
-    .japan-map-scaler {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      transform-origin: 0 0;
-      will-change: transform;
-    }
-    body.dark-mode .japan-map-wrap {
-      background:
-        radial-gradient(ellipse 40% 20% at 20% 15%, rgba(255,255,255,0.08), transparent 70%),
-        linear-gradient(180deg, #1a2a3c 0%, #152030 100%);
-      border-color: #2c3a4a;
-      box-shadow: none;
-    }
-    .japan-map-svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-    .japan-map-img {
-      position: absolute;
-      inset: 2% 1% 1% 1%;
-      width: 98%;
-      height: 97%;
-      object-fit: contain;
-      object-position: center;
-      pointer-events: none;
-      z-index: 1;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
-    }
-    body.dark-mode .japan-map-img {
-      filter: invert(1) brightness(0.95) drop-shadow(0 0 3px rgba(0,0,0,0.35));
-    }
-    .japan-map-pin {
-      position: absolute;
-      width: 11px;
-      height: 11px;
-      margin-left: -5.5px;
-      margin-top: -11px;
-      border: none;
-      background: transparent;
-      padding: 0;
-      cursor: pointer;
-      z-index: 2;
-      transform-origin: bottom center;
-      opacity: 0.72;
-    }
-    .japan-map-pin:hover,
-    .japan-map-pin.selected {
-      opacity: 1;
-      z-index: 3;
-    }
-    .japan-map-pin span {
-      display: block;
-      width: 9px;
-      height: 9px;
-      margin: 0 auto;
-      border-radius: 50% 50% 50% 0;
-      background: #ff3b30;
-      transform: rotate(-45deg);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-      border: 1px solid #fff;
-    }
-    .japan-map-pin.selected span {
-      background: #6BAFD6;
-      width: 11px;
-      height: 11px;
-    }
-    .japan-map-pin.no-gps span { background: #8e8e93; opacity: 0.5; }
-    .japan-map-hint {
-      font-size: 12px;
-      color: #3a3a3c;
-      line-height: 1.55;
-      background: #fff8e6;
-      border: 1px solid #ffe0a3;
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin: 12px 0 8px;
-    }
-    body.dark-mode .japan-map-hint {
-      background: #3a2e14;
-      border-color: #5c4a1e;
-      color: #f2f2f7;
-    }
     .venue-selected-banner {
       font-size: 13px;
       font-weight: 600;
@@ -4837,7 +4705,7 @@
         '<ul>' +
         '<li><strong>🏠</strong> … 月ビュー（カレンダー）に戻る</li>' +
         '<li><strong>📊</strong> … 分析（完走率・台帳・大会・負け傾向）</li>' +
-        '<li><strong>🗺️</strong> … 会場マップ（GPSピン／ステーション一覧）</li>' +
+        '<li><strong>🗺️</strong> … 会場マップ（GPS会場／ステーション一覧）</li>' +
         '<li><strong>⏱️</strong> … ストップウォッチ（タイム計測）</li>' +
         '<li><strong>❓</strong> … 使い方・このサイトについて・お問い合わせ・規約</li>' +
         '</ul>' +
@@ -4907,7 +4775,7 @@
       h += sec('help-map', '🗺️', '会場マップ',
         '<p>2つのモードがあります。</p>' +
         '<ul>' +
-        '<li><strong>GPSピン地図</strong> … 自分の記録に付いた位置をピン表示。基準は品川シーサイド駅付近の位置合わせです</li>' +
+        '<li><strong>GPS会場</strong> … GPS付きの場所を地方→都道府県の順で選べます</li>' +
         '<li><strong>ステーション一覧</strong> … 内蔵の店舗リスト。都道府県やサーキット設置店で絞れます</li>' +
         '</ul>' +
         '<p style="margin-top:8px;">記録時に位置情報を許可すると、あとから「どこで走ったか」を地図で振り返れます。GPSが取れなかった記録はピンに出ません。</p>' +
@@ -5533,58 +5401,127 @@
 
     function filterEventsByPartsCombo(list) {
       var c = getPartsFilterValues();
-      return list.filter(function(ev) {
-        if (c.place && eventPlace(ev) !== c.place) return false;
-        if (c.motor && motorKey(ev) !== c.motor) return false;
-        if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
-        if (c.gear && eventGear(ev) !== c.gear) return false;
-        if (c.tire && eventTire(ev) !== c.tire) return false;
-        if (c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
-        if (c.eventType) {
-          var et = (ev.m4 && ev.m4.eventType) || '';
-          if (et !== c.eventType) return false;
+      return list.filter(function(ev) { return eventMatchesAnalysisFilter(ev, c); });
+    }
+
+
+
+    /** 分析タブ共通: フィールド抽出 */
+    function analysisFilterGetter(key) {
+      if (key === 'place') return eventPlace;
+      if (key === 'motor') return motorKey;
+      if (key === 'voltage') return eventVoltage;
+      if (key === 'gear') return eventGear;
+      if (key === 'tire') return eventTire;
+      if (key === 'lapTime') return eventLapTime;
+      if (key === 'name') return function(ev) { return (ev.m4 && ev.m4.raceName) || ''; };
+      if (key === 'round') return function(ev) { return (ev.m4 && ev.m4.round) || ''; };
+      if (key === 'eventType') return function(ev) { return (ev.m4 && ev.m4.eventType) || ''; };
+      return function() { return ''; };
+    }
+
+    /** 分析タブ共通: 条件一致（except キーは無視） */
+    function eventMatchesAnalysisFilter(ev, c, except) {
+      if (!c) return true;
+      for (var key in c) {
+        if (!Object.prototype.hasOwnProperty.call(c, key)) continue;
+        if (!c[key]) continue;
+        if (except && key === except) continue;
+        var fn = analysisFilterGetter(key);
+        if (fn(ev) !== c[key]) return false;
+      }
+      return true;
+    }
+
+    function analysisFilterUniq(list, fn) {
+      var m = {};
+      list.forEach(function(ev) {
+        var v = fn(ev);
+        if (v) m[v] = true;
+      });
+      return Object.keys(m);
+    }
+
+    /**
+     * 台帳 / 大会 / 負け のプルダウン候補を共通処理で埋める
+     * fields: { key, id, allLabel, sortFn? }[]
+     * options.skipSelectKeys: fillAnalysisSelect しないキー（固定optionの select など）
+     */
+    function populateAnalysisFilters(kind) {
+      var base;
+      var c;
+      var fields;
+      var skipSelect = {};
+
+      if (kind === 'parts') {
+        base = getEvents().filter(function(ev) { return ev.m4 && ev.m4.motorType; });
+        c = getPartsFilterValues();
+        fields = [
+          { key: 'place', id: 'partsPlace', allLabel: 'すべての場所' },
+          { key: 'motor', id: 'partsMotor', allLabel: 'すべてのモーター' },
+          { key: 'voltage', id: 'partsVoltage', allLabel: 'すべて' },
+          { key: 'gear', id: 'partsGear', allLabel: 'すべて' },
+          { key: 'tire', id: 'partsTire', allLabel: 'すべて' },
+          { key: 'lapTime', id: 'partsLapTime', allLabel: 'すべてのタイム', sortFn: lapTimeSort },
+          { key: 'eventType', id: 'partsEventType' }
+        ];
+        skipSelect.eventType = true;
+      } else if (kind === 'loss') {
+        base = getResultedEvents();
+        c = getLossFilterValues();
+        fields = [
+          { key: 'place', id: 'lossPlace', allLabel: 'すべての場所' },
+          { key: 'motor', id: 'lossMotor', allLabel: 'すべてのモーター' },
+          { key: 'voltage', id: 'lossVoltage', allLabel: 'すべて' },
+          { key: 'gear', id: 'lossGear', allLabel: 'すべて' },
+          { key: 'tire', id: 'lossTire', allLabel: 'すべて' },
+          { key: 'lapTime', id: 'lossLapTime', allLabel: 'すべてのタイム', sortFn: lapTimeSort },
+          { key: 'eventType', id: 'lossEventType' }
+        ];
+        skipSelect.eventType = true;
+      } else if (kind === 'race') {
+        base = getRaceEvents();
+        c = getRaceFilterValues();
+        fields = [
+          { key: 'place', id: 'racePlace', allLabel: 'すべての場所' },
+          { key: 'name', id: 'raceName', allLabel: 'すべての大会名' },
+          { key: 'motor', id: 'raceMotor', allLabel: 'すべてのモーター' },
+          { key: 'round', id: 'raceRound', allLabel: 'すべてのラウンド' },
+          { key: 'voltage', id: 'raceVoltage', allLabel: 'すべて' },
+          { key: 'gear', id: 'raceGear', allLabel: 'すべて' },
+          { key: 'tire', id: 'raceTire', allLabel: 'すべて' },
+          { key: 'lapTime', id: 'raceLapTime', allLabel: 'すべてのタイム', sortFn: lapTimeSort }
+        ];
+      } else {
+        return;
+      }
+
+      function pool(except) {
+        return base.filter(function(ev) {
+          return eventMatchesAnalysisFilter(ev, c, except);
+        });
+      }
+
+      fields.forEach(function(f) {
+        if (skipSelect[f.key]) {
+          var etSel = document.getElementById(f.id);
+          if (etSel && c[f.key]) etSel.value = c[f.key];
+          return;
         }
-        return true;
+        var getter = analysisFilterGetter(f.key);
+        fillAnalysisSelect(
+          document.getElementById(f.id),
+          analysisFilterUniq(pool(f.key), getter),
+          f.allLabel,
+          c[f.key],
+          f.sortFn
+        );
       });
     }
 
-    function populatePartsFilters() {
-      var base = getEvents().filter(function(ev) {
-        return ev.m4 && ev.m4.motorType;
-      });
-      var c = getPartsFilterValues();
-      function pool(except) {
-        return base.filter(function(ev) {
-          if (except !== 'place' && c.place && eventPlace(ev) !== c.place) return false;
-          if (except !== 'motor' && c.motor && motorKey(ev) !== c.motor) return false;
-          if (except !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
-          if (except !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
-          if (except !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
-          if (except !== 'lapTime' && c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
-          if (except !== 'eventType' && c.eventType) {
-            var et = (ev.m4 && ev.m4.eventType) || '';
-            if (et !== c.eventType) return false;
-          }
-          return true;
-        });
-      }
-      function uniq(list, fn) {
-        var m = {};
-        list.forEach(function(ev) {
-          var v = fn(ev);
-          if (v) m[v] = true;
-        });
-        return Object.keys(m);
-      }
-      fillAnalysisSelect(document.getElementById('partsPlace'), uniq(pool('place'), eventPlace), 'すべての場所', c.place);
-      fillAnalysisSelect(document.getElementById('partsMotor'), uniq(pool('motor'), motorKey), 'すべてのモーター', c.motor);
-      fillAnalysisSelect(document.getElementById('partsVoltage'), uniq(pool('voltage'), eventVoltage), 'すべて', c.voltage);
-      fillAnalysisSelect(document.getElementById('partsGear'), uniq(pool('gear'), eventGear), 'すべて', c.gear);
-      fillAnalysisSelect(document.getElementById('partsTire'), uniq(pool('tire'), eventTire), 'すべて', c.tire);
-      fillAnalysisSelect(document.getElementById('partsLapTime'), uniq(pool('lapTime'), eventLapTime), 'すべてのタイム', c.lapTime, lapTimeSort);
-      var etSel = document.getElementById('partsEventType');
-      if (etSel && c.eventType) etSel.value = c.eventType;
-    }
+    function populatePartsFilters() { populateAnalysisFilters('parts'); }
+    function populateLossFilters() { populateAnalysisFilters('loss'); }
+    function populateRaceFilters() { populateAnalysisFilters('race'); }
 
     function onPartsFilterChange() {
       populatePartsFilters();
@@ -5676,56 +5613,9 @@
 
     function filterEventsByLossCombo(list) {
       var c = getLossFilterValues();
-      return list.filter(function(ev) {
-        if (c.place && eventPlace(ev) !== c.place) return false;
-        if (c.motor && motorKey(ev) !== c.motor) return false;
-        if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
-        if (c.gear && eventGear(ev) !== c.gear) return false;
-        if (c.tire && eventTire(ev) !== c.tire) return false;
-        if (c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
-        if (c.eventType) {
-          var et = (ev.m4 && ev.m4.eventType) || '';
-          if (et !== c.eventType) return false;
-        }
-        return true;
-      });
+      return list.filter(function(ev) { return eventMatchesAnalysisFilter(ev, c); });
     }
 
-    function populateLossFilters() {
-      var base = getResultedEvents();
-      var c = getLossFilterValues();
-      function pool(except) {
-        return base.filter(function(ev) {
-          if (except !== 'place' && c.place && eventPlace(ev) !== c.place) return false;
-          if (except !== 'motor' && c.motor && motorKey(ev) !== c.motor) return false;
-          if (except !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
-          if (except !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
-          if (except !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
-          if (except !== 'lapTime' && c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
-          if (except !== 'eventType' && c.eventType) {
-            var et = (ev.m4 && ev.m4.eventType) || '';
-            if (et !== c.eventType) return false;
-          }
-          return true;
-        });
-      }
-      function uniq(list, fn) {
-        var m = {};
-        list.forEach(function(ev) {
-          var v = fn(ev);
-          if (v) m[v] = true;
-        });
-        return Object.keys(m);
-      }
-      fillAnalysisSelect(document.getElementById('lossPlace'), uniq(pool('place'), eventPlace), 'すべての場所', c.place);
-      fillAnalysisSelect(document.getElementById('lossMotor'), uniq(pool('motor'), motorKey), 'すべてのモーター', c.motor);
-      fillAnalysisSelect(document.getElementById('lossVoltage'), uniq(pool('voltage'), eventVoltage), 'すべて', c.voltage);
-      fillAnalysisSelect(document.getElementById('lossGear'), uniq(pool('gear'), eventGear), 'すべて', c.gear);
-      fillAnalysisSelect(document.getElementById('lossTire'), uniq(pool('tire'), eventTire), 'すべて', c.tire);
-      fillAnalysisSelect(document.getElementById('lossLapTime'), uniq(pool('lapTime'), eventLapTime), 'すべてのタイム', c.lapTime, lapTimeSort);
-      var etSel = document.getElementById('lossEventType');
-      if (etSel && c.eventType) etSel.value = c.eventType;
-    }
 
     function onLossFilterChange() {
       populateLossFilters();
@@ -5761,52 +5651,9 @@
 
     function filterEventsByRaceCombo(list) {
       var c = getRaceFilterValues();
-      return list.filter(function(ev) {
-        if (c.place && eventPlace(ev) !== c.place) return false;
-        if (c.name && ((ev.m4 && ev.m4.raceName) || '') !== c.name) return false;
-        if (c.motor && motorKey(ev) !== c.motor) return false;
-        if (c.round && ((ev.m4 && ev.m4.round) || '') !== c.round) return false;
-        if (c.voltage && eventVoltage(ev) !== c.voltage) return false;
-        if (c.gear && eventGear(ev) !== c.gear) return false;
-        if (c.tire && eventTire(ev) !== c.tire) return false;
-        if (c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
-        return true;
-      });
+      return list.filter(function(ev) { return eventMatchesAnalysisFilter(ev, c); });
     }
 
-    function populateRaceFilters() {
-      var base = getRaceEvents();
-      var c = getRaceFilterValues();
-      function pool(except) {
-        return base.filter(function(ev) {
-          if (except !== 'place' && c.place && eventPlace(ev) !== c.place) return false;
-          if (except !== 'name' && c.name && ((ev.m4 && ev.m4.raceName) || '') !== c.name) return false;
-          if (except !== 'motor' && c.motor && motorKey(ev) !== c.motor) return false;
-          if (except !== 'round' && c.round && ((ev.m4 && ev.m4.round) || '') !== c.round) return false;
-          if (except !== 'voltage' && c.voltage && eventVoltage(ev) !== c.voltage) return false;
-          if (except !== 'gear' && c.gear && eventGear(ev) !== c.gear) return false;
-          if (except !== 'tire' && c.tire && eventTire(ev) !== c.tire) return false;
-          if (except !== 'lapTime' && c.lapTime && eventLapTime(ev) !== c.lapTime) return false;
-          return true;
-        });
-      }
-      function uniq(list, fn) {
-        var m = {};
-        list.forEach(function(ev) {
-          var v = fn(ev);
-          if (v) m[v] = true;
-        });
-        return Object.keys(m);
-      }
-      fillAnalysisSelect(document.getElementById('racePlace'), uniq(pool('place'), eventPlace), 'すべての場所', c.place);
-      fillAnalysisSelect(document.getElementById('raceName'), uniq(pool('name'), function(ev) { return (ev.m4 && ev.m4.raceName) || ''; }), 'すべての大会名', c.name);
-      fillAnalysisSelect(document.getElementById('raceMotor'), uniq(pool('motor'), motorKey), 'すべてのモーター', c.motor);
-      fillAnalysisSelect(document.getElementById('raceRound'), uniq(pool('round'), function(ev) { return (ev.m4 && ev.m4.round) || ''; }), 'すべてのラウンド', c.round);
-      fillAnalysisSelect(document.getElementById('raceVoltage'), uniq(pool('voltage'), eventVoltage), 'すべて', c.voltage);
-      fillAnalysisSelect(document.getElementById('raceGear'), uniq(pool('gear'), eventGear), 'すべて', c.gear);
-      fillAnalysisSelect(document.getElementById('raceTire'), uniq(pool('tire'), eventTire), 'すべて', c.tire);
-      fillAnalysisSelect(document.getElementById('raceLapTime'), uniq(pool('lapTime'), eventLapTime), 'すべてのタイム', c.lapTime, lapTimeSort);
-    }
 
     function onRaceFilterChange() {
       populateRaceFilters();
@@ -6614,182 +6461,11 @@
       }
     }
 
-    var JAPAN_MAP_DATA_URL = ''; // 地図画像は地方ボタンUIに置換済み
 
     var selectedVenuePlace = null;
-    var japanMapZoom = 1;
-    var japanMapPanX = 0;
-    var japanMapPanY = 0;
-    var JAPAN_MAP_ZOOM_MIN = 1;
-    var JAPAN_MAP_ZOOM_MAX = 8;
-
-    function applyJapanMapTransform() {
-      var scaler = document.getElementById('japanMapScaler');
-      var wrap = document.getElementById('japanMapWrap');
-      var label = document.getElementById('japanMapZoomLabel');
-      if (scaler) {
-        scaler.style.transform = 'translate(' + japanMapPanX + 'px,' + japanMapPanY + 'px) scale(' + japanMapZoom + ')';
-      }
-      if (label) label.textContent = Math.round(japanMapZoom * 100) + '%';
-      if (wrap) wrap.style.cursor = japanMapZoom > 1 ? 'grab' : 'default';
-    }
-
-    function japanMapZoomBy(delta, centerX, centerY) {
-      var wrap = document.getElementById('japanMapWrap');
-      if (!wrap) return;
-      var rect = wrap.getBoundingClientRect();
-      var cx = centerX != null ? centerX : rect.width / 2;
-      var cy = centerY != null ? centerY : rect.height / 2;
-      // 画面上の点を固定してズーム
-      var worldX = (cx - japanMapPanX) / japanMapZoom;
-      var worldY = (cy - japanMapPanY) / japanMapZoom;
-      var next = Math.max(JAPAN_MAP_ZOOM_MIN, Math.min(JAPAN_MAP_ZOOM_MAX, japanMapZoom + delta));
-      if (Math.abs(next - japanMapZoom) < 0.001) return;
-      japanMapZoom = next;
-      japanMapPanX = cx - worldX * japanMapZoom;
-      japanMapPanY = cy - worldY * japanMapZoom;
-      clampJapanMapPan();
-      applyJapanMapTransform();
-    }
-
-    function japanMapZoomIn() { japanMapZoomBy(0.5); }
-    function japanMapZoomOut() { japanMapZoomBy(-0.5); }
-    function japanMapZoomReset() {
-      japanMapZoom = 1;
-      japanMapPanX = 0;
-      japanMapPanY = 0;
-      applyJapanMapTransform();
-    }
-
-    function clampJapanMapPan() {
-      var wrap = document.getElementById('japanMapWrap');
-      if (!wrap) return;
-      var w = wrap.clientWidth;
-      var h = wrap.clientHeight;
-      // 拡大時に余白が出すぎないよう制限
-      var minX = w - w * japanMapZoom;
-      var minY = h - h * japanMapZoom;
-      var maxX = 0;
-      var maxY = 0;
-      if (japanMapZoom <= 1) {
-        japanMapPanX = 0;
-        japanMapPanY = 0;
-        return;
-      }
-      japanMapPanX = Math.min(maxX, Math.max(minX, japanMapPanX));
-      japanMapPanY = Math.min(maxY, Math.max(minY, japanMapPanY));
-    }
-
-    function bindJapanMapInteractions() {
-      var wrap = document.getElementById('japanMapWrap');
-      if (!wrap || wrap.getAttribute('data-bound') === '1') return;
-      wrap.setAttribute('data-bound', '1');
-      var dragging = false;
-      var lastX = 0, lastY = 0;
-      var moved = false;
-
-      wrap.addEventListener('pointerdown', function(e) {
-        if (japanMapZoom <= 1) return;
-        if (e.target.closest && e.target.closest('.japan-map-pin')) return;
-        dragging = true;
-        moved = false;
-        lastX = e.clientX;
-        lastY = e.clientY;
-        try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
-        wrap.classList.add('panning');
-      });
-      wrap.addEventListener('pointermove', function(e) {
-        if (!dragging) return;
-        var dx = e.clientX - lastX;
-        var dy = e.clientY - lastY;
-        if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
-        lastX = e.clientX;
-        lastY = e.clientY;
-        japanMapPanX += dx;
-        japanMapPanY += dy;
-        clampJapanMapPan();
-        applyJapanMapTransform();
-      });
-      function endDrag(e) {
-        if (!dragging) return;
-        dragging = false;
-        wrap.classList.remove('panning');
-        try { wrap.releasePointerCapture(e.pointerId); } catch (err) {}
-      }
-      wrap.addEventListener('pointerup', endDrag);
-      wrap.addEventListener('pointercancel', endDrag);
-
-      // ピンチズーム
-      var lastDist = 0;
-      wrap.addEventListener('touchstart', function(e) {
-        if (e.touches.length === 2) {
-          var dx = e.touches[0].clientX - e.touches[1].clientX;
-          var dy = e.touches[0].clientY - e.touches[1].clientY;
-          lastDist = Math.sqrt(dx * dx + dy * dy);
-        }
-      }, { passive: true });
-      wrap.addEventListener('touchmove', function(e) {
-        if (e.touches.length === 2) {
-          e.preventDefault();
-          var dx = e.touches[0].clientX - e.touches[1].clientX;
-          var dy = e.touches[0].clientY - e.touches[1].clientY;
-          var dist = Math.sqrt(dx * dx + dy * dy);
-          if (lastDist > 0) {
-            var rect = wrap.getBoundingClientRect();
-            var cx = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
-            var cy = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
-            var factor = dist / lastDist;
-            var worldX = (cx - japanMapPanX) / japanMapZoom;
-            var worldY = (cy - japanMapPanY) / japanMapZoom;
-            japanMapZoom = Math.max(JAPAN_MAP_ZOOM_MIN, Math.min(JAPAN_MAP_ZOOM_MAX, japanMapZoom * factor));
-            japanMapPanX = cx - worldX * japanMapZoom;
-            japanMapPanY = cy - worldY * japanMapZoom;
-            clampJapanMapPan();
-            applyJapanMapTransform();
-          }
-          lastDist = dist;
-        }
-      }, { passive: false });
-      wrap.addEventListener('touchend', function() { lastDist = 0; });
-
-      // ダブルクリックで拡大
-      var lastTap = 0;
-      wrap.addEventListener('click', function(e) {
-        if (moved) return;
-        var now = Date.now();
-        if (now - lastTap < 280) {
-          var rect = wrap.getBoundingClientRect();
-          japanMapZoomBy(japanMapZoom < 2 ? 1 : -1, e.clientX - rect.left, e.clientY - rect.top);
-        }
-        lastTap = now;
-      });
-    }
-
-    window.japanMapZoomIn = japanMapZoomIn;
-    window.japanMapZoomOut = japanMapZoomOut;
-    window.japanMapZoomReset = japanMapZoomReset;
-
-
-    // 日本地図上の位置（3点アフィン校正・画像上の色丸実測）
-    // 黄: 品川シーサイド駅 (35.609785, 139.749645)
-    // 青: マイドーム大阪   (34.685257, 135.511291)
-    // 緑: シャトレーゼガトーキングダムサッポロ (43.171448, 141.355769)
-    function japanMapPercent(lat, lng) {
-      lat = Number(lat);
-      lng = Number(lng);
-      if (isNaN(lat) || isNaN(lng)) return { left: 50, top: 50 };
-      var left = 3.824240924097 * lng + 0.40977816414622 * lat + -486.24094737264;
-      var top  = 0.58180131648699 * lng + -6.4509361411205 * lat + 218.27898967284;
-      left = Math.max(1, Math.min(99, left));
-      top = Math.max(1, Math.min(99, top));
-      return { left: left, top: top };
-    }
 
     function selectVenueOnMap(place) {
       selectedVenuePlace = place || null;
-      document.querySelectorAll('.japan-map-pin').forEach(function(pin) {
-        pin.classList.toggle('selected', pin.getAttribute('data-place') === selectedVenuePlace);
-      });
       document.querySelectorAll('.venue-card').forEach(function(card) {
         var on = card.getAttribute('data-place') === selectedVenuePlace;
         card.style.outline = on ? '2px solid #6BAFD6' : '';
