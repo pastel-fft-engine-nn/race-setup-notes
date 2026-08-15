@@ -1248,6 +1248,32 @@
       flex: 0 0 40px; text-align: right; font-size: 14px; font-weight: 600;
       color: #6BAFD6; font-variant-numeric: tabular-nums;
     }
+
+    /* 引っ張って更新 */
+    .ptr-indicator {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 500;
+      pointer-events: none;
+      transition: none;
+    }
+    .ptr-indicator .ptr-inner {
+      padding: 8px 0 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #8e8e93;
+      text-align: center;
+      width: 100%;
+    }
+    body.dark-mode .ptr-indicator .ptr-inner { color: #aeaeb2; }
+    .ptr-indicator.ptr-ready .ptr-inner { color: #6BAFD6; }
+    .ptr-indicator.ptr-refreshing .ptr-inner { color: #6BAFD6; }
+
     .rpm-link {
       flex: 1; text-align: right; font-size: 14px; font-weight: 600;
       color: #6BAFD6; text-decoration: none;
@@ -1719,6 +1745,7 @@
   </style>
 </head>
 <body>
+  <div class="ptr-indicator" id="ptrIndicator" aria-hidden="true"><div class="ptr-inner" id="ptrInner">引っ張って更新</div></div>
   <div class="app-header">
     <div class="header-title-bar">
       <div class="header-title">memory</div>
@@ -3775,25 +3802,8 @@
     var _funToastLastKey = '';
 
     function showFunToast(msg, key) {
-      if (!msg) return;
-      key = key || msg;
-      // 同じ文言を連発しない（短時間）
-      if (key === _funToastLastKey && _funToastTimer) return;
-      _funToastLastKey = key;
-      var el = document.getElementById('funToast');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = 'funToast';
-        el.className = 'fun-toast';
-        document.body.appendChild(el);
-      }
-      el.textContent = msg;
-      el.classList.add('show');
-      if (_funToastTimer) clearTimeout(_funToastTimer);
-      _funToastTimer = setTimeout(function() {
-        el.classList.remove('show');
-        _funToastTimer = null;
-      }, 300 + Math.floor(Math.random() * 2201));
+      // 一時お知らせトーストは出さない（削除）
+      return;
     }
 
     function getMonthYm() {
@@ -3859,11 +3869,8 @@
     }
 
     function maybeShowFunToast(reason) {
-      try {
-        var s = buildFunStats();
-        if (!s.msg) return;
-        showFunToast(s.msg, reason || s.msg);
-      } catch (e) {}
+      // 一時お知らせトーストは出さない（削除）
+      return;
     }
 
 
@@ -4142,8 +4149,9 @@
     ];
     var _celebrateTimer = null;
     function showFinishCelebration(m4) {
+      // 完走祝福トーストは出さない（削除）
+      return;
       if (!m4 || m4.result !== '完走') return;
-      // 大会での完走を優先（練習完走は控えめに出してもよいが、要望どおり大会中心）
       if (m4.eventType && m4.eventType !== '大会') return;
       var list = FINISH_CELEBRATE_COMMENTS;
       var pick = list[Math.floor(Math.random() * list.length)];
@@ -4252,7 +4260,6 @@
             runSearch();
           }
           try { showFinishCelebration(m4); } catch (e) {}
-        try { setTimeout(function() { maybeShowFunToast('save'); }, 400); } catch (e2) {}
           return true;
         }
         closeModal();
@@ -4266,7 +4273,6 @@
           renderDay();
         }
         try { showFinishCelebration(m4); } catch (e) {}
-        try { setTimeout(function() { maybeShowFunToast('save'); }, 400); } catch (e2) {}
         return true;
       });
     }
@@ -7572,10 +7578,14 @@
     function toggleTheme() {
       applyTheme(!document.body.classList.contains('dark-mode'));
     }
-    // 初期テーマ
+    // 初期テーマ: ダークをデフォルト（明示的に '0' のときだけライト）
     try {
-      if (localStorage.getItem('schedule_darkMode') === '1') applyTheme(true);
-    } catch (e) {}
+      var savedTheme = localStorage.getItem('schedule_darkMode');
+      if (savedTheme === '0') applyTheme(false);
+      else applyTheme(true);
+    } catch (e) {
+      applyTheme(true);
+    }
 
     var m4EventTypeEl = document.getElementById('m4EventType');
     if (m4EventTypeEl) {
@@ -7953,12 +7963,12 @@
         (base.indexOf('?') >= 0 ? '&' : '?') +
         'from=memory&callback=1&return=' + encodeURIComponent(returnUrl);
 
-      // Safari / iOS は別タブだと戻りが不安定なため、同一タブで開く
+      // Safari / iOS / ホーム画面追加は別タブが不安定・禁止されやすい → 同一画面で開く
+      setRpmLinkStatus('計測後、Analyzerの「memoryへ戻る」で復帰します', false);
       var ua = navigator.userAgent || '';
       var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-      if (isIOS || isSafari) {
-        setRpmLinkStatus('計測後、Analyzerの「memoryへ戻る」で復帰します', false);
+      if (isStandalonePwa() || isIOS || isSafari) {
         location.href = url;
         return;
       }
@@ -7969,23 +7979,44 @@
         rpmAnalyzerWin = null;
       }
       if (!rpmAnalyzerWin) {
-        setRpmLinkStatus('計測後、Analyzerの「memoryへ戻る」で復帰します', false);
         location.href = url;
         return;
       }
-      setRpmLinkStatus('計測後、Analyzerの「memoryへ戻る」で復帰します', false);
+    }
+
+    function isStandalonePwa() {
+      try {
+        if (window.navigator && window.navigator.standalone === true) return true;
+        if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+        if (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) return true;
+      } catch (e) {}
+      return false;
+    }
+
+    function openExternalUrl(url, preferNewTab) {
+      if (!url) return;
+      var ua = navigator.userAgent || '';
+      var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+      // ホーム画面追加・iOS/Safari は window.open が失敗しやすい → 同一画面で遷移
+      if (isStandalonePwa() || isIOS || isSafari || !preferNewTab) {
+        location.href = url;
+        return;
+      }
+      try {
+        var w = window.open(url, '_blank');
+        if (!w) location.href = url;
+      } catch (e) {
+        location.href = url;
+      }
     }
 
     // モーターチェック単独（memory には一切作用しない）
     function openMotorCheckSolo() {
       endRpmImportSession();
       var url = RPM_ANALYZER_SOLO_URL;
-      try {
-        window.open(url, '_blank');
-      } catch (e) {
-        location.href = url;
-      }
       setRpmLinkStatus('モーターチェック単独（memory未連携）', false);
+      openExternalUrl(url, true);
     }
 
     // 互換用（旧呼び出しは取り込み用）
@@ -9351,8 +9382,141 @@
         }
       }
       tryRestore(5);
-      setTimeout(function() { maybeShowFunToast('boot'); }, 600);
     });
+
+
+    /* ===== 引っ張って更新（ホーム画面追加でもリロード可能） ===== */
+    (function initPullToRefresh() {
+      var indicator = document.getElementById('ptrIndicator');
+      var inner = document.getElementById('ptrInner');
+      if (!indicator || !inner) return;
+
+      var startY = 0;
+      var pulling = false;
+      var armed = false;
+      var refreshing = false;
+      var pullDist = 0;
+      var THRESHOLD = 72;
+      var MAX_PULL = 120;
+
+      function isModalBlocking() {
+        var ids = ['modalOverlay', 'detailOverlay', 'compareOverlay', 'helpOverlay', 'stopwatchOverlay', 'swSignalFs', 'cameraOverlay', 'galleryOverlay', 'analysisOverlay', 'dataToolsOverlay', 'venuesOverlay'];
+        for (var i = 0; i < ids.length; i++) {
+          var el = document.getElementById(ids[i]);
+          if (!el) continue;
+          if (el.classList.contains('active') || el.classList.contains('open') || (el.style && el.style.display === 'flex')) return true;
+          var st = window.getComputedStyle(el);
+          if (st && st.display !== 'none' && st.visibility !== 'hidden' && (el.classList.contains('active') || el.getAttribute('aria-hidden') === 'false')) return true;
+        }
+        // 汎用: 画面を覆う fixed overlay
+        try {
+          var nodes = document.querySelectorAll('.modal-overlay, .stopwatch-overlay, .sw-signal-fs, .help-overlay');
+          for (var j = 0; j < nodes.length; j++) {
+            if (nodes[j].classList.contains('active')) return true;
+          }
+        } catch (e) {}
+        return false;
+      }
+
+      function canPull() {
+        if (refreshing) return false;
+        if (isModalBlocking()) return false;
+        var y = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        return y <= 0;
+      }
+
+      function setPullUI(dist, ready) {
+        pullDist = dist;
+        indicator.style.height = Math.max(0, dist) + 'px';
+        indicator.classList.toggle('ptr-ready', !!ready);
+        indicator.classList.toggle('ptr-refreshing', false);
+        if (dist <= 0) {
+          inner.textContent = '引っ張って更新';
+        } else if (ready) {
+          inner.textContent = '指を離すと更新';
+        } else {
+          inner.textContent = '引っ張って更新';
+        }
+      }
+
+      function doRefresh() {
+        refreshing = true;
+        indicator.classList.add('ptr-refreshing');
+        indicator.classList.remove('ptr-ready');
+        indicator.style.height = '56px';
+        inner.textContent = '更新中…';
+        try {
+          sessionStorage.setItem('memory_ptr_reload', '1');
+        } catch (e) {}
+        setTimeout(function() {
+          location.reload();
+        }, 180);
+      }
+
+      document.addEventListener('touchstart', function(e) {
+        if (!e.touches || e.touches.length !== 1) return;
+        if (!canPull()) {
+          pulling = false;
+          armed = false;
+          return;
+        }
+        // 入力中は無効
+        var t = e.target;
+        if (t && t.closest && t.closest('input, textarea, select, [contenteditable="true"], button, a')) {
+          // ボタン上でもトップなら許可したいが、誤爆防止でフォーム系だけ除外
+          if (t.closest('input, textarea, select, [contenteditable="true"]')) {
+            pulling = false;
+            return;
+          }
+        }
+        startY = e.touches[0].clientY;
+        pulling = true;
+        armed = false;
+        pullDist = 0;
+      }, { passive: true });
+
+      document.addEventListener('touchmove', function(e) {
+        if (!pulling || refreshing) return;
+        if (!e.touches || e.touches.length !== 1) return;
+        if (!canPull() && pullDist <= 0) {
+          pulling = false;
+          setPullUI(0, false);
+          return;
+        }
+        var y = e.touches[0].clientY;
+        var dy = y - startY;
+        if (dy < 0) {
+          setPullUI(0, false);
+          armed = false;
+          return;
+        }
+        // 抵抗をかけて伸ばす
+        var dist = Math.min(MAX_PULL, dy * 0.45);
+        armed = dist >= THRESHOLD;
+        setPullUI(dist, armed);
+        if (dist > 8 && e.cancelable) {
+          try { e.preventDefault(); } catch (err) {}
+        }
+      }, { passive: false });
+
+      document.addEventListener('touchend', function() {
+        if (!pulling) return;
+        pulling = false;
+        if (armed && !refreshing) {
+          doRefresh();
+        } else {
+          setPullUI(0, false);
+        }
+        armed = false;
+      });
+
+      document.addEventListener('touchcancel', function() {
+        pulling = false;
+        armed = false;
+        if (!refreshing) setPullUI(0, false);
+      });
+    })();
+
 
     /* ピンチイン・アウト / ダブルタップズーム禁止 */
     document.addEventListener('touchmove', function(e) {
