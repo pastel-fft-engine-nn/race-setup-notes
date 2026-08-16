@@ -132,9 +132,10 @@
       border-bottom: none;
     }
     .header-title {
-      font-size: 14px; font-weight: 700; flex-shrink: 0;
-      color: #d4a8b8; letter-spacing: 0.03em;
-      line-height: 1.2;
+      font-size: 11px; font-weight: 650; flex-shrink: 0;
+      color: #9aa3b2; letter-spacing: 0.28em;
+      line-height: 1.2; text-transform: lowercase;
+      font-family: ui-sans-serif, -apple-system, "Helvetica Neue", "Hiragino Sans", sans-serif;
     }
 
     /* ヘッダーアイコン・矢印に枠線を付けない */
@@ -196,7 +197,7 @@
     .day-number {
       font-size: 13px; font-weight: 400; width: 24px; height: 24px;
       display: flex; align-items: center; justify-content: center; border-radius: 50%; line-height: 1; flex-shrink: 0;
-    }
+    font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace; font-variant-numeric: tabular-nums; }
     .day-cell.other-month .day-number { color: #c7c7cc; }
     .day-cell.sunday .day-number { color: #ff3b30; }
     .day-cell.saturday .day-number { color: #6BAFD6; }
@@ -235,9 +236,9 @@
       margin-left: auto; font-size: 12px; font-weight: 500; color: #8e8e93;
     }
     /* カード左の結果バー */
-    .event-card.result-finish { border-left: 4px solid #34c759; }
-    .event-card.result-out { border-left: 4px solid #ff3b30; }
-    .event-card.result-none { border-left: 4px solid transparent; }
+    .event-card.result-finish { border-left: 7px solid #34c759; }
+    .event-card.result-out { border-left: 7px solid #ff3b30; }
+    .event-card.result-none { border-left: 7px solid transparent; }
     /* 月ビュー：カレンダー＋選択日の予定 */
     .month-view.active {
       display: flex; flex-direction: column; min-height: calc(100vh - 0px);
@@ -1816,9 +1817,229 @@
       border-bottom-color: #3a3a3c !important;
     }
 
+
+    /* 検索の利便性 */
+    .search-view.active .search-freeword-item {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(242, 242, 247, 0.96);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 8px 0 10px;
+      margin-bottom: 4px;
+    }
+    body.dark-mode .search-view.active .search-freeword-item {
+      background: rgba(13, 13, 15, 0.94);
+    }
+    .search-freeword-input {
+      font-size: 16px !important; /* iOS ズーム防止 */
+    }
+
+    /* ===== トップ画面プロフェッショナル見た目（テスト） ===== */
+    body.pro-top-test .header-title-bar {
+      background: #0f1115 !important;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      min-height: 34px;
+      padding: 6px 16px;
+    }
+    body.pro-top-test .header-title {
+      color: #e8eaed !important;
+      font-size: 13px !important;
+      font-weight: 650 !important;
+      letter-spacing: 0.12em !important;
+      text-transform: none;
+    }
+    body.pro-top-test .header-row {
+      background: #12141a !important;
+      padding: 6px 10px 8px !important;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    body.pro-top-test .today-btn,
+    body.pro-top-test .media-header-btn,
+    body.pro-top-test .search-header-btn,
+    body.pro-top-test .nav-btn {
+      color: #9ec9e6 !important;
+      opacity: 0.95;
+    }
+    body.pro-top-test .month-nav {
+      padding: 10px 16px 4px !important;
+      margin-bottom: 2px !important;
+    }
+    body.pro-top-test .month-label {
+      font-size: 22px !important;
+      font-weight: 700 !important;
+      letter-spacing: -0.03em !important;
+      color: #f2f4f8 !important;
+    }
+    body.pro-top-test.dark-mode .month-label { color: #f2f4f8 !important; }
+    body.pro-top-test:not(.dark-mode) .month-label { color: #111827 !important; }
+    body.pro-top-test .view-tabs {
+      margin: 4px 16px 10px !important;
+      background: #1a1d24 !important;
+      border-radius: 10px !important;
+      padding: 3px !important;
+    }
+    body.pro-top-test:not(.dark-mode) .view-tabs {
+      background: #e8eaef !important;
+    }
+    body.pro-top-test .view-tab {
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.02em;
+      color: #9aa3b2 !important;
+      border-radius: 8px !important;
+    }
+    body.pro-top-test .view-tab.active {
+      background: #2a3140 !important;
+      color: #fff !important;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+    }
+    body.pro-top-test:not(.dark-mode) .view-tab.active {
+      background: #fff !important;
+      color: #111827 !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+    }
+    body.pro-top-test .weekday-header {
+      padding: 0 8px 6px !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.04em;
+      color: #8b93a7 !important;
+    }
+    body.pro-top-test .calendar-grid {
+      padding: 0 8px !important;
+      gap: 2px !important;
+    }
+    body.pro-top-test .day-cell {
+      border-radius: 10px !important;
+      min-height: 48px !important;
+    }
+    body.pro-top-test .day-cell.today {
+      background: rgba(110, 168, 214, 0.12) !important;
+    }
+    body.pro-top-test .day-cell.today .day-number {
+      background: #6BAFD6 !important;
+      box-shadow: 0 0 0 3px rgba(107,175,214,0.25);
+    }
+    body.pro-top-test .day-event-dot {
+      width: 4px !important; height: 4px !important;
+    }
+    body.pro-top-test .today-section {
+      background: transparent !important;
+      padding: 8px 12px 24px !important;
+    }
+    body.pro-top-test .today-section-title {
+      font-size: 12px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase;
+      color: #8b93a7 !important;
+      margin-bottom: 10px !important;
+    }
+    body.pro-top-test .event-card {
+      background: #161a22 !important;
+      border: 1px solid rgba(255,255,255,0.06) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
+      margin-bottom: 8px !important;
+    }
+    body.pro-top-test:not(.dark-mode) .event-card {
+      background: #fff !important;
+      border: 1px solid #e6e8ee !important;
+      box-shadow: 0 4px 14px rgba(17,24,39,0.06) !important;
+    }
+    body.pro-top-test .fun-chip {
+      background: #161a22 !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      border-radius: 12px !important;
+      padding: 10px 8px !important;
+    }
+    body.pro-top-test:not(.dark-mode) .fun-chip {
+      background: #fff !important;
+      border: 1px solid #e6e8ee !important;
+    }
+    body.pro-top-test .fun-chip .fc-label {
+      font-size: 10px !important;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8b93a7 !important;
+    }
+    body.pro-top-test .fun-chip .fc-val {
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      font-variant-numeric: tabular-nums;
+    }
+    body.pro-top-test .fab {
+      box-shadow: 0 10px 28px rgba(107,175,214,0.35) !important;
+    }
+    body.pro-top-test .app-header {
+      background: #0f1115 !important;
+      border-bottom: none !important;
+    }
+    body.pro-top-test:not(.dark-mode) {
+      background: #f3f4f7 !important;
+    }
+    body.pro-top-test:not(.dark-mode) .app-header,
+    body.pro-top-test:not(.dark-mode) .header-title-bar,
+    body.pro-top-test:not(.dark-mode) .header-row {
+      background: #ffffff !important;
+    }
+    body.pro-top-test:not(.dark-mode) .header-title {
+      color: #6b7280 !important;
+      letter-spacing: 0.14em !important;
+    }
+    body.pro-top-test:not(.dark-mode) .header-row {
+      border-bottom: 1px solid #eef0f4 !important;
+    }
+
+
+    /* 情報密度アップ */
+    .month-nav { margin-bottom: 2px !important; padding: 4px 12px 0 !important; }
+    .view-tabs { margin: 0 10px 4px !important; }
+    .calendar-grid { padding: 0 2px 2px !important; }
+    .day-cell { min-height: 44px !important; padding: 2px 0 !important; }
+    .today-section { padding: 6px 10px 16px !important; }
+    .today-section-title { margin-bottom: 6px !important; }
+    .event-card {
+      padding: 8px 10px 8px 12px !important;
+      margin-bottom: 6px !important;
+    }
+    .event-time { margin-bottom: 0 !important; font-size: 10px !important; }
+    .event-title { font-size: 14px !important; line-height: 1.25 !important; margin: 1px 0 2px !important; }
+    .m4-summary { font-size: 12px !important; margin-top: 2px !important; line-height: 1.35 !important; }
+    .event-content { font-size: 12px !important; margin-top: 2px !important; }
+    .m4-badge { margin-bottom: 2px !important; padding: 1px 6px !important; }
+    .fun-chip { padding: 6px 6px !important; }
+    .header-title-bar { min-height: 24px !important; padding: 4px 14px !important; }
+    .header-row { padding: 2px 6px 2px !important; }
+
+    /* pro-top 追記: mono日付・ロゴ・密度・左線 */
+    body.pro-top-test .header-title {
+      font-size: 10px !important;
+      letter-spacing: 0.32em !important;
+      font-weight: 650 !important;
+      color: #9aa3b2 !important;
+      text-transform: lowercase !important;
+    }
+    body.pro-top-test:not(.dark-mode) .header-title {
+      color: #6b7280 !important;
+    }
+    body.pro-top-test .day-number {
+      font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace !important;
+      font-variant-numeric: tabular-nums !important;
+    }
+    body.pro-top-test .event-card.result-finish { border-left-width: 7px !important; }
+    body.pro-top-test .event-card.result-out { border-left-width: 7px !important; }
+    body.pro-top-test .event-card.result-none { border-left-width: 7px !important; }
+    body.pro-top-test .event-card {
+      padding: 8px 10px 8px 12px !important;
+      margin-bottom: 6px !important;
+    }
+
   </style>
 </head>
-<body class="dark-mode">
+<body class="pro-top-test dark-mode">
   <div class="ptr-indicator" id="ptrIndicator" aria-hidden="true"><div class="ptr-inner" id="ptrInner">引っ張って更新</div></div>
   <div class="app-header">
     <div class="header-title-bar">
@@ -1832,6 +2053,7 @@
         <button class="search-header-btn" onclick="openStopwatch()" title="タイム計測">⏱️</button>
         <button type="button" class="search-header-btn" id="btnMotorCheckSolo" onclick="return openMotorCheckSolo(event)" title="モーターチェック単独">🏎️</button>
         <button class="media-header-btn" onclick="openGallery()" title="すべての写真・動画">📷</button>
+        <button class="search-header-btn" onclick="openSearchView()" title="検索">🔍</button>
         <button class="search-header-btn" onclick="openHelpGuide()" title="使い方">❓</button>
       </div>
     </div>
@@ -7379,8 +7601,50 @@
     }
 
     // ===== セッティング検索（フリーワード + プルダウン） =====
+    
+    // フリーワード：入力中も検索（デバウンス）＋ Enter で即検索
+    (function bindFreewordLiveSearch() {
+      var free = document.getElementById('sfFreeword');
+      if (!free || free.dataset.sfFreewordLiveBound === '1') return;
+      free.dataset.sfFreewordLiveBound = '1';
+      var timer = null;
+      free.addEventListener('input', function() {
+        clearTimeout(timer);
+        timer = setTimeout(function() {
+          try { if (typeof runSearch === 'function') runSearch(); } catch (e) {}
+        }, 220);
+      });
+      free.addEventListener('keydown', function(ev) {
+        if (ev.key === 'Enter') {
+          ev.preventDefault();
+          clearTimeout(timer);
+          try { if (typeof runSearch === 'function') runSearch(); } catch (e) {}
+        }
+      });
+    })();
+
     function openSearchView() {
       switchView('search');
+      try {
+        if (typeof populateSearchFilters === 'function') populateSearchFilters();
+      } catch (e0) {}
+      try {
+        if (typeof runSearch === 'function') runSearch();
+      } catch (e1) {}
+      // すぐ入力できるようフリーワードにフォーカス
+      setTimeout(function() {
+        var free = document.getElementById('sfFreeword');
+        if (!free) return;
+        try { free.focus(); } catch (e2) {}
+        try {
+          var len = free.value ? free.value.length : 0;
+          free.setSelectionRange(len, len);
+        } catch (e3) {}
+      }, 60);
+      setTimeout(function() {
+        var free2 = document.getElementById('sfFreeword');
+        if (free2) try { free2.focus(); } catch (e4) {}
+      }, 220);
     }
     function closeSearchView() {
       switchView('month');
