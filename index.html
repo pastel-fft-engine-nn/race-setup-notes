@@ -1764,6 +1764,41 @@
       background: none; border: none; color: #7EC0E0; font-size: 15px; font-weight: 600;
       padding: 4px 0; cursor: pointer;
     }
+
+    /* 細い四角枠を抑える */
+    .event-card,
+    .parts-card,
+    .analysis-card,
+    .station-card,
+    .venue-card,
+    .help-sec,
+    .help-tool,
+    .form-section,
+    .media-thumb-wrap,
+    .search-panel,
+    .today-section,
+    .stat-chip,
+    .analysis-stat,
+    .region-btn,
+    .pref-btn,
+    .venues-mode-tab,
+    .view-tabs,
+    .modal-sheet,
+    .sw-signal-settings,
+    /* 入力は下線のみで枠を弱める */
+    .form-input, input.form-input, select.form-input, textarea.form-input {
+      border-width: 0 0 1px 0 !important;
+      border-radius: 6px 6px 0 0 !important;
+      background: rgba(0,0,0,0.03);
+    }
+    body.dark-mode .form-input,
+    body.dark-mode input.form-input,
+    body.dark-mode select.form-input,
+    body.dark-mode textarea.form-input {
+      background: rgba(255,255,255,0.06);
+      border-bottom-color: #3a3a3c !important;
+    }
+
   </style>
 </head>
 <body class="dark-mode">
@@ -7813,23 +7848,36 @@
           var ge = document.getElementById('m4Gear');
           if (ge) {
             var gearStr = String(meta.gear).trim();
+            function gearRatioNum(s) {
+              var m = String(s || '').match(/(\d+(?:\.\d+)?)/);
+              return m ? parseFloat(m[1]) : NaN;
+            }
+            var target = gearRatioNum(gearStr);
             var matched = false;
+            // 1) 完全一致
             for (var gi = 0; gi < ge.options.length; gi++) {
               var ov = ge.options[gi].value || '';
-              var ot = ge.options[gi].textContent || '';
-              if (ov === gearStr || ot === gearStr || ov.indexOf(gearStr) === 0 || gearStr.indexOf(ov) === 0) {
+              var ot = (ge.options[gi].textContent || '').trim();
+              if (ov === gearStr || ot === gearStr) {
                 ge.value = ov;
                 matched = true;
                 break;
               }
             }
-            if (!matched) {
-              // "3.7:1" 形式の部分一致
+            // 2) 比率の数値で照合（5.0:1 ↔ 5:1）
+            if (!matched && !isNaN(target)) {
+              var bestIdx = -1, bestDiff = 1e9;
               for (var gj = 0; gj < ge.options.length; gj++) {
-                if ((ge.options[gj].value || '').indexOf(gearStr.split(':')[0]) === 0) {
-                  ge.value = ge.options[gj].value;
-                  break;
-                }
+                var ov2 = ge.options[gj].value || '';
+                if (!ov2) continue;
+                var n = gearRatioNum(ov2);
+                if (isNaN(n)) continue;
+                var d = Math.abs(n - target);
+                if (d < bestDiff) { bestDiff = d; bestIdx = gj; }
+              }
+              if (bestIdx >= 0 && bestDiff < 0.05) {
+                ge.value = ge.options[bestIdx].value;
+                matched = true;
               }
             }
           }
