@@ -1274,6 +1274,17 @@
     .ptr-indicator.ptr-ready .ptr-inner { color: #6BAFD6; }
     .ptr-indicator.ptr-refreshing .ptr-inner { color: #6BAFD6; }
 
+    .rpm-action-btn {
+      color: #6BAFD6 !important;
+      border: 1px solid rgba(107, 175, 214, 0.5) !important;
+      background: rgba(107, 175, 214, 0.08) !important;
+      font-weight: 650;
+    }
+    body.dark-mode .rpm-action-btn {
+      color: #7EC0E0 !important;
+      border-color: rgba(126, 192, 224, 0.45) !important;
+      background: rgba(126, 192, 224, 0.1) !important;
+    }
     .rpm-link {
       flex: 1; text-align: right; font-size: 14px; font-weight: 600;
       color: #6BAFD6; text-decoration: none;
@@ -1313,7 +1324,18 @@
     body.dark-mode .nav-btn,
     body.dark-mode .modal-close,
     body.dark-mode .modal-save,
-    body.dark-mode .rpm-link { color: #7EC0E0; }
+    body.dark-mode .rpm-action-btn {
+      color: #6BAFD6 !important;
+      border: 1px solid rgba(107, 175, 214, 0.5) !important;
+      background: rgba(107, 175, 214, 0.08) !important;
+      font-weight: 650;
+    }
+    body.dark-mode .rpm-action-btn {
+      color: #7EC0E0 !important;
+      border-color: rgba(126, 192, 224, 0.45) !important;
+      background: rgba(126, 192, 224, 0.1) !important;
+    }
+    .rpm-link { color: #7EC0E0; }
     body.dark-mode .view-tabs { background: #2c2c2e; }
     body.dark-mode .view-tab { color: #aeaeb2; }
     body.dark-mode .view-tab.active {
@@ -2384,8 +2406,8 @@
         <div class="form-row" style="flex-wrap:wrap;gap:8px;">
           <div class="form-label">RPM連携</div>
           <div style="flex:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;">
-            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzerForImport()">RPM計測する</button>
-            <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="importRpmFromAnalyzer()">結果を取り込む</button>
+            <button type="button" class="media-btn rpm-action-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzerForImport()">RPM計測する</button>
+            <button type="button" class="media-btn rpm-action-btn" style="flex:none;padding:8px 12px;" onclick="importRpmFromAnalyzer()">結果を取り込む</button>
           </div>
         </div>
         <div class="form-row">
