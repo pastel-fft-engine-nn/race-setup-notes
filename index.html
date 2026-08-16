@@ -1744,7 +1744,7 @@
     }
   </style>
 </head>
-<body>
+<body class="dark-mode">
   <div class="ptr-indicator" id="ptrIndicator" aria-hidden="true"><div class="ptr-inner" id="ptrInner">引っ張って更新</div></div>
   <div class="app-header">
     <div class="header-title-bar">
@@ -1756,7 +1756,7 @@
         <button class="search-header-btn" onclick="openAnalysisView()" title="分析">📊</button>
         <button class="search-header-btn" onclick="openVenuesView()" title="会場マップ">🗺️</button>
         <button class="search-header-btn" onclick="openStopwatch()" title="タイム計測">⏱️</button>
-        <button class="search-header-btn" onclick="openMotorCheckSolo()" title="モーターチェック単独">🏎️</button>
+        <button type="button" class="search-header-btn" id="btnMotorCheckSolo" onclick="return openMotorCheckSolo(event)" title="モーターチェック単独">🏎️</button>
         <button class="media-header-btn" onclick="openGallery()" title="すべての写真・動画">📷</button>
         <button class="search-header-btn" onclick="openHelpGuide()" title="使い方">❓</button>
       </div>
@@ -7578,11 +7578,15 @@
     function toggleTheme() {
       applyTheme(!document.body.classList.contains('dark-mode'));
     }
-    // 初期テーマ: ダークをデフォルト（明示的に '0' のときだけライト）
+    // 初期テーマ: ダークがデフォルト
+    // 一度だけ旧ライト固定をダークへ移行（この端末の schedule_theme_default_v2）
     try {
+      if (localStorage.getItem('schedule_theme_default_v2') !== '1') {
+        localStorage.setItem('schedule_theme_default_v2', '1');
+        localStorage.setItem('schedule_darkMode', '1');
+      }
       var savedTheme = localStorage.getItem('schedule_darkMode');
-      if (savedTheme === '0') applyTheme(false);
-      else applyTheme(true);
+      applyTheme(savedTheme !== '0');
     } catch (e) {
       applyTheme(true);
     }
@@ -7963,24 +7967,12 @@
         (base.indexOf('?') >= 0 ? '&' : '?') +
         'from=memory&callback=1&return=' + encodeURIComponent(returnUrl);
 
-      // Safari / iOS / ホーム画面追加は別タブが不安定・禁止されやすい → 同一画面で開く
+      // 常に同一画面で Analyzer を開く（PWA・Safari・Chrome モバイル対策）
       setRpmLinkStatus('計測後、Analyzerの「memoryへ戻る」で復帰します', false);
-      var ua = navigator.userAgent || '';
-      var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-      if (isStandalonePwa() || isIOS || isSafari) {
-        location.href = url;
-        return;
-      }
-
       try {
-        rpmAnalyzerWin = window.open(url, 'memory_rpm_analyzer');
+        location.assign(url);
       } catch (e3) {
-        rpmAnalyzerWin = null;
-      }
-      if (!rpmAnalyzerWin) {
         location.href = url;
-        return;
       }
     }
 
@@ -7995,28 +7987,22 @@
 
     function openExternalUrl(url, preferNewTab) {
       if (!url) return;
-      var ua = navigator.userAgent || '';
-      var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-      // ホーム画面追加・iOS/Safari は window.open が失敗しやすい → 同一画面で遷移
-      if (isStandalonePwa() || isIOS || isSafari || !preferNewTab) {
-        location.href = url;
-        return;
-      }
+      // モバイル・PWA・Safari いずれも window.open が不安定なため、常に同一画面で遷移
       try {
-        var w = window.open(url, '_blank');
-        if (!w) location.href = url;
+        location.assign(url);
       } catch (e) {
-        location.href = url;
+        try { location.href = url; } catch (e2) {}
       }
     }
 
     // モーターチェック単独（memory には一切作用しない）
-    function openMotorCheckSolo() {
-      endRpmImportSession();
+    function openMotorCheckSolo(ev) {
+      try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e0) {}
+      try { endRpmImportSession(); } catch (e1) {}
       var url = RPM_ANALYZER_SOLO_URL;
-      setRpmLinkStatus('モーターチェック単独（memory未連携）', false);
+      try { setRpmLinkStatus('モーターチェック単独（memory未連携）', false); } catch (e2) {}
       openExternalUrl(url, true);
+      return false;
     }
 
     // 互換用（旧呼び出しは取り込み用）
@@ -9084,7 +9070,7 @@
         partsNotes: notes.parts || {},
         venueNotes: notes.venues || {},
         templates: templates,
-        darkMode: localStorage.getItem('schedule_darkMode') || '0'
+        darkMode: localStorage.getItem('schedule_darkMode') || '1'
       };
     }
     function exportBackup() {
