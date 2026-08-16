@@ -7787,8 +7787,40 @@
             if (typeof updateSliderLabel === 'function') updateSliderLabel('m4Tire', 'm4TireVal', 1);
           }
         }
+        if (meta.gear != null && meta.gear !== '') {
+          var ge = document.getElementById('m4Gear');
+          if (ge) {
+            var gearStr = String(meta.gear).trim();
+            var matched = false;
+            for (var gi = 0; gi < ge.options.length; gi++) {
+              var ov = ge.options[gi].value || '';
+              var ot = ge.options[gi].textContent || '';
+              if (ov === gearStr || ot === gearStr || ov.indexOf(gearStr) === 0 || gearStr.indexOf(ov) === 0) {
+                ge.value = ov;
+                matched = true;
+                break;
+              }
+            }
+            if (!matched) {
+              // "3.7:1" 形式の部分一致
+              for (var gj = 0; gj < ge.options.length; gj++) {
+                if ((ge.options[gj].value || '').indexOf(gearStr.split(':')[0]) === 0) {
+                  ge.value = ge.options[gj].value;
+                  break;
+                }
+              }
+            }
+          }
+        }
       }
-      setRpmLinkStatus('取り込み済 MAX: ' + rpm + ' rpm', true);
+      var extra = [];
+      if (meta) {
+        if (meta.speed != null && meta.speed !== '') extra.push('速度');
+        if (meta.voltage != null && meta.voltage !== '') extra.push('電圧');
+        if (meta.tire != null && meta.tire !== '') extra.push('タイヤ');
+        if (meta.gear != null && meta.gear !== '') extra.push('ギヤ');
+      }
+      setRpmLinkStatus('取り込み済 MAX: ' + rpm + ' rpm' + (extra.length ? '（' + extra.join('・') + 'も反映）' : ''), true);
       return true;
     }
 
@@ -8021,16 +8053,27 @@
         var rpm = params.get('import_max_rpm') || params.get('import_rpm');
         if (!rpm) return false;
         if (!isRpmImportSession()) beginRpmImportSession();
-        var ok = applyRpmValue(rpm, {
+        var meta = {
           rpm: Number(rpm),
           maxRpm: Number(rpm),
           ts: Number(params.get('import_ts') || Date.now())
-        });
+        };
+        if (params.get('import_speed')) meta.speed = Number(params.get('import_speed'));
+        if (params.get('import_voltage')) meta.voltage = Number(params.get('import_voltage'));
+        if (params.get('import_tire')) meta.tire = Number(params.get('import_tire'));
+        if (params.get('import_gear')) meta.gear = params.get('import_gear');
+        if (params.get('import_rpm_raw')) meta.rpmRaw = Number(params.get('import_rpm_raw'));
+        var ok = applyRpmValue(rpm, meta);
         // URL からパラメータを消してリロードループ防止
         if (ok) {
           params.delete('import_rpm');
           params.delete('import_max_rpm');
           params.delete('import_ts');
+          params.delete('import_speed');
+          params.delete('import_voltage');
+          params.delete('import_tire');
+          params.delete('import_gear');
+          params.delete('import_rpm_raw');
           var clean = location.pathname + (params.toString() ? '?' + params.toString() : '') + location.hash;
           try { history.replaceState(null, '', clean); } catch (e) {}
         }
