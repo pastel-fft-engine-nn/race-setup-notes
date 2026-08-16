@@ -3577,10 +3577,11 @@
       document.getElementById('modalOverlay').classList.add('active');
       setTimeout(scrollModalToTop, 0);
       setTimeout(scrollModalToTop, 50);
+      return true;
     }
     function openEditModal(id) {
       var ev = getEvents().find(function(e) { return e.id === id; });
-      if (!ev) return;
+      if (!ev) return false;
       editingEventId = id;
       isCopying = false;
       tempMedia = (ev.media || []).slice();
@@ -3599,6 +3600,7 @@
       document.getElementById('modalOverlay').classList.add('active');
       setTimeout(scrollModalToTop, 0);
       setTimeout(scrollModalToTop, 50);
+      return true;
     }
     function openCopyModal(id) {
       var ev = getEvents().find(function(e) { return e.id === id; });
@@ -7732,34 +7734,60 @@
     var _rpmRestoreDone = false;
     function restoreModalAfterRpmReturn() {
       try {
-        if (_rpmRestoreDone) return;
+        if (_rpmRestoreDone) return false;
         var params = new URLSearchParams(location.search || '');
         var urlBack = params.get('rpm_back') === '1' || params.get('from_rpm') === '1';
         var draftRaw = rpmStoreGet('memory_form_draft');
         var flag = rpmStoreGet('memory_rpm_restore_modal') === '1';
-        if (!urlBack && !flag && !draftRaw) return;
-
         var editId = rpmStoreGet('memory_rpm_editing_id') || '';
+        if (!editId) {
+          try { editId = sessionStorage.getItem('memory_rpm_editing_id') || ''; } catch (eSS) {}
+        }
+        if (!editId) {
+          try { editId = params.get('edit_id') || ''; } catch (eP) {}
+        }
+        // 復帰の痕跡が何もなければ何もしない
+        if (!urlBack && !flag && !draftRaw && !editId) return false;
+
         var draft = null;
         try { draft = draftRaw ? JSON.parse(draftRaw) : null; } catch (e0) { draft = null; }
 
         var overlay = document.getElementById('modalOverlay');
-        if (!overlay) return; // DOM未準備なら後で再試行
+        if (!overlay) return false; // DOM未準備 → 再試行
+
+        // イベント一覧がまだ空だと編集モーダルを開けない
+        var eventsReady = true;
+        try {
+          if (editId) {
+            var list = (typeof getEvents === 'function') ? getEvents() : [];
+            if (!list || !list.length) eventsReady = false;
+            else if (!list.some(function(e) { return e && String(e.id) === String(editId); })) {
+              // ID が見つからない — ストレージ未読込の可能性
+              eventsReady = false;
+            }
+          }
+        } catch (eR) { eventsReady = false; }
+        if (editId && !eventsReady) return false;
 
         var alreadyOpen = overlay.classList.contains('active');
         if (!alreadyOpen) {
+          var opened = false;
           try {
             if (editId && typeof openEditModal === 'function') {
-              openEditModal(editId);
+              opened = !!openEditModal(editId);
             } else if (typeof openAddModal === 'function') {
-              openAddModal();
+              opened = !!openAddModal();
             }
           } catch (e1) {
-            return; // 失敗したら下書きを消さず再試行に任せる
+            return false;
+          }
+          if (!opened || !overlay.classList.contains('active')) {
+            // 開けなかった → フラグは消さず再試行
+            return false;
           }
         }
 
-        // 成功したのでフラグだけ先に消す（下書きは適用後に消す）
+        // ここまで来たらモーダル表示成功
         rpmStoreDel('memory_rpm_restore_modal');
         _rpmRestoreDone = true;
 
@@ -7768,40 +7796,52 @@
             if (draft) applyFormDraft(draft);
           } catch (e2) {}
           try {
-            var found = typeof readRpmFromStorage === 'function' ? readRpmFromStorage() : null;
-            if (found && found.parsed && found.parsed.rpm) {
-              if (!isRpmImportSession()) beginRpmImportSession();
-              // restore 再入を避けるため一時的にフラグ
-              var prev = _rpmRestoreDone;
-              applyRpmValue(found.parsed.rpm, found.parsed);
-              _rpmRestoreDone = prev;
-            }
-          } catch (e3) {}
+            if (!isRpmImportSession()) beginRpmImportSession();
+          } catch (eS) {}
+          // URL の import_* を優先して反映
           try {
-            var rpmQ = params.get('import_max_rpm') || params.get('import_rpm');
+            var p2 = new URLSearchParams(location.search || '');
+            var rpmQ = p2.get('import_max_rpm') || p2.get('import_rpm');
             if (rpmQ) {
-              if (!isRpmImportSession()) beginRpmImportSession();
-              applyRpmValue(rpmQ, { rpm: Number(rpmQ), maxRpm: Number(rpmQ) });
+              var meta = {
+                rpm: Number(rpmQ),
+                maxRpm: Number(rpmQ),
+                ts: Number(p2.get('import_ts') || Date.now())
+              };
+              if (p2.get('import_speed')) meta.speed = Number(p2.get('import_speed'));
+              if (p2.get('import_voltage')) meta.voltage = Number(p2.get('import_voltage'));
+              if (p2.get('import_tire')) meta.tire = Number(p2.get('import_tire'));
+              if (p2.get('import_gear')) meta.gear = p2.get('import_gear');
+              if (p2.get('import_rpm_raw')) meta.rpmRaw = Number(p2.get('import_rpm_raw'));
+              applyRpmValue(rpmQ, meta);
             }
           } catch (e4) {}
+          try {
+            var found = typeof readRpmFromStorage === 'function' ? readRpmFromStorage() : null;
+            if (found && found.parsed && found.parsed.rpm) {
+              applyRpmValue(found.parsed.rpm, found.parsed);
+            }
+          } catch (e3) {}
           // 下書き削除・URL掃除
           rpmStoreDel('memory_form_draft');
           rpmStoreDel('memory_rpm_editing_id');
           try {
-            if (params.has('rpm_back') || params.has('from_rpm') || params.has('import_rpm') || params.has('import_max_rpm')) {
-              params.delete('rpm_back');
-              params.delete('from_rpm');
-              params.delete('import_rpm');
-              params.delete('import_max_rpm');
-              params.delete('import_ts');
-              var clean = location.pathname + (params.toString() ? '?' + params.toString() : '') + (location.hash || '');
-              history.replaceState(null, '', clean);
-            }
+            var p3 = new URLSearchParams(location.search || '');
+            ['rpm_back','from_rpm','edit_id','import_rpm','import_max_rpm','import_ts','import_speed','import_voltage','import_tire','import_gear','import_rpm_raw'].forEach(function(k) {
+              p3.delete(k);
+            });
+            var clean = location.pathname + (p3.toString() ? '?' + p3.toString() : '') + location.hash;
+            history.replaceState(null, '', clean);
           } catch (e5) {}
         }
-        setTimeout(finishApply, 50);
-        setTimeout(finishApply, 250);
-      } catch (e) {}
+
+        setTimeout(finishApply, 30);
+        setTimeout(finishApply, 180);
+        setTimeout(finishApply, 400);
+        return true;
+      } catch (e) {
+        return false;
+      }
     }
 
     function applyRpmValue(rpm, meta) {
@@ -8052,6 +8092,8 @@
         rpmStoreSet('memory_rpm_restore_modal', '1');
         rpmStoreSet('memory_rpm_editing_id', editingEventId ? String(editingEventId) : '');
         rpmStoreSet('memory_form_draft', JSON.stringify(collectFormDraft()));
+        // バックアップ: session が消えても edit id を残す
+        try { sessionStorage.setItem('memory_rpm_editing_id', editingEventId ? String(editingEventId) : ''); } catch (eS) {}
       } catch (e) {}
 
       // 戻り先URLに復元マーカーを付与
@@ -8059,9 +8101,11 @@
       try {
         var u = new URL(returnUrl, location.href);
         u.searchParams.set('rpm_back', '1');
+        if (editingEventId) u.searchParams.set('edit_id', String(editingEventId));
         returnUrl = u.toString();
       } catch (e2) {
         returnUrl += (returnUrl.indexOf('?') >= 0 ? '&' : '?') + 'rpm_back=1';
+        if (editingEventId) returnUrl += '&edit_id=' + encodeURIComponent(String(editingEventId));
       }
 
       var base = RPM_ANALYZER_IMPORT_URL;
@@ -8155,8 +8199,13 @@
     // 起動時・表示時にチェック
     // 復元は init 後と pageshow で行う（下書きを早すぎるタイミングで消さない）
     window.addEventListener('pageshow', function() {
-      try { consumeImportRpmFromUrl(); } catch (e) {}
+      // 先に編集/新規モーダルを復元してから RPM を入れる
       try { restoreModalAfterRpmReturn(); } catch (e2) {}
+      try {
+        // モーダルが開いた後に取り込む（開いていなければ restore 側が担当）
+        var ov = document.getElementById('modalOverlay');
+        if (ov && ov.classList.contains('active')) consumeImportRpmFromUrl();
+      } catch (e) {}
     });
 
 
@@ -9354,13 +9403,15 @@ var swRunning = false;
     // モーダルを開いたときに候補更新
     var _openAddModalOrig = openAddModal;
     openAddModal = function() {
-      _openAddModalOrig();
-      populateTemplateSelect();
+      var ok = _openAddModalOrig();
+      try { populateTemplateSelect(); } catch (e) {}
+      return ok;
     };
     var _openEditModalOrig = openEditModal;
     openEditModal = function(id) {
-      _openEditModalOrig(id);
-      populateTemplateSelect();
+      var ok = _openEditModalOrig(id);
+      try { populateTemplateSelect(); } catch (e) {}
+      return ok;
     };
 
     // ===== 7. 大会パッケージ =====
@@ -9470,13 +9521,16 @@ var swRunning = false;
       refreshAdSlotVisibility();
       // Safari: ストレージ準備後に複数回リトライして登録画面を復元
       function tryRestore(n) {
-        try { consumeImportRpmFromUrl(); } catch (e0) {}
         try { restoreModalAfterRpmReturn(); } catch (e1) {}
+        try {
+          var ov = document.getElementById('modalOverlay');
+          if (ov && ov.classList.contains('active')) consumeImportRpmFromUrl();
+        } catch (e0) {}
         if (n > 0 && !_rpmRestoreDone) {
-          setTimeout(function() { tryRestore(n - 1); }, 200);
+          setTimeout(function() { tryRestore(n - 1); }, 150);
         }
       }
-      tryRestore(5);
+      tryRestore(12);
     });
 
 
