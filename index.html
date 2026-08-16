@@ -136,6 +136,23 @@
       color: #d4a8b8; letter-spacing: 0.03em;
       line-height: 1.2;
     }
+
+    /* ヘッダーアイコン・矢印に枠線を付けない */
+    .app-header .today-btn,
+    .app-header .media-header-btn,
+    .app-header .search-header-btn,
+    .app-header .nav-btn,
+    .header-row .today-btn,
+    .header-row .media-header-btn,
+    .header-row .search-header-btn,
+    .header-row .nav-btn {
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     .header-row {
       display: flex; justify-content: flex-end; align-items: center;
       margin: 0; gap: 0; padding: 4px 8px 2px;
@@ -1324,18 +1341,18 @@
     body.dark-mode .nav-btn,
     body.dark-mode .modal-close,
     body.dark-mode .modal-save,
-    body.dark-mode .rpm-action-btn {
-      color: #6BAFD6 !important;
-      border: 1px solid rgba(107, 175, 214, 0.5) !important;
-      background: rgba(107, 175, 214, 0.08) !important;
-      font-weight: 650;
+    body.dark-mode .rpm-link {
+      color: #7EC0E0;
+      border: none !important;
+      background: none !important;
+      box-shadow: none !important;
     }
     body.dark-mode .rpm-action-btn {
       color: #7EC0E0 !important;
-      border-color: rgba(126, 192, 224, 0.45) !important;
+      border: 1px solid rgba(126, 192, 224, 0.45) !important;
       background: rgba(126, 192, 224, 0.1) !important;
+      font-weight: 650;
     }
-    .rpm-link { color: #7EC0E0; }
     body.dark-mode .view-tabs { background: #2c2c2e; }
     body.dark-mode .view-tab { color: #aeaeb2; }
     body.dark-mode .view-tab.active {
