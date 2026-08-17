@@ -3028,6 +3028,91 @@
       }
     }
 
+    function createSampleEvents() {
+      // 初めての人向けサンプル（練習1枚・大会1枚）
+      // データが空のときだけ投入。ユーザーが削除したら再投入しない。
+      var now = Date.now();
+      var practice = {
+        id: 'sample_practice_' + now,
+        date: '2026-08-17',
+        title: 'sample · 練習',
+        start: '10:00',
+        end: '12:00',
+        address: '芝公園',
+        machineName: 'sample',
+        content: 'フロントブレーキ剥がれた',
+        media: [],
+        m4: {
+          eventType: '練習',
+          lanes: '5',
+          classType: 'オープン',
+          indoorOutdoor: '室外',
+          weather: '晴れ',
+          temperature: 28,
+          motorType: 'マッハダッシュPRO',
+          motorNumber: '1',
+          gearRatio: '3.5:1',
+          tireDiameter: 23.0,
+          weight: 152,
+          batteryType: '',
+          voltage: 2.9,
+          speed: 32.5,
+          rpm: 36000,
+          result: '',
+          round: '',
+          raceLane: '',
+          rank: '',
+          raceName: '',
+          lapTime: '5.82',
+          bestLap: '5.82',
+          lat: 35.6586,
+          lng: 139.7454
+        },
+        createdAt: now - 86400000,
+        updatedAt: now - 86400000
+      };
+      var race = {
+        id: 'sample_race_' + now,
+        date: '2026-08-16',
+        title: 'sample · 大会',
+        start: '09:30',
+        end: '16:00',
+        address: '公式サーキットA',
+        machineName: 'sample',
+        content: 'フロントブレーキ剥がれた\n\n※大会モードは大会開催時のみ開きます。普段は練習モードをメインで使ってください。',
+        media: [],
+        m4: {
+          eventType: '大会',
+          lanes: '5',
+          classType: 'オープン',
+          indoorOutdoor: '室内',
+          weather: '晴れ',
+          temperature: 26,
+          motorType: 'マッハダッシュPRO',
+          motorNumber: '1',
+          gearRatio: '3.5:1',
+          tireDiameter: 23.0,
+          weight: 152,
+          batteryType: '',
+          voltage: 2.9,
+          speed: 33.2,
+          rpm: 36000,
+          result: '完走',
+          round: '予選1',
+          raceLane: '3',
+          rank: '3',
+          raceName: '都内ミニ四駆大会 予選',
+          lapTime: '5.71',
+          bestLap: '5.71',
+          lat: null,
+          lng: null
+        },
+        createdAt: now - 172800000,
+        updatedAt: now - 172800000
+      };
+      return [practice, race];
+    }
+
     function initEventsStorage() {
       if (idbReady) return idbReady;
       idbReady = idbGetAllEvents().then(function(list) {
@@ -3045,6 +3130,26 @@
         } catch (e) {
           eventsCache = [];
         }
+        return eventsCache;
+      }).then(function(list) {
+        // データが完全に空のときだけサンプルを投入（1回限り）
+        if (!list || list.length === 0) {
+          try {
+            if (localStorage.getItem('memory_sample_injected') === '1') {
+              eventsCache = [];
+              return eventsCache;
+            }
+          } catch (e) {}
+          var samples = createSampleEvents();
+          eventsCache = samples;
+          return saveEventsAsync(samples).then(function() {
+            try { localStorage.setItem('memory_sample_injected', '1'); } catch (e2) {}
+            return eventsCache;
+          }).catch(function() {
+            return eventsCache;
+          });
+        }
+        eventsCache = list;
         return eventsCache;
       });
       return idbReady;
