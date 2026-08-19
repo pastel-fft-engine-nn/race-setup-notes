@@ -1479,6 +1479,39 @@
     .celebrate-toast .ct-emoji { font-size: 22px; display: block; margin-bottom: 4px; }
     .celebrate-toast .ct-sub { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.7); margin-top: 4px; }
 
+    /* 初めての人向けサンプルお知らせ */
+    .sample-notice-overlay {
+      display: none; position: fixed; inset: 0; z-index: 550;
+      background: rgba(0,0,0,0.45); align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .sample-notice-overlay.active { display: flex; }
+    .sample-notice-card {
+      width: 100%; max-width: 340px; background: #fff; border-radius: 14px;
+      padding: 22px 20px 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.22);
+      text-align: center;
+    }
+    body.dark-mode .sample-notice-card { background: #1c1c1e; color: #f2f2f7; }
+    .sample-notice-card h3 {
+      font-size: 16px; font-weight: 700; margin: 0 0 12px; line-height: 1.45; color: #1c1c1e;
+    }
+    body.dark-mode .sample-notice-card h3 { color: #f2f2f7; }
+    .sample-notice-card p {
+      font-size: 13px; color: #3a3a3c; line-height: 1.55; margin: 0 0 16px; text-align: left;
+    }
+    body.dark-mode .sample-notice-card p { color: #aeaeb2; }
+    .sample-notice-check {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-bottom: 16px; font-size: 13px; color: #3a3a3c; cursor: pointer; user-select: none;
+    }
+    body.dark-mode .sample-notice-check { color: #aeaeb2; }
+    .sample-notice-check input { width: 18px; height: 18px; accent-color: #6BAFD6; }
+    .sample-notice-close {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      background: #6BAFD6; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+    .sample-notice-close:active { opacity: 0.88; transform: scale(0.98); }
+    body.dark-mode .sample-notice-close { background: #7EC0E0; }
 
     /* 差分・楽しさUI */
     .diff-card {
@@ -2425,6 +2458,23 @@
 
   <button type="button" id="themeToggleBtn" onclick="toggleTheme()" style="display:none" aria-hidden="true"></button>
   <div class="celebrate-toast" id="celebrateToast" role="status" aria-live="polite"></div>
+
+  <!-- 初めての人向けサンプルお知らせ -->
+  <div class="sample-notice-overlay" id="sampleNoticeOverlay" role="dialog" aria-modal="true" aria-labelledby="sampleNoticeTitle">
+    <div class="sample-notice-card">
+      <p id="sampleNoticeTitle">
+        <strong>8月16日</strong>と<strong>8月17日</strong>に sample があります。<br><br>
+        ・8月17日 … 練習のサンプル<br>
+        ・8月16日 … 大会のサンプル<br><br>
+        カレンダーで日にちをタップすれば確認ができます。
+      </p>
+      <label class="sample-notice-check">
+        <input type="checkbox" id="sampleNoticeDontShow">
+        <span>次からは表示しない</span>
+      </label>
+      <button type="button" class="sample-notice-close" onclick="closeSampleNotice()">閉じる</button>
+    </div>
+  </div>
 
   <!-- 広告枠：AdSenseコードを下に貼ると自動で表示されます -->
   <div id="ad-bottom-slot" class="ad-slot" aria-label="広告">
@@ -9917,11 +9967,44 @@ var swRunning = false;
       slot.setAttribute('aria-hidden', 'true');
     }
 
+    function hasSampleEvents() {
+      try {
+        var list = getEvents() || [];
+        return list.some(function(ev) {
+          return ev && ev.id && (String(ev.id).indexOf('sample_practice_') === 0 || String(ev.id).indexOf('sample_race_') === 0);
+        });
+      } catch (e) { return false; }
+    }
+    function shouldShowSampleNotice() {
+      try {
+        if (localStorage.getItem('memory_sample_notice_dismissed') === '1') return false;
+      } catch (e) {}
+      return hasSampleEvents();
+    }
+    function showSampleNotice() {
+      var el = document.getElementById('sampleNoticeOverlay');
+      if (el) el.classList.add('active');
+    }
+    function closeSampleNotice() {
+      var cb = document.getElementById('sampleNoticeDontShow');
+      if (cb && cb.checked) {
+        try { localStorage.setItem('memory_sample_notice_dismissed', '1'); } catch (e) {}
+      }
+      var el = document.getElementById('sampleNoticeOverlay');
+      if (el) el.classList.remove('active');
+    }
+
     initEventsStorage().then(function() {
       bindSearchFilterEvents();
       populateTemplateSelect();
       switchView('month');
       refreshAdSlotVisibility();
+      // サンプルがある＆未却下ならお知らせを表示
+      try {
+        if (shouldShowSampleNotice()) {
+          setTimeout(showSampleNotice, 400);
+        }
+      } catch (eNotice) {}
       // Safari: ストレージ準備後に複数回リトライして登録画面を復元
       function tryRestore(n) {
         try { restoreModalAfterRpmReturn(); } catch (e1) {}
@@ -9952,7 +10035,7 @@ var swRunning = false;
       var MAX_PULL = 120;
 
       function isModalBlocking() {
-        var ids = ['modalOverlay', 'detailOverlay', 'compareOverlay', 'helpOverlay', 'stopwatchOverlay', 'swSignalFs', 'cameraOverlay', 'galleryOverlay', 'analysisOverlay', 'dataToolsOverlay', 'venuesOverlay'];
+        var ids = ['modalOverlay', 'detailOverlay', 'compareOverlay', 'helpOverlay', 'stopwatchOverlay', 'swSignalFs', 'cameraOverlay', 'galleryOverlay', 'analysisOverlay', 'dataToolsOverlay', 'venuesOverlay', 'sampleNoticeOverlay'];
         for (var i = 0; i < ids.length; i++) {
           var el = document.getElementById(ids[i]);
           if (!el) continue;
