@@ -155,14 +155,14 @@
       font-family: ui-sans-serif, -apple-system, "Helvetica Neue", "Hiragino Sans", sans-serif;
     }
 
-    /* ヘッダーアイコン・矢印に枠線を付けない */
-    .app-header .today-btn,
-    .app-header .media-header-btn,
-    .app-header .search-header-btn,
+    /* ヘッダーアイコン・矢印に枠線を付けない（アプリアイコン以外） */
+    .app-header .today-btn:not(.app-icon-btn),
+    .app-header .media-header-btn:not(.app-icon-btn),
+    .app-header .search-header-btn:not(.app-icon-btn),
     .app-header .nav-btn,
-    .header-row .today-btn,
-    .header-row .media-header-btn,
-    .header-row .search-header-btn,
+    .header-row .today-btn:not(.app-icon-btn),
+    .header-row .media-header-btn:not(.app-icon-btn),
+    .header-row .search-header-btn:not(.app-icon-btn),
     .header-row .nav-btn {
       border: none !important;
       outline: none !important;
@@ -173,12 +173,12 @@
 
     .header-row {
       display: flex; justify-content: flex-end; align-items: center;
-      margin: 0; gap: 0; padding: 4px 8px 2px;
+      margin: 0; gap: 0; padding: 6px 8px 8px;
       background: #ffffff;
     }
     .header-actions {
-      display: flex; align-items: center; gap: 0;
-      flex-wrap: nowrap; min-width: 0; justify-content: flex-end;
+      display: flex; align-items: center; gap: 6px;
+      flex-wrap: nowrap; min-width: 0; justify-content: space-between;
       width: 100%;
     }
     .today-btn, .media-header-btn, .search-header-btn {
@@ -188,6 +188,72 @@
       flex-shrink: 0;
     }
     .media-header-btn, .search-header-btn { font-size: 22px; }
+
+    /* iPhone風アプリアイコン */
+    .header-actions .app-icon-btn {
+      width: 36px; height: 36px;
+      padding: 0 !important;
+      border: none !important;
+      outline: none !important;
+      border-radius: 9px !important;
+      background: linear-gradient(180deg, #7ec8ea 0%, #5aaad0 100%) !important;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.28) !important;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 18px !important;
+      line-height: 1 !important;
+      color: #fff !important;
+      flex: 0 0 36px;
+      overflow: hidden;
+    }
+    .header-actions .app-icon-btn .app-icon-emoji {
+      display: block; transform: translateY(0.5px);
+      filter: drop-shadow(0 1px 0 rgba(0,0,0,0.12));
+    }
+    .header-actions .app-icon-btn[data-icon-key="home"] { background: linear-gradient(180deg, #64d2ff 0%, #0a84ff 100%) !important; }
+    .header-actions .app-icon-btn[data-icon-key="analysis"] { background: linear-gradient(180deg, #bf5af2 0%, #8944ab 100%) !important; }
+    .header-actions .app-icon-btn[data-icon-key="map"] { background: linear-gradient(180deg, #30d158 0%, #248a3d 100%) !important; }
+    .header-actions .app-icon-btn[data-icon-key="stopwatch"] { background: linear-gradient(180deg, #ffd60a 0%, #ff9f0a 100%) !important; }
+    .header-actions .app-icon-btn[data-icon-key="motor"] { background: linear-gradient(180deg, #ff453a 0%, #d70015 100%) !important; }
+    .header-actions .app-icon-btn[data-icon-key="gallery"] { background: linear-gradient(180deg, #ff375f 0%, #c9345c 100%) !important; }
+    .header-actions .app-icon-btn[data-icon-key="search"] { background: linear-gradient(180deg, #64d2ff 0%, #5e5ce6 100%) !important; }
+    .header-actions .app-icon-btn[data-icon-key="help"] { background: linear-gradient(180deg, #ff9f0a 0%, #ff6482 100%) !important; }
+    .header-actions .app-icon-btn:active {
+      transform: scale(0.88);
+      filter: brightness(0.96);
+    }
+    .icon-pick-overlay {
+      display: none; position: fixed; inset: 0; z-index: 560;
+      background: rgba(0,0,0,0.45); align-items: flex-end; justify-content: center;
+    }
+    .icon-pick-overlay.active { display: flex; }
+    .icon-pick-sheet {
+      width: 100%; max-width: 430px; background: #f2f2f7;
+      border-radius: 16px 16px 0 0; padding: 16px 16px 28px;
+    }
+    body.dark-mode .icon-pick-sheet { background: #1c1c1e; color: #f2f2f7; }
+    .icon-pick-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .icon-pick-sub { font-size: 12px; color: #8e8e93; margin-bottom: 10px; }
+    .icon-pick-grid {
+      display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; margin-bottom: 12px;
+    }
+    .icon-pick-grid button {
+      height: 36px; border: none; border-radius: 10px; background: #fff;
+      font-size: 20px; cursor: pointer;
+    }
+    body.dark-mode .icon-pick-grid button { background: #2c2c2e; }
+    .icon-pick-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .icon-pick-row input {
+      flex: 1; border: 1px solid #e5e5ea; border-radius: 10px; padding: 10px 12px; font-size: 16px;
+      background: #fff; color: #000;
+    }
+    body.dark-mode .icon-pick-row input { background: #2c2c2e; color: #f2f2f7; border-color: #3a3a3c; }
+    .icon-pick-actions { display: flex; gap: 8px; }
+    .icon-pick-actions button {
+      flex: 1; border: none; border-radius: 10px; padding: 12px; font-weight: 700; font-size: 14px; cursor: pointer;
+    }
+    .icon-pick-reset { background: #e5e5ea; color: #1c1c1e; }
+    .icon-pick-close { background: #6BAFD6; color: #fff; }
+    body.dark-mode .icon-pick-reset { background: #2c2c2e; color: #f2f2f7; }
     .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; padding: 6px 12px 0; }
     .month-label { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
     .nav-arrows { display: flex; gap: 12px; margin-right: 14px; }
@@ -1353,9 +1419,9 @@
     body.dark-mode .header-title { color: #b890a0; }
     body.dark-mode .header-row { background: rgba(28, 28, 30, 0.7); }
     body.dark-mode .month-label { color: #f2f2f7; }
-    body.dark-mode .today-btn,
-    body.dark-mode .media-header-btn,
-    body.dark-mode .search-header-btn,
+    body.dark-mode .today-btn:not(.app-icon-btn),
+    body.dark-mode .media-header-btn:not(.app-icon-btn),
+    body.dark-mode .search-header-btn:not(.app-icon-btn),
     body.dark-mode .nav-btn,
     body.dark-mode .modal-close,
     body.dark-mode .modal-save,
@@ -1905,9 +1971,9 @@
       padding: 6px 10px 8px !important;
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    body.pro-top-test .today-btn,
-    body.pro-top-test .media-header-btn,
-    body.pro-top-test .search-header-btn,
+    body.pro-top-test .today-btn:not(.app-icon-btn),
+    body.pro-top-test .media-header-btn:not(.app-icon-btn),
+    body.pro-top-test .search-header-btn:not(.app-icon-btn),
     body.pro-top-test .nav-btn {
       color: #9ec9e6 !important;
       opacity: 0.95;
@@ -2087,24 +2153,199 @@
       margin-bottom: 6px !important;
     }
 
+    /* ===== ランチャー（最初のホーム） ===== */
+    .launcher-home {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: linear-gradient(180deg, #f4f6fb 0%, #e8edf5 100%);
+      padding: 18px 18px 96px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .launcher-home.active { display: block; }
+    body.dark-mode .launcher-home {
+      background: linear-gradient(180deg, #12141a 0%, #0d0d0f 100%);
+    }
+    body.launcher-open .app-header,
+    body.launcher-open .month-view,
+    body.launcher-open .week-view,
+    body.launcher-open .day-view,
+    body.launcher-open .search-view,
+    body.launcher-open .analysis-view,
+    body.launcher-open .venues-view,
+    body.launcher-open .fab {
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+    .launcher-clock {
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px 18px 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 20px rgba(20, 30, 50, 0.08);
+    }
+    body.dark-mode .launcher-clock { background: #1c1c1e; }
+    .launcher-clock .lc-date { font-size: 13px; color: #8e8e93; font-weight: 600; }
+    .launcher-clock .lc-time { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin: 4px 0; }
+    .launcher-clock .lc-sub { font-size: 12px; color: #8e8e93; }
+    .launcher-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 12px;
+    }
+    .launcher-app {
+      border: none;
+      background: transparent;
+      padding: 8px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .launcher-app .la-icon {
+      width: 72px; height: 72px;
+      border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 34px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+    .launcher-app .la-label {
+      font-size: 13px; font-weight: 700; color: #1c1c1e;
+    }
+    body.dark-mode .launcher-app .la-label { color: #f2f2f7; }
+    .launcher-app[data-icon-key="home"] .la-icon { background: linear-gradient(180deg, #64d2ff 0%, #0a84ff 100%); }
+    .launcher-app[data-icon-key="analysis"] .la-icon { background: linear-gradient(180deg, #bf5af2 0%, #8944ab 100%); }
+    .launcher-app[data-icon-key="map"] .la-icon { background: linear-gradient(180deg, #30d158 0%, #248a3d 100%); }
+    .launcher-app[data-icon-key="stopwatch"] .la-icon { background: linear-gradient(180deg, #ffd60a 0%, #ff9f0a 100%); }
+    .launcher-app[data-icon-key="motor"] .la-icon { background: linear-gradient(180deg, #ff453a 0%, #d70015 100%); }
+    .launcher-app[data-icon-key="gallery"] .la-icon { background: linear-gradient(180deg, #ff375f 0%, #c9345c 100%); }
+    .launcher-app[data-icon-key="search"] .la-icon { background: linear-gradient(180deg, #64d2ff 0%, #5e5ce6 100%); }
+    .launcher-app[data-icon-key="help"] .la-icon { background: linear-gradient(180deg, #ff9f0a 0%, #ff6482 100%); }
+    .launcher-app:active { transform: scale(0.96); }
+    .launcher-settings {
+      margin-top: 18px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    body.dark-mode .launcher-settings { background: #1c1c1e; }
+    .launcher-settings .ls-title { font-size: 12px; color: #8e8e93; font-weight: 700; margin-bottom: 8px; }
+    .ls-pos {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .ls-pos button {
+      border: none; border-radius: 10px; padding: 10px 6px;
+      font-size: 13px; font-weight: 700; background: #eef1f6; color: #3a3a3c; cursor: pointer;
+    }
+    body.dark-mode .ls-pos button { background: #2c2c2e; color: #f2f2f7; }
+    .ls-pos button.active { background: #6BAFD6; color: #fff; }
+    .home-pos-opt {
+      letter-spacing: 0.35em;
+      font-size: 16px !important;
+    }
+
+    .home-float-btn {
+      position: fixed;
+      bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+      z-index: 580;
+      width: 48px; height: 48px;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 50%;
+      background: #3a3a40;
+      color: #f2f2f7;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+      font-size: 0;
+      display: none;
+      align-items: center; justify-content: center;
+      cursor: pointer;
+      padding: 0;
+    }
+    .home-float-btn::before {
+      content: "";
+      width: 16px; height: 16px;
+      background: #f2f2f7;
+      clip-path: polygon(50% 0%, 100% 42%, 82% 42%, 82% 100%, 18% 100%, 18% 42%, 0% 42%);
+    }
+    .home-float-btn.left { left: 14px; right: auto; transform: none; }
+    .home-float-btn.right { right: 14px; left: auto; transform: none; }
+    .home-float-btn.center { left: 50%; right: auto; transform: translateX(-50%); }
+    .home-float-btn.show { display: flex; }
+    body.launcher-open .home-float-btn { display: none !important; }
+    body.ad-visible .home-float-btn { bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
+    body:not(.dark-mode) .home-float-btn {
+      background: #2c2c30;
+      border-color: rgba(255,255,255,0.28);
+    }
+
   </style>
 </head>
-<body class="pro-top-test dark-mode">
+<body class="pro-top-test dark-mode launcher-open">
   <div class="ptr-indicator" id="ptrIndicator" aria-hidden="true"><div class="ptr-inner" id="ptrInner">引っ張って更新</div></div>
+
+  <div class="launcher-home active" id="launcherHome">
+    <div class="launcher-clock">
+      <div class="lc-date" id="launcherDate">—</div>
+      <div class="lc-time" id="launcherTime">--:--</div>
+      <div class="lc-sub">アイコンをタップして機能を開きます</div>
+    </div>
+    <div class="launcher-grid" id="launcherGrid">
+      <button type="button" class="launcher-app" data-icon-key="home" onclick="openFromLauncher('home')">
+        <span class="la-icon"><span class="app-icon-emoji">🏠</span></span>
+        <span class="la-label">カレンダー</span>
+      </button>
+      <button type="button" class="launcher-app" data-icon-key="analysis" onclick="openFromLauncher('analysis')">
+        <span class="la-icon"><span class="app-icon-emoji">📊</span></span>
+        <span class="la-label">分析</span>
+      </button>
+      <button type="button" class="launcher-app" data-icon-key="map" onclick="openFromLauncher('map')">
+        <span class="la-icon"><span class="app-icon-emoji">🗺️</span></span>
+        <span class="la-label">会場マップ</span>
+      </button>
+      <button type="button" class="launcher-app" data-icon-key="stopwatch" onclick="openFromLauncher('stopwatch')">
+        <span class="la-icon"><span class="app-icon-emoji">⏱️</span></span>
+        <span class="la-label">タイム計測</span>
+      </button>
+      <button type="button" class="launcher-app" data-icon-key="motor" onclick="goMotorAnalyzer();return false;">
+        <span class="la-icon"><span class="app-icon-emoji">🏎️</span></span>
+        <span class="la-label">モーター</span>
+      </button>
+      <button type="button" class="launcher-app" data-icon-key="gallery" onclick="openFromLauncher('gallery')">
+        <span class="la-icon"><span class="app-icon-emoji">📷</span></span>
+        <span class="la-label">写真</span>
+      </button>
+      <button type="button" class="launcher-app" data-icon-key="search" onclick="openFromLauncher('search')">
+        <span class="la-icon"><span class="app-icon-emoji">🔍</span></span>
+        <span class="la-label">検索</span>
+      </button>
+      <button type="button" class="launcher-app" data-icon-key="help" onclick="openFromLauncher('help')">
+        <span class="la-icon"><span class="app-icon-emoji">❓</span></span>
+        <span class="la-label">使い方</span>
+      </button>
+    </div>
+  </div>
+
+  <button type="button" class="home-float-btn left" id="homeFloatLeft" onclick="showLauncher()" title="アイコン画面へ" aria-label="ホーム"></button>
+  <button type="button" class="home-float-btn center" id="homeFloatCenter" onclick="showLauncher()" title="アイコン画面へ" aria-label="ホーム"></button>
+  <button type="button" class="home-float-btn right" id="homeFloatRight" onclick="showLauncher()" title="アイコン画面へ" aria-label="ホーム"></button>
+
   <div class="app-header">
     <div class="header-title-bar">
       <div class="header-title">memory</div>
     </div>
     <div class="header-row">
-      <div class="header-actions">
-        <button class="today-btn" onclick="goHome()" title="ホーム（月ビュー）">🏠</button>
-        <button class="search-header-btn" onclick="openAnalysisView()" title="分析">📊</button>
-        <button class="search-header-btn" onclick="openVenuesView()" title="会場マップ">🗺️</button>
-        <button class="search-header-btn" onclick="openStopwatch()" title="タイム計測">⏱️</button>
-        <button type="button" class="search-header-btn" id="btnMotorCheckSolo" onclick="return openMotorCheckSolo(event)" title="モーターチェック単独">🏎️</button>
-        <button class="media-header-btn" onclick="openGallery()" title="すべての写真・動画">📷</button>
-        <button class="search-header-btn" onclick="openSearchView()" title="検索">🔍</button>
-        <button class="search-header-btn" onclick="openHelpGuide()" title="使い方">❓</button>
+      <div class="header-actions" id="headerAppIcons">
+        <button class="today-btn app-icon-btn" data-icon-key="home" onclick="goHome()" title="ホーム（月ビュー）"><span class="app-icon-emoji">🏠</span></button>
+        <button class="search-header-btn app-icon-btn" data-icon-key="analysis" onclick="openAnalysisView()" title="分析"><span class="app-icon-emoji">📊</span></button>
+        <button class="search-header-btn app-icon-btn" data-icon-key="map" onclick="openVenuesView()" title="会場マップ"><span class="app-icon-emoji">🗺️</span></button>
+        <button class="search-header-btn app-icon-btn" data-icon-key="stopwatch" onclick="openStopwatch()" title="タイム計測"><span class="app-icon-emoji">⏱️</span></button>
+        <button type="button" class="search-header-btn app-icon-btn" data-icon-key="motor" id="btnMotorCheckSolo" onclick="return openMotorCheckSolo(event)" title="モーターチェック単独"><span class="app-icon-emoji">🏎️</span></button>
+        <button class="media-header-btn app-icon-btn" data-icon-key="gallery" onclick="openGallery()" title="すべての写真・動画"><span class="app-icon-emoji">📷</span></button>
+        <button class="search-header-btn app-icon-btn" data-icon-key="search" onclick="openSearchView()" title="検索"><span class="app-icon-emoji">🔍</span></button>
+        <button class="search-header-btn app-icon-btn" data-icon-key="help" onclick="openHelpGuide()" title="使い方"><span class="app-icon-emoji">❓</span></button>
       </div>
     </div>
     <div class="month-nav">
@@ -2473,6 +2714,21 @@
         <span>次からは表示しない</span>
       </label>
       <button type="button" class="sample-notice-close" onclick="closeSampleNotice()">閉じる</button>
+    </div>
+  </div>
+
+  <div class="icon-pick-overlay" id="iconPickOverlay" onclick="if(event.target===this)closeIconPicker()">
+    <div class="icon-pick-sheet">
+      <div class="icon-pick-title" id="iconPickTitle">アイコンを変更</div>
+      <div class="icon-pick-sub">長押ししたアイコンの絵文字を切り替えできます。端末に保存されます。</div>
+      <div class="icon-pick-grid" id="iconPickGrid"></div>
+      <div class="icon-pick-row">
+        <input id="iconPickCustom" type="text" maxlength="4" inputmode="text" placeholder="好きな絵文字を入力">
+      </div>
+      <div class="icon-pick-actions">
+        <button type="button" class="icon-pick-reset" onclick="resetHeaderIcon()">初期に戻す</button>
+        <button type="button" class="icon-pick-close" onclick="applyCustomHeaderIcon()">変更する</button>
+      </div>
     </div>
   </div>
 
@@ -3364,12 +3620,120 @@
       else renderDay();
       updatePeriodLabel();
     }
-    /** ホーム：月ビューへ（今日の月に戻る） */
+    /** ホーム：アイコン画面へ戻る */
     function goHome() {
-      currentDate = new Date();
-      selectedDate = new Date();
-      switchView('month');
+      showLauncher();
     }
+
+    function getHomeBtnPos() {
+      try {
+        var v = localStorage.getItem('memory_home_btn_pos');
+        if (v === 'left' || v === 'right' || v === 'both' || v === 'center') return v;
+      } catch (e) {}
+      return 'right';
+    }
+    function setHomeBtnPos(pos) {
+      if (pos !== 'left' && pos !== 'right' && pos !== 'both' && pos !== 'center') pos = 'right';
+      try { localStorage.setItem('memory_home_btn_pos', pos); } catch (e) {}
+      refreshHomeButtons();
+    }
+    function refreshHomeButtons() {
+      var pos = getHomeBtnPos();
+      var left = document.getElementById('homeFloatLeft');
+      var right = document.getElementById('homeFloatRight');
+      var center = document.getElementById('homeFloatCenter');
+      var onLauncher = document.body.classList.contains('launcher-open');
+      if (left) left.classList.toggle('show', !onLauncher && (pos === 'left' || pos === 'both'));
+      if (right) right.classList.toggle('show', !onLauncher && (pos === 'right' || pos === 'both'));
+      if (center) center.classList.toggle('show', !onLauncher && pos === 'center');
+      document.querySelectorAll('.home-pos-opt').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-home-pos') === pos);
+      });
+    }
+    function updateLauncherClock() {
+      var now = new Date();
+      var week = ['日', '月', '火', '水', '木', '金', '土'];
+      var dateEl = document.getElementById('launcherDate');
+      var timeEl = document.getElementById('launcherTime');
+      if (dateEl) {
+        dateEl.textContent = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日（' + week[now.getDay()] + '）';
+      }
+      if (timeEl) {
+        var hh = String(now.getHours()).padStart(2, '0');
+        var mm = String(now.getMinutes()).padStart(2, '0');
+        timeEl.textContent = hh + ':' + mm;
+      }
+    }
+    function showLauncher() {
+      try { closeStopwatch(); } catch (e0) {}
+      try { closeHelpGuide(); } catch (e1) {}
+      try { closeGallery(); } catch (e2) {}
+      try { closeModal(); } catch (e3) {}
+      try { closeDetailModal(); } catch (e4) {}
+      try {
+        var ovIds = ['compareOverlay', 'dataToolsOverlay', 'cameraOverlay', 'sampleNoticeOverlay', 'iconPickOverlay'];
+        ovIds.forEach(function(id) {
+          var n = document.getElementById(id);
+          if (n) n.classList.remove('active');
+        });
+      } catch (e5) {}
+      var el = document.getElementById('launcherHome');
+      if (el) {
+        el.classList.add('active');
+        el.style.zIndex = '600';
+      }
+      document.body.classList.add('launcher-open');
+      updateLauncherClock();
+      refreshHomeButtons();
+    }
+    function hideLauncher() {
+      var el = document.getElementById('launcherHome');
+      if (el) el.classList.remove('active');
+      document.body.classList.remove('launcher-open');
+      refreshHomeButtons();
+    }
+    function goMotorAnalyzer() {
+      var url = 'https://pastel-fft-engine-nn.github.io/mini4wd-rpm/';
+      try {
+        if (typeof RPM_ANALYZER_SOLO_URL === 'string' && RPM_ANALYZER_SOLO_URL) url = RPM_ANALYZER_SOLO_URL;
+      } catch (e0) {}
+      try { window.location.href = url; } catch (e1) {
+        try { window.location.assign(url); } catch (e2) {}
+      }
+    }
+    function openFromLauncher(key) {
+      if (key === 'motor') {
+        goMotorAnalyzer();
+        return;
+      }
+      hideLauncher();
+      setTimeout(function() {
+        try {
+          if (key === 'home') {
+            currentDate = new Date();
+            selectedDate = new Date();
+            switchView('month');
+            try {
+              if (shouldShowSampleNotice()) setTimeout(showSampleNotice, 250);
+            } catch (eSample) {}
+            return;
+          }
+          if (key === 'analysis') { openAnalysisView(); return; }
+          if (key === 'map') { openVenuesView(); return; }
+          if (key === 'stopwatch') { openStopwatch(false); return; }
+          if (key === 'gallery') { openGallery(); return; }
+          if (key === 'search') { openSearchView(); return; }
+          if (key === 'help') { openHelpGuide(); return; }
+        } catch (err) {
+          console.error(err);
+          alert('画面を開けませんでした: ' + key);
+        }
+      }, 30);
+    }
+    window.showLauncher = showLauncher;
+    window.setHomeBtnPos = setHomeBtnPos;
+    window.openFromLauncher = openFromLauncher;
+    window.goMotorAnalyzer = goMotorAnalyzer;
     function updatePeriodLabel() {
       var label = document.getElementById('periodLabel');
       if (currentView === 'month') label.textContent = formatMonthLabel(currentDate);
@@ -5091,6 +5455,12 @@
       else if (helpGuidePage === 'about') body.innerHTML = buildAboutHelpHtml();
       else if (helpGuidePage === 'contact') body.innerHTML = buildContactHelpHtml();
       else body.innerHTML = buildHelpHomeHtml();
+      body.querySelectorAll('[data-home-pos]').forEach(function(btn) {
+        btn.onclick = function(ev) {
+          if (ev) ev.preventDefault();
+          setHomeBtnPos(btn.getAttribute('data-home-pos'));
+        };
+      });
       body.querySelectorAll('.help-sec-h').forEach(function(btn) {
         btn.onclick = function() {
           btn.parentElement.classList.toggle('open');
@@ -5110,6 +5480,7 @@
         body.querySelectorAll('.help-sec').forEach(function(sec) { sec.classList.add('open'); });
       }
       body.scrollTop = 0;
+      try { refreshHomeButtons(); } catch (eHb) {}
     }
     function helpSec(id, icon, title, inner) {
       return '<div class="help-sec" id="' + id + '">' +
@@ -5128,6 +5499,16 @@
         '<div class="hp-desc">マイクで回転数を測る・比較表・履歴・memory連携</div></button>';
       h += '</div>';
       h += '<div class="help-ok" style="margin:12px 0 10px;">測るのが Analyzer、残して分析するのが memory です。</div>';
+      var pos = (typeof getHomeBtnPos === 'function') ? getHomeBtnPos() : 'right';
+      h += '<div class="help-sec open" id="help-homebtn">';
+      h += '<div class="help-sec-b" style="display:block;padding:12px 14px 14px;">';
+      h += '<div style="font-size:13px;margin-bottom:8px;">黒い丸はホームに戻るボタンです。位置だけ変えられます。</div>';
+      h += '<div class="ls-pos" id="helpHomePosRow">';
+      h += '<button type="button" class="home-pos-opt' + (pos==='left'?' active':'') + '" data-home-pos="left">●　</button>';
+      h += '<button type="button" class="home-pos-opt' + (pos==='right'?' active':'') + '" data-home-pos="right">　●</button>';
+      h += '<button type="button" class="home-pos-opt' + (pos==='center'?' active':'') + '" data-home-pos="center"> ● </button>';
+      h += '<button type="button" class="home-pos-opt' + (pos==='both'?' active':'') + '" data-home-pos="both">●　●</button>';
+      h += '</div></div></div>';
       h += '<div class="help-tools">';
       h += '<button type="button" class="help-tool" onclick="closeHelpGuide();toggleTheme()"><span>🌙</span>表示切替</button>';
       h += '<button type="button" class="help-tool" onclick="closeHelpGuide();openDataTools()"><span>💾</span>データ管理</button>';
@@ -8599,9 +8980,8 @@
     function openMotorCheckSolo(ev) {
       try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e0) {}
       try { endRpmImportSession(); } catch (e1) {}
-      var url = RPM_ANALYZER_SOLO_URL;
       try { setRpmLinkStatus('モーターチェック単独（memory未連携）', false); } catch (e2) {}
-      openExternalUrl(url, true);
+      goMotorAnalyzer();
       return false;
     }
 
@@ -9995,17 +10375,144 @@ var swRunning = false;
       if (el) el.classList.remove('active');
     }
 
+    var HEADER_ICON_DEFAULTS = {
+      home: '🏠',
+      analysis: '📊',
+      map: '🗺️',
+      stopwatch: '⏱️',
+      motor: '🏎️',
+      gallery: '📷',
+      search: '🔍',
+      help: '❓'
+    };
+    var HEADER_ICON_LABELS = {
+      home: 'ホーム',
+      analysis: '分析',
+      map: '会場マップ',
+      stopwatch: 'タイム計測',
+      motor: 'モーターチェック',
+      gallery: '写真',
+      search: '検索',
+      help: '使い方'
+    };
+    var HEADER_ICON_CHOICES = ['🏠','🏡','📊','📈','🗺️','🧭','⏱️','⏰','🏎️','🚗','📷','🖼️','🔍','🔎','❓','ℹ️','⭐','🏁','🛠️','📝','💡','📌'];
+    var _iconPickKey = null;
+
+    function loadHeaderIcons() {
+      try {
+        var raw = localStorage.getItem('memory_header_icons');
+        var obj = raw ? JSON.parse(raw) : {};
+        return obj && typeof obj === 'object' ? obj : {};
+      } catch (e) { return {}; }
+    }
+    function saveHeaderIcons(map) {
+      try { localStorage.setItem('memory_header_icons', JSON.stringify(map || {})); } catch (e) {}
+    }
+    function applyHeaderIcons() {
+      var map = loadHeaderIcons();
+      document.querySelectorAll('#headerAppIcons .app-icon-btn, #launcherGrid .launcher-app').forEach(function(btn) {
+        var key = btn.getAttribute('data-icon-key');
+        var emoji = (map[key] && String(map[key]).trim()) || HEADER_ICON_DEFAULTS[key] || '';
+        var span = btn.querySelector('.app-icon-emoji');
+        if (span) span.textContent = emoji;
+      });
+    }
+    function openIconPicker(key) {
+      _iconPickKey = key;
+      var title = document.getElementById('iconPickTitle');
+      if (title) title.textContent = (HEADER_ICON_LABELS[key] || 'アイコン') + ' を変更';
+      var grid = document.getElementById('iconPickGrid');
+      if (grid) {
+        grid.innerHTML = HEADER_ICON_CHOICES.map(function(em) {
+          return '<button type="button" onclick="pickHeaderIcon(\'' + em + '\')">' + em + '</button>';
+        }).join('');
+      }
+      var input = document.getElementById('iconPickCustom');
+      var map = loadHeaderIcons();
+      if (input) input.value = map[key] || HEADER_ICON_DEFAULTS[key] || '';
+      var ov = document.getElementById('iconPickOverlay');
+      if (ov) ov.classList.add('active');
+    }
+    function closeIconPicker() {
+      var ov = document.getElementById('iconPickOverlay');
+      if (ov) ov.classList.remove('active');
+      _iconPickKey = null;
+    }
+    function pickHeaderIcon(emoji) {
+      if (!_iconPickKey || !emoji) return;
+      var map = loadHeaderIcons();
+      map[_iconPickKey] = emoji;
+      saveHeaderIcons(map);
+      applyHeaderIcons();
+      closeIconPicker();
+    }
+    function applyCustomHeaderIcon() {
+      var input = document.getElementById('iconPickCustom');
+      var emoji = input ? String(input.value || '').trim() : '';
+      if (!emoji) { closeIconPicker(); return; }
+      pickHeaderIcon(emoji);
+    }
+    function resetHeaderIcon() {
+      if (!_iconPickKey) return;
+      var map = loadHeaderIcons();
+      delete map[_iconPickKey];
+      saveHeaderIcons(map);
+      applyHeaderIcons();
+      closeIconPicker();
+    }
+    function initHeaderAppIcons() {
+      applyHeaderIcons();
+      var wrap = document.getElementById('headerAppIcons');
+      if (!wrap || wrap._iconBound) return;
+      wrap._iconBound = true;
+      var pressTimer = null;
+      var pressed = false;
+      function clearPress() {
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+      }
+      wrap.addEventListener('touchstart', function(e) {
+        var btn = e.target && e.target.closest ? e.target.closest('.app-icon-btn') : null;
+        if (!btn) return;
+        pressed = false;
+        clearPress();
+        pressTimer = setTimeout(function() {
+          pressed = true;
+          try { if (navigator.vibrate) navigator.vibrate(20); } catch (eV) {}
+          openIconPicker(btn.getAttribute('data-icon-key'));
+        }, 520);
+      }, { passive: true });
+      wrap.addEventListener('touchend', function(e) {
+        if (pressed) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        clearPress();
+      }, { passive: false });
+      wrap.addEventListener('touchmove', clearPress, { passive: true });
+      wrap.addEventListener('contextmenu', function(e) {
+        var btn = e.target && e.target.closest ? e.target.closest('.app-icon-btn') : null;
+        if (!btn) return;
+        e.preventDefault();
+        openIconPicker(btn.getAttribute('data-icon-key'));
+      });
+    }
+    window.pickHeaderIcon = pickHeaderIcon;
+    window.applyCustomHeaderIcon = applyCustomHeaderIcon;
+    window.resetHeaderIcon = resetHeaderIcon;
+    window.closeIconPicker = closeIconPicker;
+
     initEventsStorage().then(function() {
       bindSearchFilterEvents();
       populateTemplateSelect();
       switchView('month');
       refreshAdSlotVisibility();
-      // サンプルがある＆未却下ならお知らせを表示
+      try { initHeaderAppIcons(); } catch (eIcon) {}
       try {
-        if (shouldShowSampleNotice()) {
-          setTimeout(showSampleNotice, 400);
-        }
-      } catch (eNotice) {}
+        updateLauncherClock();
+        refreshHomeButtons();
+        setInterval(updateLauncherClock, 15000);
+        showLauncher();
+      } catch (eLaunch) {}
       // Safari: ストレージ準備後に複数回リトライして登録画面を復元
       function tryRestore(n) {
         try { restoreModalAfterRpmReturn(); } catch (e1) {}
@@ -10036,7 +10543,7 @@ var swRunning = false;
       var MAX_PULL = 120;
 
       function isModalBlocking() {
-        var ids = ['modalOverlay', 'detailOverlay', 'compareOverlay', 'helpOverlay', 'stopwatchOverlay', 'swSignalFs', 'cameraOverlay', 'galleryOverlay', 'analysisOverlay', 'dataToolsOverlay', 'venuesOverlay', 'sampleNoticeOverlay'];
+        var ids = ['modalOverlay', 'detailOverlay', 'compareOverlay', 'helpOverlay', 'stopwatchOverlay', 'swSignalFs', 'cameraOverlay', 'galleryOverlay', 'analysisOverlay', 'dataToolsOverlay', 'venuesOverlay', 'sampleNoticeOverlay', 'iconPickOverlay'];
         for (var i = 0; i < ids.length; i++) {
           var el = document.getElementById(ids[i]);
           if (!el) continue;
