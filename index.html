@@ -2218,6 +2218,38 @@
     body.dark-mode .launcher-clock { background: #1c1c1e; }
     .launcher-clock .lc-date { font-size: 13px; color: #8e8e93; font-weight: 600; }
     .launcher-clock .lc-time { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin: 4px 0; }
+    .launcher-clock .lc-time-row {
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 10px;
+      margin: 4px 0;
+    }
+    .launcher-clock .lc-time-row .lc-time { margin: 0; flex: 1; min-width: 0; }
+    .launcher-clock .lc-weather {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .launcher-clock .lc-weather-mark {
+      font-size: 28px;
+      line-height: 1;
+      filter: drop-shadow(0 1px 0 rgba(0,0,0,0.12));
+    }
+    .launcher-clock .lc-weather-nums {
+      text-align: right;
+      line-height: 1.15;
+    }
+    .launcher-clock .lc-weather-temp {
+      font-size: 16px; font-weight: 700; color: #1c1c1e;
+      white-space: nowrap;
+    }
+    .launcher-clock .lc-weather-hum {
+      font-size: 12px; font-weight: 600; color: #8e8e93;
+      white-space: nowrap; margin-top: 2px;
+    }
+    body.dark-mode .launcher-clock .lc-weather-temp { color: #f2f2f7; }
     .launcher-clock .lc-sub { font-size: 12px; color: #8e8e93; }
     .launcher-reorder {
       margin-top: 10px;
@@ -2357,7 +2389,16 @@
   <div class="launcher-home active" id="launcherHome">
     <div class="launcher-clock">
       <div class="lc-date" id="launcherDate">—</div>
-      <div class="lc-time" id="launcherTime">--:--</div>
+      <div class="lc-time-row">
+        <div class="lc-time" id="launcherTime">--:--</div>
+        <div class="lc-weather" id="launcherWeather" onclick="refreshLauncherWeather(true)" title="天気を更新（Open-Meteo）">
+          <div class="lc-weather-mark" id="launcherWeatherMark">·</div>
+          <div class="lc-weather-nums">
+            <div class="lc-weather-temp" id="launcherWeatherTemp">--℃</div>
+            <div class="lc-weather-hum" id="launcherWeatherHum">湿度 --%</div>
+          </div>
+        </div>
+      </div>
       <div class="lc-sub" id="launcherSub">アイコンをタップして機能を開きます</div>
       <button type="button" class="launcher-reorder" id="launcherReorderBtn" onclick="toggleLauncherReorder()">並び替え</button>
     </div>
@@ -3738,7 +3779,95 @@
         var mm = String(now.getMinutes()).padStart(2, '0');
         timeEl.textContent = hh + ':' + mm;
       }
+      try { refreshLauncherWeather(false); } catch (eW) {}
     }
+
+    var _wxState = { fetching: false, lastAt: 0, lastText: '', lastPlace: '' };
+    var WX_TTL_MS = 15 * 60 * 1000;
+
+    function wxCodeMark(code) {
+      var c = Number(code);
+      if (c === 0) return '☀️';
+      if (c === 1) return '🌤️';
+      if (c === 2) return '⛅';
+      if (c === 3) return '☁️';
+      if (c === 45 || c === 48) return '🌫️';
+      if (c >= 51 && c <= 57) return '🌦️';
+      if (c >= 61 && c <= 67) return '🌧️';
+      if (c >= 71 && c <= 77) return '❄️';
+      if (c >= 80 && c <= 82) return '🌧️';
+      if (c >= 85 && c <= 86) return '🌨️';
+      if (c >= 95) return '⛈️';
+      return '🌡️';
+    }
+
+    function setLauncherWeather(mark, temp, hum) {
+      var mk = document.getElementById('launcherWeatherMark');
+      var tp = document.getElementById('launcherWeatherTemp');
+      var hm = document.getElementById('launcherWeatherHum');
+      if (mk && mark != null) mk.textContent = mark;
+      if (tp && temp != null) tp.textContent = temp;
+      if (hm && hum != null) hm.textContent = hum;
+    }
+
+    function loadCachedWeather() {
+      try {
+        var raw = localStorage.getItem('memory_launcher_weather');
+        var obj = raw ? JSON.parse(raw) : null;
+        if (!obj || !obj.temp) return null;
+        return obj;
+      } catch (e) { return null; }
+    }
+    function saveCachedWeather(obj) {
+      try { localStorage.setItem('memory_launcher_weather', JSON.stringify(obj || {})); } catch (e) {}
+    }
+
+    function refreshLauncherWeather(force) {
+      var cached = loadCachedWeather();
+      if (cached && cached.temp) {
+        setLauncherWeather(cached.mark || '🌡️', cached.temp, cached.hum || '湿度 --%');
+        _wxState.lastText = cached.temp;
+        _wxState.lastAt = cached.at || 0;
+      }
+      var now = Date.now();
+      if (!force && _wxState.lastAt && (now - _wxState.lastAt) < WX_TTL_MS) return;
+      if (_wxState.fetching) return;
+      if (!navigator.geolocation) {
+        setLauncherWeather('📍', '位置なし', '');
+        return;
+      }
+      _wxState.fetching = true;
+      if (!cached || !cached.temp) setLauncherWeather('·', '取得中', '湿度 --%');
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        var lat = pos.coords.latitude;
+        var lon = pos.coords.longitude;
+        var wxUrl = 'https://api.open-meteo.com/v1/forecast?latitude=' + encodeURIComponent(lat) +
+          '&longitude=' + encodeURIComponent(lon) +
+          '&current=temperature_2m,relative_humidity_2m,weather_code&timezone=auto';
+        fetch(wxUrl).then(function(r) { return r.json(); }).then(function(data) {
+          var cur = data && data.current ? data.current : {};
+          var mark = wxCodeMark(cur.weather_code);
+          var tempTxt = (cur.temperature_2m == null || cur.temperature_2m === '')
+            ? '--℃' : (Math.round(Number(cur.temperature_2m)) + '℃');
+          var humTxt = (cur.relative_humidity_2m == null || cur.relative_humidity_2m === '')
+            ? '湿度 --%' : ('湿度 ' + Math.round(Number(cur.relative_humidity_2m)) + '%');
+          setLauncherWeather(mark, tempTxt, humTxt);
+          _wxState.lastText = tempTxt;
+          _wxState.lastAt = Date.now();
+          saveCachedWeather({
+            mark: mark, temp: tempTxt, hum: humTxt,
+            at: _wxState.lastAt, lat: lat, lon: lon
+          });
+        }).catch(function() {
+          if (!_wxState.lastText) setLauncherWeather('⚠️', '取得失敗', 'タップで再試行');
+        }).finally(function() { _wxState.fetching = false; });
+      }, function(err) {
+        _wxState.fetching = false;
+        if (err && err.code === 1) setLauncherWeather('📍', '位置未許可', 'タップで再試行');
+        else if (!_wxState.lastText) setLauncherWeather('📍', '位置失敗', 'タップで再試行');
+      }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 10 * 60 * 1000 });
+    }
+
     function showLauncher() {
       try { closeStopwatch(); } catch (e0) {}
       try { closeHelpGuide(); } catch (e1) {}
@@ -3759,6 +3888,7 @@
       }
       document.body.classList.add('launcher-open');
       updateLauncherClock();
+      try { refreshLauncherWeather(false); } catch (eWx2) {}
       refreshHomeButtons();
     }
     function hideLauncher() {
