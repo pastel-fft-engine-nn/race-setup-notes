@@ -545,10 +545,10 @@
     }
     #modalOverlay .form-label {
       width: 83px;
-      font-size: 20px;
+      font-size: 18.5px;
     }
     #modalOverlay .form-input {
-      font-size: 21px;
+      font-size: 19.5px;
     }
     #modalOverlay textarea.form-input {
       min-height: 94px;
@@ -556,16 +556,30 @@
     #modalOverlay input[type="time"].form-input,
     #modalOverlay input[type="date"].form-input {
       min-height: 47px;
-      font-size: 21px;
+      font-size: 19.5px;
     }
     #modalOverlay select.form-input {
       min-height: 57px;
-      font-size: 22px;
+      font-size: 20.5px;
       padding: 13px 10px;
     }
-    #modalOverlay .cell-label { font-size: 16px; }
+    #modalOverlay .cell-label { font-size: 14.5px; }
     #modalOverlay .form-select-cell { min-height: 52px; }
-    #modalOverlay .media-btn { font-size: 16px; padding: 10px 14px; }
+    #modalOverlay .media-btn { font-size: 14.5px; padding: 10px 14px; }
+    #modalOverlay .dt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    #modalOverlay .dt-grid .form-row {
+      min-height: 52px;
+      padding: 8px 10px;
+    }
+    #modalOverlay .dt-grid .form-label {
+      width: 40px;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    #modalOverlay .datetime-compact .form-row .form-label { font-size: 13px; }
     .form-row:last-child { border-bottom: none; }
     .form-label { width: 64px; font-size: 15px; color: #3a3a3c; flex-shrink: 0; }
     .form-input {
@@ -1235,7 +1249,7 @@
       align-items: stretch;
       justify-content: stretch;
       background: #f2f2f7;
-      z-index: 190;
+      z-index: 620;
     }
     .modal-overlay.gallery-modal.active { display: flex; }
     .modal-overlay.gallery-modal .modal {
@@ -2906,22 +2920,32 @@
         <button type="button" onclick="deleteSelectedTemplate()">削除</button>
       </div>
       <div class="section-label">日時・場所</div>
-      <div class="form-group">
-        <div class="form-row">
-          <div class="form-label">日付</div>
-          <input type="date" class="form-input" id="eventDate" value="">
-        </div>
-        <div class="form-row">
-          <div class="form-label">開始</div>
-          <input type="time" class="form-input" id="eventStart" value="09:00" step="300">
-        </div>
-        <div class="form-row">
-          <div class="form-label">終了</div>
-          <input type="time" class="form-input" id="eventEnd" value="10:00" step="300">
-        </div>
-        <div class="form-row">
-          <div class="form-label">場所</div>
-          <input type="text" class="form-input" id="eventAddress" placeholder="コース名・会場など">
+      <div class="form-group datetime-compact">
+        <div class="dt-grid">
+          <div class="form-row">
+            <div class="form-label">日付</div>
+            <input type="date" class="form-input" id="eventDate" value="">
+          </div>
+          <div class="form-row">
+            <div class="form-label">場所</div>
+            <input type="text" class="form-input" id="eventAddress" placeholder="コース名・会場など">
+          </div>
+          <div class="form-row">
+            <div class="form-label">開始</div>
+            <input type="time" class="form-input" id="eventStart" value="09:00" step="300">
+          </div>
+          <div class="form-row">
+            <div class="form-label">終了</div>
+            <input type="time" class="form-input" id="eventEnd" value="10:00" step="300">
+          </div>
+          <div class="form-row">
+            <div class="form-label">緯度</div>
+            <input type="number" class="form-input" id="m4Lat" placeholder="例 35.7056" step="any" inputmode="decimal" oninput="onM4GpsManualInput()">
+          </div>
+          <div class="form-row">
+            <div class="form-label">経度</div>
+            <input type="number" class="form-input" id="m4Lng" placeholder="例 139.4797" step="any" inputmode="decimal" oninput="onM4GpsManualInput()">
+          </div>
         </div>
         <div class="form-row">
           <div class="form-label">GPS</div>
@@ -2930,18 +2954,113 @@
             <button type="button" class="media-btn" style="flex:none;padding:8px 12px;" onclick="getM4GPS()">現在地を取得</button>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-label">緯度</div>
-          <input type="number" class="form-input" id="m4Lat" placeholder="例 35.7056" step="any" inputmode="decimal" oninput="onM4GpsManualInput()">
+      </div>
+
+      <div class="section-label">モーター・走行</div>
+      <div class="form-group">
+        <div class="form-select-grid">
+          <div class="form-select-cell">
+            <span class="cell-label">モーター</span>
+<select class="form-input" id="m4Motor">
+              <option value="">選択</option>
+              <option value="ノーマルPRO">ノーマルPRO</option>
+              <option value="レブチューンPRO">レブチューンPRO</option>
+              <option value="トルクチューンPRO">トルクチューンPRO</option>
+              <option value="アトミックチューンPRO">アトミックチューンPRO</option>
+              <option value="ライトダッシュPRO">ライトダッシュPRO</option>
+              <option value="ハイパーダッシュPRO">ハイパーダッシュPRO</option>
+              <option value="マッハダッシュPRO">マッハダッシュPRO</option>
+              <option value="ノーマル">ノーマル</option>
+              <option value="レブチューン">レブチューン</option>
+              <option value="トルクチューン">トルクチューン</option>
+              <option value="アトミックチューン">アトミックチューン</option>
+              <option value="ライトダッシュ">ライトダッシュ</option>
+              <option value="ハイパーダッシュ">ハイパーダッシュ</option>
+              <option value="パワーダッシュ">パワーダッシュ</option>
+              <option value="スプリントダッシュ">スプリントダッシュ</option>
+            </select>
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">M.No.</span>
+            <input type="text" class="form-input" id="m4MotorNo" placeholder="番号">
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">ギヤ比</span>
+            <select class="form-input" id="m4Gear">
+              <option value="">-</option>
+              <option value="3.5:1">3.5:1</option>
+              <option value="3.7:1">3.7:1</option>
+              <option value="4.0:1">4.0:1</option>
+              <option value="4.2:1">4.2:1</option>
+              <option value="5:1">5:1</option>
+              <option value="6.4:1">6.4:1</option>
+              <option value="8.75:1">8.75:1</option>
+              <option value="11.2:1">11.2:1</option>
+            </select>
+          </div>
+          <div class="form-select-cell">
+            <span class="cell-label">回転数</span>
+            <input type="number" class="form-input" id="m4Rpm" placeholder="rpm" step="1">
+          </div>
+        </div>
+        <div class="form-row" style="flex-wrap:wrap;gap:8px;">
+          <div class="form-label">RPM連携</div>
+          <div style="flex:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;">
+            <button type="button" class="media-btn rpm-action-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzerForImport()">RPM計測する</button>
+            <button type="button" class="media-btn rpm-action-btn" style="flex:none;padding:8px 12px;" onclick="importRpmFromAnalyzer()">結果を取り込む</button>
+          </div>
         </div>
         <div class="form-row">
-          <div class="form-label">経度</div>
-          <input type="number" class="form-input" id="m4Lng" placeholder="例 139.4797" step="any" inputmode="decimal" oninput="onM4GpsManualInput()">
+          <div class="form-label"></div>
+          <span id="rpmLinkStatus" style="font-size:12px;color:#8e8e93;flex:1;text-align:right;">未連携</span>
+        </div>
+        <div class="form-row">
+          <div class="form-label"></div>
+          <button type="button" class="rpm-link" style="background:none;border:none;cursor:pointer;padding:0;" onclick="openMotorCheckSolo()">モーターチェック単独で開く →</button>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">タイヤmm</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Tire" min="22" max="40" step="0.1" value="23" oninput="updateSliderLabel('m4Tire','m4TireVal',1)">
+            <span class="slider-val" id="m4TireVal">23.0</span>
+          </div>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">時速</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Speed" min="10" max="70" step="0.1" value="30" oninput="updateSliderLabel('m4Speed','m4SpeedVal',1)">
+            <span class="slider-val" id="m4SpeedVal">30.0</span>
+          </div>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">車重g</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Weight" min="70" max="400" step="0.1" value="150" oninput="updateSliderLabel('m4Weight','m4WeightVal',1)">
+            <span class="slider-val" id="m4WeightVal">150.0</span>
+          </div>
+        </div>
+        <div class="form-row form-row-slider">
+          <div class="form-label">電圧V</div>
+          <div class="slider-wrap">
+            <input type="range" id="m4Voltage" min="2.0" max="4.0" step="0.1" value="2.8" oninput="updateSliderLabel('m4Voltage','m4VoltageVal',1)">
+            <span class="slider-val" id="m4VoltageVal">2.8</span>
+          </div>
+        </div>
+        <div class="form-select-grid">
+          <div class="form-select-cell full">
+            <span class="cell-label">電池</span>
+            <select class="form-input" id="m4Battery">
+              <option value="">-</option>
+              <option value="ニッケル水素">ニッケル水素</option>
+              <option value="リチウムイオン">リチウムイオン</option>
+              <option value="アルカリ">アルカリ</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <!-- ミニ四駆セッティング -->
-      <div class="section-label">マシン・走行</div>
+      <div class="section-label">条件・結果</div>
       <div class="form-group">
         <div class="form-select-grid">
           <div class="form-select-cell">
@@ -3000,7 +3119,6 @@
             </select>
           </div>
         </div>
-        <!-- 大会モード専用 -->
         <div id="raceModeSection" style="display:none;border-top:0.5px solid rgba(0,0,0,0.07);">
           <div style="padding:8px 12px 4px;font-size:12px;font-weight:600;color:#af52de;">🏁 大会モード</div>
           <div class="form-select-grid">
@@ -3052,106 +3170,6 @@
             <input type="range" id="m4Temp" min="0" max="50" step="0.1" value="25" oninput="updateSliderLabel('m4Temp','m4TempVal',1)">
             <span class="slider-val" id="m4TempVal">25.0</span>
           </div>
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="form-row form-row-slider">
-          <div class="form-label">タイヤmm</div>
-          <div class="slider-wrap">
-            <input type="range" id="m4Tire" min="22" max="40" step="0.1" value="23" oninput="updateSliderLabel('m4Tire','m4TireVal',1)">
-            <span class="slider-val" id="m4TireVal">23.0</span>
-          </div>
-        </div>
-        <div class="form-row form-row-slider">
-          <div class="form-label">車重g</div>
-          <div class="slider-wrap">
-            <input type="range" id="m4Weight" min="70" max="400" step="0.1" value="150" oninput="updateSliderLabel('m4Weight','m4WeightVal',1)">
-            <span class="slider-val" id="m4WeightVal">150.0</span>
-          </div>
-        </div>
-        <div class="form-row form-row-slider">
-          <div class="form-label">電圧V</div>
-          <div class="slider-wrap">
-            <input type="range" id="m4Voltage" min="2.0" max="4.0" step="0.1" value="2.8" oninput="updateSliderLabel('m4Voltage','m4VoltageVal',1)">
-            <span class="slider-val" id="m4VoltageVal">2.8</span>
-          </div>
-        </div>
-        <div class="form-row form-row-slider">
-          <div class="form-label">時速</div>
-          <div class="slider-wrap">
-            <input type="range" id="m4Speed" min="10" max="70" step="0.1" value="30" oninput="updateSliderLabel('m4Speed','m4SpeedVal',1)">
-            <span class="slider-val" id="m4SpeedVal">30.0</span>
-          </div>
-        </div>
-        <div class="form-select-grid">
-          <div class="form-select-cell full">
-            <span class="cell-label">モーター</span>
-            <select class="form-input" id="m4Motor">
-              <option value="">選択</option>
-              <option value="ノーマルPRO">ノーマルPRO</option>
-              <option value="レブチューンPRO">レブチューンPRO</option>
-              <option value="トルクチューンPRO">トルクチューンPRO</option>
-              <option value="アトミックチューンPRO">アトミックチューンPRO</option>
-              <option value="ライトダッシュPRO">ライトダッシュPRO</option>
-              <option value="ハイパーダッシュPRO">ハイパーダッシュPRO</option>
-              <option value="マッハダッシュPRO">マッハダッシュPRO</option>
-              <option value="ノーマル">ノーマル</option>
-              <option value="レブチューン">レブチューン</option>
-              <option value="トルクチューン">トルクチューン</option>
-              <option value="アトミックチューン">アトミックチューン</option>
-              <option value="ライトダッシュ">ライトダッシュ</option>
-              <option value="ハイパーダッシュ">ハイパーダッシュ</option>
-              <option value="パワーダッシュ">パワーダッシュ</option>
-              <option value="スプリントダッシュ">スプリントダッシュ</option>
-            </select>
-          </div>
-          <div class="form-select-cell">
-            <span class="cell-label">M.No.</span>
-            <input type="text" class="form-input" id="m4MotorNo" placeholder="番号">
-          </div>
-          <div class="form-select-cell">
-            <span class="cell-label">ギヤ比</span>
-            <select class="form-input" id="m4Gear">
-              <option value="">-</option>
-              <option value="3.5:1">3.5:1</option>
-              <option value="3.7:1">3.7:1</option>
-              <option value="4.0:1">4.0:1</option>
-              <option value="4.2:1">4.2:1</option>
-              <option value="5:1">5:1</option>
-              <option value="6.4:1">6.4:1</option>
-              <option value="8.75:1">8.75:1</option>
-              <option value="11.2:1">11.2:1</option>
-            </select>
-          </div>
-          <div class="form-select-cell">
-            <span class="cell-label">電池</span>
-            <select class="form-input" id="m4Battery">
-              <option value="">-</option>
-              <option value="ニッケル水素">ニッケル水素</option>
-              <option value="リチウムイオン">リチウムイオン</option>
-              <option value="アルカリ">アルカリ</option>
-              <option value="その他">その他</option>
-            </select>
-          </div>
-          <div class="form-select-cell">
-            <span class="cell-label">回転数</span>
-            <input type="number" class="form-input" id="m4Rpm" placeholder="rpm" step="1">
-          </div>
-        </div>
-        <div class="form-row" style="flex-wrap:wrap;gap:8px;">
-          <div class="form-label">RPM連携</div>
-          <div style="flex:1;display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;">
-            <button type="button" class="media-btn rpm-action-btn" style="flex:none;padding:8px 12px;" onclick="openRpmAnalyzerForImport()">RPM計測する</button>
-            <button type="button" class="media-btn rpm-action-btn" style="flex:none;padding:8px 12px;" onclick="importRpmFromAnalyzer()">結果を取り込む</button>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-label"></div>
-          <span id="rpmLinkStatus" style="font-size:12px;color:#8e8e93;flex:1;text-align:right;">未連携</span>
-        </div>
-        <div class="form-row">
-          <div class="form-label"></div>
-          <button type="button" class="rpm-link" style="background:none;border:none;cursor:pointer;padding:0;" onclick="openMotorCheckSolo()">モーターチェック単独で開く →</button>
         </div>
         <div class="form-row">
           <div class="form-label">タイム</div>
@@ -3949,6 +3967,11 @@
     function openFromLauncher(key) {
       if (key === 'motor') {
         goMotorAnalyzer();
+        return;
+      }
+      if (key === 'gallery') {
+        try { openGallery(); } catch (eG) {}
+        hideLauncher();
         return;
       }
       hideLauncher();
