@@ -141,8 +141,13 @@
       border-bottom: 0.5px solid rgba(0, 0, 0, 0.12);
       position: sticky; top: 0; z-index: 100; padding: 0 0 0;
     }
+    .header-title-bar,
+    .header-row {
+      display: none !important;
+    }
     .header-title-bar {
-      display: flex; align-items: center;
+      display: none;
+      align-items: center;
       padding: 3px 12px;
       min-height: 28px;
       background: linear-gradient(180deg, #fff0f5 0%, #fffafc 50%, #ffffff 100%);
@@ -2190,6 +2195,20 @@
     .launcher-clock .lc-date { font-size: 13px; color: #8e8e93; font-weight: 600; }
     .launcher-clock .lc-time { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin: 4px 0; }
     .launcher-clock .lc-sub { font-size: 12px; color: #8e8e93; }
+    .launcher-reorder {
+      margin-top: 10px;
+      border: none;
+      background: #eef1f6;
+      color: #3a3a3c;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    body.dark-mode .launcher-reorder { background: #2c2c2e; color: #f2f2f7; }
+    body.reorder-mode .launcher-app { outline: 2px dashed rgba(107,175,214,0.7); border-radius: 16px; }
+    body.reorder-mode .launcher-app.pick { outline-color: #ff9f0a; background: rgba(255,159,10,0.12); }
     .launcher-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -2290,7 +2309,8 @@
     <div class="launcher-clock">
       <div class="lc-date" id="launcherDate">—</div>
       <div class="lc-time" id="launcherTime">--:--</div>
-      <div class="lc-sub">アイコンをタップして機能を開きます</div>
+      <div class="lc-sub" id="launcherSub">アイコンをタップして機能を開きます</div>
+      <button type="button" class="launcher-reorder" id="launcherReorderBtn" onclick="toggleLauncherReorder()">並び替え</button>
     </div>
     <div class="launcher-grid" id="launcherGrid">
       <button type="button" class="launcher-app" data-icon-key="home" onclick="openFromLauncher('home')">
@@ -3697,6 +3717,18 @@
       try {
         if (typeof RPM_ANALYZER_SOLO_URL === 'string' && RPM_ANALYZER_SOLO_URL) url = RPM_ANALYZER_SOLO_URL;
       } catch (e0) {}
+      try {
+        var u = new URL(url, location.href);
+        u.searchParams.set('from', 'launcher');
+        u.searchParams.set('home', '1');
+        u.searchParams.set('home_pos', getHomeBtnPos());
+        u.searchParams.set('return', location.href.split('#')[0]);
+        url = u.toString();
+      } catch (eU) {
+        var sep = url.indexOf('?') >= 0 ? '&' : '?';
+        url += sep + 'from=launcher&home=1&home_pos=' + encodeURIComponent(getHomeBtnPos()) +
+          '&return=' + encodeURIComponent(location.href.split('#')[0]);
+      }
       try { window.location.href = url; } catch (e1) {
         try { window.location.assign(url); } catch (e2) {}
       }
@@ -10408,6 +10440,37 @@ var swRunning = false;
     function saveHeaderIcons(map) {
       try { localStorage.setItem('memory_header_icons', JSON.stringify(map || {})); } catch (e) {}
     }
+    var LAUNCHER_DEFAULT_ORDER = ['home','analysis','map','stopwatch','motor','gallery','search','help'];
+    var LAUNCHER_LABELS = {
+      home: 'カレンダー',
+      analysis: '分析',
+      map: '会場マップ',
+      stopwatch: 'タイム計測',
+      motor: 'モーター',
+      gallery: '写真',
+      search: '検索',
+      help: '使い方'
+    };
+    var _reorderOn = false;
+    var _reorderPick = null;
+    function loadLauncherOrder() {
+      var fallback = LAUNCHER_DEFAULT_ORDER.slice();
+      try {
+        var raw = localStorage.getItem('memory_launcher_order');
+        var arr = raw ? JSON.parse(raw) : null;
+        if (!Array.isArray(arr)) return fallback;
+        var seen = {};
+        var out = [];
+        arr.forEach(function(k) {
+          if (LAUNCHER_LABELS[k] && !seen[k]) { seen[k] = 1; out.push(k); }
+        });
+        fallback.forEach(function(k) { if (!seen[k]) out.push(k); });
+        return out;
+      } catch (e) { return fallback; }
+    }
+    function saveLauncherOrder(arr) {
+      try { localStorage.setItem('memory_launcher_order', JSON.stringify(arr)); } catch (e) {}
+    }
     function applyHeaderIcons() {
       var map = loadHeaderIcons();
       document.querySelectorAll('#headerAppIcons .app-icon-btn, #launcherGrid .launcher-app').forEach(function(btn) {
@@ -10417,6 +10480,58 @@ var swRunning = false;
         if (span) span.textContent = emoji;
       });
     }
+    function renderLauncherGrid() {
+      var grid = document.getElementById('launcherGrid');
+      if (!grid) return;
+      var map = loadHeaderIcons();
+      var order = loadLauncherOrder();
+      grid.innerHTML = order.map(function(key) {
+        var emoji = (map[key] && String(map[key]).trim()) || HEADER_ICON_DEFAULTS[key] || '';
+        var label = LAUNCHER_LABELS[key] || key;
+        return '<button type="button" class="launcher-app" data-icon-key="' + key + '" onclick="onLauncherAppTap(\'' + key + '\')">' +
+          '<span class="la-icon"><span class="app-icon-emoji">' + emoji + '</span></span>' +
+          '<span class="la-label">' + label + '</span></button>';
+      }).join('');
+    }
+    function onLauncherAppTap(key) {
+      if (_reorderOn) {
+        if (!_reorderPick) {
+          _reorderPick = key;
+          document.querySelectorAll('#launcherGrid .launcher-app').forEach(function(b) {
+            b.classList.toggle('pick', b.getAttribute('data-icon-key') === key);
+          });
+          var sub = document.getElementById('launcherSub');
+          if (sub) sub.textContent = '入れ替える相手をタップ';
+          return;
+        }
+        var order = loadLauncherOrder();
+        var a = order.indexOf(_reorderPick);
+        var b = order.indexOf(key);
+        if (a >= 0 && b >= 0) {
+          var tmp = order[a]; order[a] = order[b]; order[b] = tmp;
+          saveLauncherOrder(order);
+        }
+        _reorderPick = null;
+        renderLauncherGrid();
+        var sub2 = document.getElementById('launcherSub');
+        if (sub2) sub2.textContent = '入れ替えました。続けて選べます';
+        return;
+      }
+      if (key === 'motor') goMotorAnalyzer();
+      else openFromLauncher(key);
+    }
+    function toggleLauncherReorder() {
+      _reorderOn = !_reorderOn;
+      _reorderPick = null;
+      document.body.classList.toggle('reorder-mode', _reorderOn);
+      var btn = document.getElementById('launcherReorderBtn');
+      var sub = document.getElementById('launcherSub');
+      if (btn) btn.textContent = _reorderOn ? '完了' : '並び替え';
+      if (sub) sub.textContent = _reorderOn ? '入れ替えたいアイコンを2つタップ' : 'アイコンをタップして機能を開きます';
+      document.querySelectorAll('#launcherGrid .launcher-app').forEach(function(b) { b.classList.remove('pick'); });
+    }
+    window.onLauncherAppTap = onLauncherAppTap;
+    window.toggleLauncherReorder = toggleLauncherReorder;
     function openIconPicker(key) {
       _iconPickKey = key;
       var title = document.getElementById('iconPickTitle');
@@ -10461,6 +10576,7 @@ var swRunning = false;
       closeIconPicker();
     }
     function initHeaderAppIcons() {
+      renderLauncherGrid();
       applyHeaderIcons();
       var wrap = document.getElementById('headerAppIcons');
       if (!wrap || wrap._iconBound) return;
