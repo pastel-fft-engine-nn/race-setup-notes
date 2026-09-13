@@ -1203,6 +1203,30 @@
     .search-result-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
     .search-result-meta { font-size: 12px; color: #3a3a3c; line-height: 1.4; }
     .gallery-modal .modal { max-height: 88vh; }
+    .modal-overlay.gallery-modal {
+      align-items: stretch;
+      justify-content: stretch;
+      background: #f2f2f7;
+      z-index: 190;
+    }
+    .modal-overlay.gallery-modal.active { display: flex; }
+    .modal-overlay.gallery-modal .modal {
+      animation: none;
+      transform: none;
+      border-radius: 0;
+      max-height: none;
+      height: 100%;
+      height: 100dvh;
+      width: 100%;
+      max-width: none;
+      overflow-y: auto;
+    }
+    body.dark-mode .modal-overlay.gallery-modal {
+      background: #000;
+    }
+    body.dark-mode .modal-overlay.gallery-modal .modal {
+      background: #000;
+    }
     .gallery-tabs {
       display: flex; background: #e5e5ea; border-radius: 9px; padding: 2px; margin: 12px 16px;
     }
@@ -1747,14 +1771,14 @@
 
     /* タイム計測 */
     .stopwatch-overlay {
-      position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.55);
-      display: none; align-items: flex-end; justify-content: center;
+      position: fixed; inset: 0; z-index: 190; background: #000;
+      display: none; align-items: stretch; justify-content: stretch;
     }
     .stopwatch-overlay.active { display: flex; }
     .stopwatch-panel {
-      width: 100%; max-width: 480px; background: #1c1c1e; color: #fff;
-      border-radius: 8px 20px 0 0; padding: 20px 18px 28px;
-      max-height: 92vh; overflow-y: auto;
+      width: 100%; max-width: none; background: #1c1c1e; color: #fff;
+      border-radius: 0; padding: 20px 18px 28px;
+      max-height: none; height: 100%; height: 100dvh; overflow-y: auto;
     }
     .stopwatch-display {
       font-size: 48px; font-weight: 700; text-align: center;
@@ -3604,6 +3628,12 @@
       // ページ遷移時は分析アコーディオンをリセット（閉じる）
       if (currentView === 'analysis' && view !== 'analysis') {
         try { resetAnalysisAccordionsClosed(); } catch (e) {}
+      }
+      if (view !== 'gallery') {
+        try { closeGallery(); } catch (eGal) {}
+      }
+      if (view !== 'stopwatch') {
+        try { closeStopwatch(); } catch (eSw) {}
       }
       currentView = view;
       document.querySelectorAll('.view-tab').forEach(function(t) {
@@ -5989,10 +6019,14 @@
       if (gp) gp.value = '';
       populateGalleryFilters();
       renderGallery();
-      document.getElementById('galleryOverlay').classList.add('active');
+      var el = document.getElementById('galleryOverlay');
+      if (el) el.classList.add('active');
+      document.body.classList.add('gallery-open');
     }
     function closeGallery() {
-      document.getElementById('galleryOverlay').classList.remove('active');
+      var el = document.getElementById('galleryOverlay');
+      if (el) el.classList.remove('active');
+      document.body.classList.remove('gallery-open');
     }
     function switchGalleryMode(mode) {
       galleryMode = mode;
@@ -9724,7 +9758,9 @@ var swRunning = false;
     function openStopwatch(fromForm) {
       swFromForm = !!fromForm;
       swLoadSignalSettings();
-      document.getElementById('stopwatchOverlay').classList.add('active');
+      var el = document.getElementById('stopwatchOverlay');
+      if (el) el.classList.add('active');
+      document.body.classList.add('stopwatch-open');
       var hasTime = swLastMs > 0 || swLaps.length > 0;
       var saveBtn = document.getElementById('swSaveNewBtn');
       var applyBtn = document.getElementById('swApplyFormBtn');
@@ -9742,7 +9778,9 @@ var swRunning = false;
 
     function closeStopwatch() {
       swCancelSignal();
-      document.getElementById('stopwatchOverlay').classList.remove('active');
+      var el = document.getElementById('stopwatchOverlay');
+      if (el) el.classList.remove('active');
+      document.body.classList.remove('stopwatch-open');
     }
 
     function swStart() {
